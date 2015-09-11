@@ -24,6 +24,8 @@
 
 package sonicScream.utilities;
 
+import org.apache.commons.lang3.text.WordUtils;
+
 public class StringParsing {
     
     public static String GetScriptNameFromFileName(String fileName)
@@ -34,6 +36,13 @@ public class StringParsing {
         int dotIndex = name.indexOf('.');
         name = name.substring(0, dotIndex);
                 
+        return name;
+    }
+
+    public static String PrettyFormatScriptName(String name)
+    {
+        name = name.replace("_", " ");
+        name = WordUtils.capitalize(name);
         return name;
     }
 }

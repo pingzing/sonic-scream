@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2015 Neil McAlister.
+ * Copyright 2015 nmca.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,44 +21,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package sonicscream.utilities;
+package sonicScream.utilities;
 
 import java.io.File;
-import javax.swing.tree.TreeModel;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import sonicScream.utilities.ScriptParser;
 
 /**
  *
- * @author Neil McAlister
+ * @author nmca
  */
 public class ScriptParserTest
 {
-    
-    public ScriptParserTest()
+
+    private final URL FOLDER_LOCATION = getClass().getResource("/sonicScream/assets/test");
+    private final File _scriptFolder;
+    private final ArrayList<File> _scriptFiles;
+
+    public ScriptParserTest() throws URISyntaxException
     {
+        _scriptFolder = new File(FOLDER_LOCATION.toURI());
+        _scriptFiles = new ArrayList<>(Arrays.asList(_scriptFolder.listFiles()));
     }
-    
+
     @BeforeClass
     public static void setUpClass()
     {
     }
-    
+
     @AfterClass
     public static void tearDownClass()
     {
     }
-    
+
     @Before
     public void setUp()
     {
     }
-    
+
     @After
     public void tearDown()
     {
@@ -66,17 +75,27 @@ public class ScriptParserTest
 
     /**
      * Test of parseScript method, of class ScriptParser.
+     *
+     * @throws java.lang.Exception
      */
     @Test
     public void testParseScript() throws Exception
     {
-        System.out.println("parseScript");
-        File scriptFile = null;
-        TreeModel expResult = null;
-        TreeModel result = ScriptParser.parseScript(scriptFile);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        _scriptFiles.stream().forEach((f) ->
+        {
+            try
+            {
+                ScriptParser.parseScript(f);
+            }
+            catch (IOException ex)
+            {
+                fail("Failed to parse " + f.getName() + " due to: " + ex.getMessage());
+            }
+            catch (Exception ex)
+            {
+                fail("Failed to parse " + f.getName() + " due to: " + ex.getMessage());
+            }
+        });
     }
-    
+
 }

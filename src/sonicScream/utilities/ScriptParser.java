@@ -28,9 +28,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
+import java.util.ArrayList;
+import java.util.List;
+import javafx.scene.control.TreeItem;
 
 /**
  *
@@ -40,56 +40,72 @@ import javax.swing.tree.TreeModel;
  */
 public class ScriptParser
 {
-    private static TreeModel _scriptTree = null;    
-    private static DefaultMutableTreeNode _currentNode = null;
-    private static DefaultMutableTreeNode _currentParent = null;            
+    private static List<TreeItem<String>> _scriptTree = null;    
+    private static TreeItem<String> _currentNode = null;
+    private static TreeItem<String> _currentParent = null;            
     
-    public static TreeModel parseScript(File scriptFile) throws IOException
+    public static List<TreeItem<String>> parseScript(File scriptFile) throws IOException
     {
-        _scriptTree = new DefaultTreeModel(new DefaultMutableTreeNode("root"));
-        _currentNode = (DefaultMutableTreeNode) _scriptTree.getRoot();
+        _scriptTree = new ArrayList<TreeItem<String>>();
+        _currentNode = new TreeItem<>();
+        _scriptTree.add(_currentNode);
         _currentParent = _currentNode;               
         
         try(
             FileInputStream fis = new FileInputStream(scriptFile);
             BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-            )   
-        {            
-            int seenCount = 0;
-            //Seek to the end of the header
-            String line;                   
-            String scriptSubject = StringParsing.GetScriptNameFromFileName(scriptFile.getName());
-            
-            while(seenCount < 2)
-            {
-                line = br.readLine();
-                int dataStartIndex = line.indexOf(scriptSubject);
-                if(dataStartIndex != -1)
-                {
-                    seenCount++;
-                }
-                if(seenCount == 2)
-                {                    
-                    line = line.substring(dataStartIndex, line.length() - 1);
-                    int separatorIndex = line.indexOf("\"");
-                    //now we have the sound name and "operator stacks" mashed together like so: heroname"operator stacks"
-                    //we need to add a quote to the beginning, then separate these two.
-                    parseLine(line);
-                }
-            }            
-            
+            )
+        {                                  
+            parseHeaderAndFirstTwoLines(br, StringParsing.GetScriptNameFromFileName(scriptFile.getName()));
+                        
+            String line;
             while((line = br.readLine()) != null)
-            {
-                System.out.println(line);
+            {                                
                 parseLine(line);            
             }
             return _scriptTree;                     
         }
     }    
+    
+    //This strips out all the header junk and correctly separates and parses the first two lines of the actual script.
+    private static void parseHeaderAndFirstTwoLines(BufferedReader br, String scriptSubject) throws IOException
+    {
+        int seenCount = 0;
+        //Seek to the end of the header                                                  
+        while(seenCount < 2)
+        {
+            String line = br.readLine();
+            int dataStartIndex = line.indexOf(scriptSubject);
+            if(dataStartIndex != -1)
+            {
+                seenCount++;
+            }
+            
+            //Sometimes the entire header is a single line. Check for a second occurrence immediately.
+            if(seenCount < 2 && line.lastIndexOf(scriptSubject) != dataStartIndex)
+            {
+                dataStartIndex = line.lastIndexOf(scriptSubject);
+                seenCount++;
+            }
+                
+            if(seenCount == 2)
+            {                    
+                line = line.substring(dataStartIndex, line.length() - 1);
+                int separatorIndex = line.indexOf("\"");
+                //String firstLine = "\"" + line.substring(0, separatorIndex-1) + "\"";
+                //String secondLine = line.substring(separatorIndex, line.length()) + "\"";                
+                //now we have the sound name and "operator stacks" mashed together 
+                //like so: heroname"operator stacks" we need to add a quote to 
+                //the beginning, then separate these two.                
+                parseLine(line);                                                        
+            }
+        }  
+    }
 
     private static void parseLine(String line) throws NullPointerException
     {                
-        if (line.isEmpty() || line.equals("") || line.contentEquals("\t") || line.trim().length() <= 0)
+        if (line.isEmpty() || line.equals("") || line.contentEquals("\t") 
+                || line.trim().length() <= 0)
         {
             return;
         }
@@ -98,11 +114,11 @@ public class ScriptParser
         {
             try
             {
-                DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(line);
+                TreeItem<String> newNode = new TreeItem<String>(line);
                 _currentNode = newNode;
                 if (_currentNode != null)
                 {
-                    _currentParent.add(newNode);
+                    _currentParent.getChildren().add(newNode);
                 }
             }
             catch (NullPointerException ex)
@@ -116,21 +132,26 @@ public class ScriptParser
         }
         else if (line.contains("}"))
         {            
-            _currentParent = (DefaultMutableTreeNode) _currentParent.getParent();
+            _currentParent = _currentParent.getParent();
             if (_currentParent == null)
             {
-                _currentParent = (DefaultMutableTreeNode) _scriptTree.getRoot();
+                _currentParent = _scriptTree.get(0);
+                if(_currentParent.getParent() != null)
+                {
+                    throw new AssertionError("_scriptTree[0] is NOT the root element!");
+                }
             }            
         }
         else
         {
             try
             {
-                DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(line);
+                //line = CleanNodeRoot(line);
+                TreeItem<String> newNode = new TreeItem<String>(line);
                 _currentNode = newNode;
                 if (_currentNode != null)
                 {
-                    _currentParent.add(newNode);
+                    _currentParent.getChildren().add(newNode);
                 }
             }
             catch (NullPointerException ex)
@@ -140,9 +161,15 @@ public class ScriptParser
         }
     }
 
-    private StringBuilder parseModel(TreeModel currentTreeModel)
+    //Cleans up some of the garbage at the top of each node
+//    private static String CleanNodeRoot(String line)
+//    {
+//        //if(line.startsWith(line))
+//    }
+
+    private StringBuilder parseModel(List<TreeItem<String>> currentTreeModel)
     {
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) currentTreeModel.getRoot();
+        TreeItem<String> root = currentTreeModel.get(0);
         StringBuilder scriptString = new StringBuilder();
         recursiveBuildScript(scriptString, root, 0);
 
@@ -155,11 +182,11 @@ public class ScriptParser
         return scriptString;
     }
 
-    private void recursiveBuildScript(StringBuilder scriptString, DefaultMutableTreeNode node, int level)
+    private StringBuilder recursiveBuildScript(StringBuilder scriptString, TreeItem<String> node, int level)
     {
-        if (!node.getUserObject().toString().contentEquals("root"))
+        if (node.getParent() != null)
         {
-            scriptString.append(node.getUserObject().toString() + "\n");
+            scriptString.append(node.getValue() + "\n");
         }
         /* 
          * TODO: Figure out a way to track brace placement without just checking to see if a node has children. Maybe 
@@ -173,9 +200,9 @@ public class ScriptParser
             }
             scriptString.append("{\n");
             level++;
-            for (int i = 0; i < node.getChildCount(); i++)
+            for (int i = 0; i < node.getChildren().size(); i++)
             {
-                recursiveBuildScript(scriptString, (DefaultMutableTreeNode) node.getChildAt(i), level);
+                scriptString = recursiveBuildScript(scriptString, node.getChildren().get(i), level);
             }
             level--;
             for (int i = 1; i < level; i++)
@@ -184,5 +211,6 @@ public class ScriptParser
             }
             scriptString.append("}\n");
         }
+        return scriptString;
     }
 }

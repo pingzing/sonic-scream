@@ -6,13 +6,30 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<TabPane id="AnchorPane" prefHeight="200" prefWidth="320" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sonicScream.controllers.MainController"> 
-    <Tab>        
-        <AnchorPane>
-            <children>
-                <Button layoutX="126" layoutY="90" text="Run parser on abaddon test" onAction="#handleButtonAction" fx:id="button" />
-                <Label layoutX="126" layoutY="120" minHeight="16" minWidth="69" fx:id="label" />    
-            </children>
-        </AnchorPane>
-    </Tab>
-</TabPane>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40" fx:controller="sonicScream.controllers.MainController">
+    <top>
+        <TabPane prefWidth="600" id="TabPane" tabClosingPolicy="SELECTED_TAB" fx:id="MainTabPane">
+            <Tab text="Voices">
+                <VBox alignment="CENTER">
+                    <children>
+                        <HBox alignment="CENTER">
+                            <children>
+                                <Button fx:id="button" onAction="#handleButtonAction" text="Load voice files" />
+                                <ComboBox fx:id="scriptComboBox" onAction="#handleComboBoxAction" onMousePressed="#handleComboBoxMousePressed" />                                                
+                            </children>
+                        </HBox>
+                        <Label fx:id="scriptTreeLabel" text="Script Tree" />
+                        <TreeView fx:id="scriptTree" showRoot="false" VBox.vgrow="ALWAYS" />
+                    </children>
+                </VBox>
+            </Tab>
+        </TabPane>
+    </top>
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" >
+            <Button text="Play"  />
+            <Button text="Repalce"/>
+            <Button text="Revert"/>            
+        </HBox>
+    </bottom>
+</BorderPane>
