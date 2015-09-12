@@ -45,7 +45,7 @@ public class ScriptParser
 
     public static List<TreeItem<String>> parseScript(File scriptFile) throws IOException
     {
-        _scriptTree = new ArrayList<TreeItem<String>>();
+        _scriptTree = new ArrayList<>();
         _currentNode = new TreeItem<>();
         _scriptTree.add(_currentNode);
         _currentParent = _currentNode;

@@ -26,6 +26,7 @@ import javafx.scene.input.MouseEvent;
 import javax.swing.tree.TreeModel;
 import sonicScream.models.Script;
 import sonicScream.utilities.ScriptParser;
+import java.net.URISyntaxException;
 
 /**
  *
@@ -46,12 +47,18 @@ public class MainController implements Initializable
     @FXML
     private void handleButtonAction(ActionEvent event)
     {
-        File folder = new File("C:/Users/nmca/Downloads/voscripts");
-        List<Script> scripts = Arrays.asList(folder.listFiles())
+        URL FOLDER_LOCATION = getClass().getResource("/sonicScream/assets/test");
+        try
+        {
+            File folder = new File(FOLDER_LOCATION.toURI());
+            List<Script> scripts = Arrays.asList(folder.listFiles())
                 .stream()
                 .map(f -> new Script(f))
                 .collect(Collectors.toList());        
         scriptComboBox.getItems().addAll(scripts);
+        }
+        catch(URISyntaxException ex){}
+        
 
         System.out.println("Done!");
     }
