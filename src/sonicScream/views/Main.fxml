@@ -8,7 +8,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40" fx:controller="sonicScream.controllers.MainController">
     <top>
-        <TabPane prefWidth="600" id="TabPane" tabClosingPolicy="SELECTED_TAB" fx:id="MainTabPane">
+        <TabPane prefWidth="600" prefHeight="1000"  id="TabPane" tabClosingPolicy="SELECTED_TAB" fx:id="MainTabPane">
             <Tab text="Voices">
                 <VBox alignment="CENTER">
                     <children>
