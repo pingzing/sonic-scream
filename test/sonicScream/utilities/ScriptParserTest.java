@@ -29,6 +29,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import javafx.scene.control.TreeItem;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -96,6 +99,18 @@ public class ScriptParserTest
                 fail("Failed to parse " + f.getName() + " due to: " + ex.getMessage());
             }
         });
+    }
+    
+    @Test    
+    public void testParseScript_HandlesFirstTwoLines() throws Exception
+    {
+        File file = _scriptFiles
+                .stream()
+                .filter(f -> f.getName().equals("game_sounds_vo_abaddon.vsndevts_c"))
+                .findFirst().get();
+        TreeItem<String> tree = ScriptParser.parseScript(file);
+        assertEquals("\"abaddon_abad_spawn_01\"", tree.getChildren().get(0).getValue()); //first child
+        assertEquals("\"operator_stacks\"", tree.getChildren().get(0).getChildren().get(0).getValue()); //first child's child
     }
 
 }

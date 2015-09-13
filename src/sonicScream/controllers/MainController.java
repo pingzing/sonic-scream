@@ -5,8 +5,7 @@
  */
 package sonicScream.controllers;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +26,7 @@ import javax.swing.tree.TreeModel;
 import sonicScream.models.Script;
 import sonicScream.utilities.ScriptParser;
 import java.net.URISyntaxException;
+import java.nio.channels.FileChannel;
 
 /**
  *
@@ -46,20 +46,14 @@ public class MainController implements Initializable
 
     @FXML
     private void handleButtonAction(ActionEvent event)
-    {
-        URL FOLDER_LOCATION = getClass().getResource("/sonicScream/assets/test");
-        try
-        {
-            File folder = new File(FOLDER_LOCATION.toURI());
-            List<Script> scripts = Arrays.asList(folder.listFiles())
-                .stream()
-                .map(f -> new Script(f))
-                .collect(Collectors.toList());        
-        scriptComboBox.getItems().addAll(scripts);
-        }
-        catch(URISyntaxException ex){}
+    {            
+        File folder = new File("src/sonicScream/assets/test");
+        List<Script> scripts = Arrays.asList(folder.listFiles())
+            .stream()
+            .map(f -> new Script(f))
+            .collect(Collectors.toList());        
+        scriptComboBox.getItems().addAll(scripts);        
         
-
         System.out.println("Done!");
     }
 
@@ -67,7 +61,7 @@ public class MainController implements Initializable
     private void handleComboBoxAction(ActionEvent event)            
     {
         Script selectedFile = (Script) scriptComboBox.getValue();
-        scriptTree.setRoot(selectedFile.getScriptTree().get(0));        
+        scriptTree.setRoot(selectedFile.getRoodNode());        
     }
 
     //workaround for W10 Intel driver crash
@@ -75,6 +69,23 @@ public class MainController implements Initializable
     private void handleComboBoxMousePressed(MouseEvent event)
     {
         scriptComboBox.requestFocus();
+    }
+    
+    @FXML
+    private void handleToFileButtonAction(ActionEvent event)
+    {
+        Script script = (Script)scriptComboBox.getValue();
+        String fullScript = script.getScriptAsString();
+        
+        File outFile = new File("out.vsndevts");
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(outFile)))
+        {
+            writer.write(fullScript);
+        }
+        catch(IOException ex)
+        {
+            System.err.println("failed to write out file!");
+        }
     }
 
     @Override

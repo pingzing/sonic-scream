@@ -25,7 +25,6 @@ package sonicScream.models;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import javafx.scene.control.TreeItem;
 import sonicScream.utilities.ScriptParser;
 import sonicScream.utilities.StringParsing;
@@ -36,7 +35,8 @@ public class Script
     private final String _internalScriptName;
     private final String _friendlyScriptName;
     private final String _rawScriptName;
-    private List<TreeItem<String>> _scriptNodes;
+    private TreeItem<String> _rootNode;
+    private String _treeAsString = null;
 
     public Script(File scriptFile)
     {
@@ -45,7 +45,7 @@ public class Script
         _friendlyScriptName = StringParsing.PrettyFormatScriptName(_internalScriptName);
         try
         {
-            _scriptNodes = ScriptParser.parseScript(scriptFile);
+            _rootNode = ScriptParser.parseScript(scriptFile);
         }
         catch (IOException ex)
         {
@@ -58,9 +58,18 @@ public class Script
 
     public String getRawScriptName() { return _rawScriptName; }
     
-    public List<TreeItem<String>> getScriptTree() { return _scriptNodes; }
+    public TreeItem<String> getRoodNode() { return _rootNode; }
     
-    public void setScriptTree(List<TreeItem<String>> value) { _scriptNodes = value; }
+    public void setRootNode(TreeItem<String> value) { _rootNode = value; }
+    
+    public String getScriptAsString() 
+    {
+        if(_treeAsString == null)
+        {
+            _treeAsString = ScriptParser.parseScriptTreeToString(_rootNode);             
+        }        
+        return _treeAsString;
+    }
     
     @Override
     public String toString()

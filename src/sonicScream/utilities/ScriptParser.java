@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.control.TreeItem;
 
@@ -39,44 +38,57 @@ import javafx.scene.control.TreeItem;
 public class ScriptParser
 {
 
-    private static List<TreeItem<String>> _scriptTree = null;
+    private static TreeItem<String> _rootItem = null;
     private static TreeItem<String> _currentNode = null;
     private static TreeItem<String> _currentParent = null;
+    
+    //These two are used to track how many braces we've seen--the files we get
+    //out of the VPKs are actually missing a pair of braces. We add the first one in 
+    //parseHeaderAndFirstTwoLines, but tracking where the second one belongs requires 
+    //tracking the number of brace-pairs after that.
+    private static int _openBraces = 0;
+    private static int _closeBraces = 0;
 
-    public static List<TreeItem<String>> parseScript(File scriptFile) throws IOException
+    public static TreeItem<String> parseScript(File scriptFile) throws IOException
     {
-        _scriptTree = new ArrayList<>();
-        _currentNode = new TreeItem<>();
-        _scriptTree.add(_currentNode);
-        _currentParent = _currentNode;
+        _rootItem = new TreeItem<>("root");   
+        _currentParent = _rootItem;
 
         try (
                 FileInputStream fis = new FileInputStream(scriptFile);
                 BufferedReader br = new BufferedReader(new InputStreamReader(fis));)
         {
             parseHeaderAndFirstTwoLines(br, StringParsing.GetScriptNameFromFileName(scriptFile.getName()));
-
-            Boolean bracketAdded = false; 
+                        
             String line;
             while ((line = br.readLine()) != null)
-            {
+            {                                             
                 if (line.contains("operator_stacks"))
                 {
-                    parseNameAndOperatorStacks(line);
-                    bracketAdded = false;
+                    parseNameAndOperatorStacks(line);                    
                 }
                 else
                 {
                     parseLine(line);
                 }
                 
-                if(line.contains("}") && !bracketAdded)
+                if(line.contains("{"))
                 {
-                    parseLine("}");
-                    bracketAdded = true;
+                    _openBraces++;
+                }
+                if(line.contains("}"))
+                {
+                    _closeBraces++;
+                }
+                
+                if(_openBraces == _closeBraces && (_openBraces != 0) && (_closeBraces != 0))
+                {
+                    parseLine("}"); 
+                    _openBraces = 0;
+                    _closeBraces = 0;
                 }
             }
-            return _scriptTree;
+            return _rootItem;
         }
     }
 
@@ -103,10 +115,9 @@ public class ScriptParser
 
             if (seenCount == 2)
             {
-                line = line.substring(dataStartIndex, line.length() - 1);
-                int separatorIndex = line.indexOf("\"");
-                //String firstLine = "\"" + line.substring(0, separatorIndex-1) + "\"";
-                //String secondLine = line.substring(separatorIndex, line.length()) + "\"";                
+                //-1 to account for parseNameAndOperatorStacks name substring starting at index 1 to remove the stray whitespace
+                line = line.substring(dataStartIndex - 1, line.length() - 1);
+                int separatorIndex = line.indexOf("\"");                               
                 //now we have the sound name and "operator stacks" mashed together 
                 //like so: heroname"operator stacks" we need to add a quote to 
                 //the beginning, then separate these two.                
@@ -118,15 +129,21 @@ public class ScriptParser
     private static void parseNameAndOperatorStacks(String line)
     {
         int separatorIndex = line.indexOf("\"");
-        String name = "\"" + line.substring(0, separatorIndex);
-        String operator = "\"" + line.substring(separatorIndex, line.length());
+        String name = "\"" + line.substring(1, separatorIndex - 1) + "\"";        
+        String operator = line.substring(separatorIndex, line.length());
+        if(operator.charAt(operator.length() - 1) != ('"'))
+        {
+            operator = operator + '"';
+        }
         parseLine(name);
         parseLine("{");
         parseLine(operator);
     }
 
+    //Basic recursive-descent parser
     private static void parseLine(String line) throws NullPointerException
-    {
+    {        
+        //System.out.println(line);
         if (line.isEmpty() || line.equals("") || line.contentEquals("\t")
                 || line.trim().length() <= 0)
         {
@@ -137,7 +154,7 @@ public class ScriptParser
         {
             try
             {
-                TreeItem<String> newNode = new TreeItem<String>(line);
+                TreeItem<String> newNode = new TreeItem<>(line);
                 _currentNode = newNode;
                 if (_currentNode != null)
                 {
@@ -150,27 +167,22 @@ public class ScriptParser
             }
         }
         else if (line.contains("{"))
-        {
+        {            
             _currentParent = _currentNode;
         }
         else if (line.contains("}"))
-        {
+        {            
             _currentParent = _currentParent.getParent();
             if (_currentParent == null)
             {
-                _currentParent = _scriptTree.get(0);
-                if (_currentParent.getParent() != null)
-                {
-                    throw new AssertionError("_scriptTree[0] is NOT the root element!");
-                }
+                _currentParent = _rootItem;                
             }
         }
         else
         {
             try
-            {
-                //line = CleanNodeRoot(line);
-                TreeItem<String> newNode = new TreeItem<String>(line);
+            {                
+                TreeItem<String> newNode = new TreeItem<>(line);
                 _currentNode = newNode;
                 if (_currentNode != null)
                 {
@@ -184,14 +196,9 @@ public class ScriptParser
         }
     }
 
-    //Cleans up some of the garbage at the top of each node
-//    private static String CleanNodeRoot(String line)
-//    {
-//        //if(line.startsWith(line))
-//    }
-    private StringBuilder parseModel(List<TreeItem<String>> currentTreeModel)
+    public static String parseScriptTreeToString(TreeItem<String> currentScriptTree)
     {
-        TreeItem<String> root = currentTreeModel.get(0);
+        TreeItem<String> root = currentScriptTree;
         StringBuilder scriptString = new StringBuilder();
         recursiveBuildScript(scriptString, root, 0);
 
@@ -201,10 +208,10 @@ public class ScriptParser
 
         //Remove final bracket
         scriptString.deleteCharAt(scriptString.lastIndexOf("}"));
-        return scriptString;
+        return scriptString.toString();
     }
 
-    private StringBuilder recursiveBuildScript(StringBuilder scriptString, TreeItem<String> node, int level)
+    private static StringBuilder recursiveBuildScript(StringBuilder scriptString, TreeItem<String> node, int level)
     {
         if (node.getParent() != null)
         {
