@@ -49,48 +49,44 @@ public class ScriptParser
     private static int _openBraces = 0;
     private static int _closeBraces = 0;
 
-    public static TreeItem<String> parseScript(File scriptFile) throws IOException
+    public static TreeItem<String> parseScript(BufferedReader scriptReader, String fileName) throws IOException
     {
-        _rootItem = new TreeItem<>("root");   
+        _rootItem = new TreeItem<>("root");
         _currentParent = _rootItem;
 
-        try (
-                FileInputStream fis = new FileInputStream(scriptFile);
-                BufferedReader br = new BufferedReader(new InputStreamReader(fis));)
+        parseHeaderAndFirstTwoLines(scriptReader, StringParsing.GetScriptNameFromFileName(fileName));
+
+        String line;
+        while ((line = scriptReader.readLine()) != null)
         {
-            parseHeaderAndFirstTwoLines(br, StringParsing.GetScriptNameFromFileName(scriptFile.getName()));
-                        
-            String line;
-            while ((line = br.readLine()) != null)
-            {                                             
-                if (line.contains("operator_stacks"))
-                {
-                    parseNameAndOperatorStacks(line);                    
-                }
-                else
-                {
-                    parseLine(line);
-                }
-                
-                if(line.contains("{"))
-                {
-                    _openBraces++;
-                }
-                if(line.contains("}"))
-                {
-                    _closeBraces++;
-                }
-                
-                if(_openBraces == _closeBraces && (_openBraces != 0) && (_closeBraces != 0))
-                {
-                    parseLine("}"); 
-                    _openBraces = 0;
-                    _closeBraces = 0;
-                }
+            if (line.contains("operator_stacks"))
+            {
+                parseNameAndOperatorStacks(line);
             }
-            return _rootItem;
+            else
+            {
+                parseLine(line);
+            }
+
+            if (line.contains("{"))
+            {
+                _openBraces++;
+            }
+            if (line.contains("}"))
+            {
+                _closeBraces++;
+            }
+
+            if (_openBraces == _closeBraces && (_openBraces != 0) && (_closeBraces != 0))
+            {
+                parseLine("}");
+                _openBraces = 0;
+                _closeBraces = 0;
+            }
         }
+        return _rootItem;
     }
+    
 
     //This strips out all the header junk and correctly separates and parses the first two lines of the actual script.
     private static void parseHeaderAndFirstTwoLines(BufferedReader br, String scriptSubject) throws IOException

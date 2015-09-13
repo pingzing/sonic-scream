@@ -23,8 +23,7 @@
  */
 package sonicScream.utilities;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -38,6 +37,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import sonicScream.models.Script;
 
 /**
  *
@@ -88,12 +88,8 @@ public class ScriptParserTest
         {
             try
             {
-                ScriptParser.parseScript(f);
-            }
-            catch (IOException ex)
-            {
-                fail("Failed to parse " + f.getName() + " due to: " + ex.getMessage());
-            }
+                ScriptParser.parseScript(getReaderForFile(f), f.getName());
+            }            
             catch (Exception ex)
             {
                 fail("Failed to parse " + f.getName() + " due to: " + ex.getMessage());
@@ -107,10 +103,24 @@ public class ScriptParserTest
         File file = _scriptFiles
                 .stream()
                 .filter(f -> f.getName().equals("game_sounds_vo_abaddon.vsndevts_c"))
-                .findFirst().get();
-        TreeItem<String> tree = ScriptParser.parseScript(file);
+                .findFirst().get();        
+        TreeItem<String> tree = ScriptParser.parseScript(getReaderForFile(file), file.getName());
         assertEquals("\"abaddon_abad_spawn_01\"", tree.getChildren().get(0).getValue()); //first child
         assertEquals("\"operator_stacks\"", tree.getChildren().get(0).getChildren().get(0).getValue()); //first child's child
+    }
+    
+    private BufferedReader getReaderForFile(File file)
+    {
+        try (FileInputStream fis = new FileInputStream(file))
+        {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+            return reader;
+        }
+        catch(IOException ex)
+        {
+            fail("IOException on " + file.getName() + ": " + ex.getMessage());
+            return null;
+        }
     }
 
 }
