@@ -35,6 +35,7 @@ public class Script
     private final String _internalScriptName;
     private final String _friendlyScriptName;
     private final String _rawScriptName;
+    private final File _scriptFile;
     private TreeItem<String> _rootNode;
     private String _treeAsString = null;
 
@@ -43,34 +44,49 @@ public class Script
         _rawScriptName = scriptFile.getName();
         _internalScriptName = StringParsing.GetScriptNameFromFileName(_rawScriptName);
         _friendlyScriptName = StringParsing.PrettyFormatScriptName(_internalScriptName);
-        try
-        {
-            _rootNode = ScriptParser.parseScript(scriptFile);
-        }
-        catch (IOException ex)
-        {
-            ex.printStackTrace();
-        }
-
+        _scriptFile = scriptFile;
     }
 
-    public String getScriptName() { return _internalScriptName; }
-
-    public String getRawScriptName() { return _rawScriptName; }
-    
-    public TreeItem<String> getRoodNode() { return _rootNode; }
-    
-    public void setRootNode(TreeItem<String> value) { _rootNode = value; }
-    
-    public String getScriptAsString() 
+    public String getScriptName()
     {
-        if(_treeAsString == null)
+        return _internalScriptName;
+    }
+
+    public String getRawScriptName()
+    {
+        return _rawScriptName;
+    }
+
+    public TreeItem<String> getRoodNode()
+    {
+        if (_rootNode == null)
         {
-            _treeAsString = ScriptParser.parseScriptTreeToString(_rootNode);             
-        }        
+            try
+            {
+                _rootNode = ScriptParser.parseScript(_scriptFile);
+            }
+            catch (IOException ex)
+            {
+                ex.printStackTrace();
+            }
+        }
+        return _rootNode;
+    }
+
+    public void setRootNode(TreeItem<String> value)
+    {
+        _rootNode = value;
+    }
+
+    public String getScriptAsString()
+    {
+        if (_treeAsString == null)
+        {
+            _treeAsString = ScriptParser.parseScriptTreeToString(_rootNode);
+        }
         return _treeAsString;
     }
-    
+
     @Override
     public String toString()
     {
