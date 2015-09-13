@@ -26,12 +26,14 @@ package sonicScream.models;
 import info.ata4.vpk.VPKEntry;
 import java.io.*;
 import javafx.scene.control.TreeItem;
+import sonicScream.services.ServiceLocator;
 import sonicScream.utilities.ScriptParser;
 import sonicScream.utilities.StringParsing;
+import sonicScream.services.VPKFileService;
 
 public class Script
 {
-
+    private final Category _parentCategory;
     private final String _internalScriptName;
     private final String _friendlyScriptName;    
     private final String _rawScriptName;    
@@ -39,33 +41,44 @@ public class Script
     private String _treeAsString = null;
     
     private final Boolean _isVPK ;
-    private final VPKEntry _scriptVPK;
+    private final String _vpkPath;
+    private long _lastKnownCrc;
     
-    private File _scriptFile;
+    private String _localPath;
 
-    public Script(VPKEntry scriptFile)
+    public Script(VPKEntry scriptFile, Category category)
     {
         _rawScriptName = scriptFile.getName() + scriptFile.getType();
-        _internalScriptName = StringParsing.GetScriptNameFromFileName(_rawScriptName);
-        _friendlyScriptName = StringParsing.PrettyFormatScriptName(_internalScriptName);
+        _internalScriptName = StringParsing.getScriptNameFromFileName(_rawScriptName);
+        _friendlyScriptName = StringParsing.prettyFormatScriptName(_internalScriptName);
+        _parentCategory = category;
         _isVPK = true;
-        _scriptVPK = scriptFile;
+        _vpkPath = scriptFile.getPath();
     }
     
-    public Script(File scriptFile)
+    public Script(File scriptFile, Category category)
     {
         _rawScriptName = scriptFile.getName();
-        _internalScriptName = StringParsing.GetScriptNameFromFileName(_rawScriptName);
-        _friendlyScriptName = StringParsing.PrettyFormatScriptName(_internalScriptName);        
-        _scriptFile = scriptFile;
+        _internalScriptName = StringParsing.getScriptNameFromFileName(_rawScriptName);
+        _friendlyScriptName = StringParsing.prettyFormatScriptName(_internalScriptName);
+        _parentCategory = category;
+        try
+        {
+            _localPath = scriptFile.getCanonicalPath();
+        }
+        catch(IOException ex)
+        {
+            System.err.printf("\nFailed to get canonical path for %s: %s", _rawScriptName, ex.getMessage());
+        }
         _isVPK = false;
-        _scriptVPK = null;
+        _vpkPath = null;
     }
     
     private BufferedReader getScriptReader(File scriptFile)
     {
-        try(FileInputStream fis = new FileInputStream(scriptFile))
+        try
         {
+            FileInputStream fis = new FileInputStream(scriptFile);
             BufferedReader br = new BufferedReader(new InputStreamReader(fis));
             return br;
         }
@@ -73,12 +86,7 @@ public class Script
         {
             System.err.println("Unable to read script file " + scriptFile.getName() + ": " + ex.getMessage());
             return null;
-        }
-        catch(IOException ex)
-        {
-            System.err.println("Unable to read script file " + scriptFile.getName() + ": " + ex.getMessage());
-            return null;
-        }
+        }        
     }
     
     private BufferedReader getScriptReader(VPKEntry entry)
@@ -110,11 +118,14 @@ public class Script
             {
                 if(_isVPK)
                 {                
-                    _rootNode = ScriptParser.parseScript(getScriptReader(_scriptVPK), _scriptVPK.getName() + _scriptVPK.getType());
+                    VPKFileService fileService = (VPKFileService)ServiceLocator.getService(VPKFileService.class);
+                    VPKEntry script = fileService.getVPKEntry(_vpkPath);
+                    _rootNode = ScriptParser.parseScript(getScriptReader(script), _rawScriptName);
                 }
                 else
                 {
-                    _rootNode = ScriptParser.parseScript(getScriptReader(_scriptFile), _rawScriptName);
+                    File script = new File(_localPath);
+                    _rootNode = ScriptParser.parseScript(getScriptReader(script), _rawScriptName);
                 }
             }
             catch(IOException ex)
@@ -134,6 +145,8 @@ public class Script
         }
         return _treeAsString;
     }
+    
+    public Category getParentCategory() { return _parentCategory; }    
 
     @Override
     public String toString()

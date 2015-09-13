@@ -28,7 +28,7 @@ import org.apache.commons.lang3.text.WordUtils;
 
 public class StringParsing {
     
-    public static String GetScriptNameFromFileName(String fileName)
+    public static String getScriptNameFromFileName(String fileName)
     {
         String name = fileName;
         name = name.replace("game_sounds_", "");
@@ -39,10 +39,27 @@ public class StringParsing {
         return name;
     }
 
-    public static String PrettyFormatScriptName(String name)
+    public static String prettyFormatScriptName(String name)
     {
+        name = handleSpecialCaseName(name);
         name = name.replace("_", " ");
         name = WordUtils.capitalize(name);
+        return name;
+    }
+        
+    /**
+     * Converts internal, or inconsistently-named heroes or objects into their game-facing, 
+     * consistently-formatted versions. No spaces, only underscores, all lowercase.
+     * @param name The name to normalize.
+     * @return The normalized name.
+     */
+    public static String handleSpecialCaseName(String name)
+    {
+        switch(name)
+        {
+            case "nevermore":
+                return "shadow_fiend";
+        }
         return name;
     }
 }

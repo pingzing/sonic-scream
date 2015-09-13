@@ -27,6 +27,8 @@ import sonicScream.models.Script;
 import sonicScream.utilities.ScriptParser;
 import java.net.URISyntaxException;
 import java.nio.channels.FileChannel;
+import sonicScream.models.Category;
+import sonicScream.utilities.Constants;
 
 /**
  *
@@ -50,7 +52,7 @@ public class MainController implements Initializable
         File folder = new File("src/sonicScream/assets/test");
         List<Script> scripts = Arrays.asList(folder.listFiles())
             .stream()
-            .map(f -> new Script(f))
+            .map(f -> new Script(f, new Category(Constants.CATEGORY_HEROES)))
             .collect(Collectors.toList());        
         scriptComboBox.getItems().addAll(scripts);        
         

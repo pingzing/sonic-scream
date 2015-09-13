@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import sonicScream.utilities.Constants;
 
 /**
  *
@@ -63,7 +64,7 @@ public class ScriptTest
     @Before
     public void setUp()
     {
-        _testScript = new Script(_testScriptFile);
+        _testScript = new Script(_testScriptFile, new Category(Constants.CATEGORY_VOICES));
     }
     
     @After

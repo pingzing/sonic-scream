@@ -23,7 +23,38 @@
  */
 package sonicScream.models;
 
+import java.util.ArrayList;
+import java.util.List;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+
 public class Category
 {
+    private StringProperty categoryName = new SimpleStringProperty();
+    public final String getCategoryName() { return categoryName.get(); } 
+    public final void setCategoryName(String value) { categoryName.set(value); }
+    public StringProperty categoryNameProperty() { return categoryName; }
+    
+    private ListProperty<Script> categoryScripts = new SimpleListProperty<>();
+    public final List<Script> getCategoryScripts() {return categoryScripts.get(); }
+    public final void setCategoryScripts(List<Script> value) {categoryScripts.set(FXCollections.observableArrayList(value)); }
+    public ListProperty<Script> categoryScriptsProperty() { return categoryScripts; }
+    
+    private List<String> _vpkPaths;
+    
+    public Category(String name)
+    {
+        setCategoryName(name);
+       _vpkPaths = new ArrayList<>();       
+    }
+    
+    public Category(String name, List<String> vpkPaths)
+    {
+        setCategoryName(name);
+        _vpkPaths = vpkPaths;
+    }
     
 }

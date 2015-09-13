@@ -54,7 +54,7 @@ public class ScriptParser
         _rootItem = new TreeItem<>("root");
         _currentParent = _rootItem;
 
-        parseHeaderAndFirstTwoLines(scriptReader, StringParsing.GetScriptNameFromFileName(fileName));
+        parseHeaderAndFirstTwoLines(scriptReader, StringParsing.getScriptNameFromFileName(fileName));
 
         String line;
         while ((line = scriptReader.readLine()) != null)

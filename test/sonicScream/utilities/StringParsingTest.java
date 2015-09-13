@@ -62,26 +62,26 @@ public class StringParsingTest
     }
 
     /**
-     * Test of GetScriptNameFromFileName method, of class StringParsing.
+     * Test of getScriptNameFromFileName method, of class StringParsing.
      */
     @Test
     public void testGetScriptNameFromFileName()
     {        
         String fileName = "game_sounds_vo_announcer_dlc_axe_killing_spree.vsndevts_c";
         String expResult = "announcer_dlc_axe_killing_spree";
-        String result = StringParsing.GetScriptNameFromFileName(fileName);
+        String result = StringParsing.getScriptNameFromFileName(fileName);
         assertEquals(expResult, result);        
     }
 
     /**
-     * Test of PrettyFormatScriptName method, of class StringParsing.
+     * Test of prettyFormatScriptName method, of class StringParsing.
      */
     @Test
     public void testPrettyFormatScriptName()
     {        
         String name = "announcer_dlc_axe_killing_spree";
         String expResult = "Announcer Dlc Axe Killing Spree";
-        String result = StringParsing.PrettyFormatScriptName(name);
+        String result = StringParsing.prettyFormatScriptName(name);
         assertEquals(expResult, result);        
     }
     
