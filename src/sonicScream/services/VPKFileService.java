@@ -24,7 +24,13 @@
 
 package sonicScream.services;
 
+import info.ata4.vpk.VPKArchive;
 import info.ata4.vpk.VPKEntry;
+import info.ata4.vpk.VPKException;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class VPKFileService 
 {
@@ -37,9 +43,30 @@ public class VPKFileService
         _mainVPKParentDirectory = mainVPKParentDir;
     }
 
-    public VPKEntry getVPKEntry(String _vpkPath)
+    public VPKEntry getVPKEntry(String _vpkPath) throws VPKException, IOException
     {
-        //open VPK Archive, find VPKEntry by path, return it
+        VPKArchive archive = new VPKArchive();
+        archive.load(new File(_mainVPKPath));
+        return archive.getEntry(_vpkPath);        
+    }
+    
+    public List<VPKEntry> getVPKEntries(List<String> _vpkPaths) throws VPKException, IOException
+    {
+        VPKArchive archive = new VPKArchive();
+        archive.load(new File(_mainVPKPath));
+        ArrayList<VPKEntry> entryList = new ArrayList<>();
+        for(String path : _vpkPaths)
+        {
+          entryList.add(archive.getEntry(path));
+        }
+        return entryList;
+    }
+    
+    public List<VPKEntry> getVPKEntriesInDirectory(String _vpkDirectory) throws VPKException, IOException
+    {
+        VPKArchive archive = new VPKArchive();
+        archive.load(new File(_mainVPKPath));
+        return archive.getEntriesForDir(_vpkDirectory);
     }
 
 }

@@ -22,4 +22,15 @@ Profile
 * Run formatted vsndevts and mp3s/wavs through Valve's ResourceCompiler in %steamapps%\common\dota 2 beta\game\bin\win64\resourcecompiler.exe (TBD for other platforms)(TBD if exists without workshop tools)
 
 
-Note: The Resource compile doesn't diff files, it just checks for filenames. We'll probably have to use `-f` flag to force recompilation.
+Note: The Resource compiler doesn't diff files, it just checks for filenames. We'll probably have to use `-f` flag to force recompilation.
+
+#Directory Structure
+* Sound Editor Folder
+	* scripts
+		* bunch of XML-serialized Scripts
+	* assets
+		* images, etc
+	* Readme
+	* cache file?
+
+A serialized Script file will have a path pointing to etc/etc/etc/dota 2 beta/game/dota_addons/sonic_scream/etc etc etc. and will read the vsndevts from there.

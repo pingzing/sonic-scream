@@ -39,7 +39,15 @@ public class ServiceLocator
     
     public static <T> void registerService(Type serviceType, Object service)
     {
-        _services.put(serviceType, service);
+        try
+        {
+            _services.put(serviceType, service);
+        }
+        catch(NullPointerException ex)
+        {
+            System.err.printf("\nFailed to register service. Did you forget to initialize "
+                    + "the ServiceLocator? Cause: %s", ex.getMessage());
+        }
     }
     
     public static Object getService(Type serviceType)

@@ -84,13 +84,13 @@ public class ScriptTest
     }
 
     /**
-     * Test of getRawScriptName method, of class Script.
+     * Test of getRawFileName method, of class Script.
      */
     @Test
     public void testGetRawScriptName()
     {        
         String expResult = "game_sounds_vo_nevermore.vsndevts_c";
-        String result = _testScript.getRawScriptName();
+        String result = _testScript.getRawFileName();
         assertEquals(expResult, result);        
     }
 

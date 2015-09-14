@@ -8,27 +8,14 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40" fx:controller="sonicScream.controllers.MainController">
     <children>
-        <TabPane  id="TabPane" tabClosingPolicy="SELECTED_TAB" fx:id="MainTabPane" VBox.vgrow="ALWAYS">
-            <Tab text="Voices">
-                <VBox alignment="CENTER">
-                    <children>
-                        <HBox alignment="CENTER">
-                            <children>
-                                <Button fx:id="button" onAction="#handleButtonAction" text="Load voice files" />
-                                <ComboBox fx:id="scriptComboBox" onAction="#handleComboBoxAction" onMousePressed="#handleComboBoxMousePressed" />                                                
-                            </children>
-                        </HBox>
-                        <Label fx:id="scriptTreeLabel" text="Script Tree" />
-                        <TreeView fx:id="scriptTree" showRoot="false" VBox.vgrow="ALWAYS"/>
-                    </children>
-                </VBox>
-            </Tab>
+        <TabPane fx:id="MainTabPane" id="TabPane" tabClosingPolicy="SELECTED_TAB" VBox.vgrow="ALWAYS">            
         </TabPane>    
         <HBox alignment="BOTTOM_CENTER" >
             <Button text="Play"  />
             <Button text="Repalce"/>
             <Button text="Revert"/> 
             <Button fx:id="toFileButton" text="To file" onAction="#handleToFileButtonAction"/>
+            <Button fx:id="changeVPKButton" text="Find VPK" onAction="#handleFindVPKButtonAction"/>
         </HBox>   
     </children>
 </VBox>

@@ -25,6 +25,8 @@ package sonicScream.models;
 
 import info.ata4.vpk.VPKEntry;
 import java.io.*;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.control.TreeItem;
 import sonicScream.services.ServiceLocator;
 import sonicScream.utilities.ScriptParser;
@@ -34,9 +36,8 @@ import sonicScream.services.VPKFileService;
 public class Script
 {
     private final Category _parentCategory;
-    private final String _internalScriptName;
-    private final String _friendlyScriptName;    
-    private final String _rawScriptName;    
+    private final String _internalScriptName; //no file extension, or "game_sounds_etc" prefix      
+    private final String _rawFileName; //full file name
     private TreeItem<String> _rootNode;
     private String _treeAsString = null;
     
@@ -45,22 +46,33 @@ public class Script
     private long _lastKnownCrc;
     
     private String _localPath;
+    
+    private StringProperty friendlyScriptName = new SimpleStringProperty();
+    public final String getFriendlyScriptName() { return friendlyScriptName.get(); }
+    public final void setFriendlyScriptName(String value) { friendlyScriptName.set(value); }
+    public StringProperty friendlyScriptNameProperty() { return friendlyScriptName; }
 
     public Script(VPKEntry scriptFile, Category category)
     {
-        _rawScriptName = scriptFile.getName() + scriptFile.getType();
-        _internalScriptName = StringParsing.getScriptNameFromFileName(_rawScriptName);
-        _friendlyScriptName = StringParsing.prettyFormatScriptName(_internalScriptName);
+        _rawFileName = scriptFile.getName() + scriptFile.getType();
+        _internalScriptName = StringParsing.getScriptNameFromFileName(_rawFileName);
+        friendlyScriptName.set(StringParsing.prettyFormatScriptName(_internalScriptName));
         _parentCategory = category;
         _isVPK = true;
         _vpkPath = scriptFile.getPath();
     }
     
+    /**
+     * For internal use only. We never want to load a user's Script files directly from a vsndevts file.
+     * We always want to use a serialized Script file instead, so we retain all our metadata.
+     * @param scriptFile
+     * @param category 
+     */
     public Script(File scriptFile, Category category)
     {
-        _rawScriptName = scriptFile.getName();
-        _internalScriptName = StringParsing.getScriptNameFromFileName(_rawScriptName);
-        _friendlyScriptName = StringParsing.prettyFormatScriptName(_internalScriptName);
+        _rawFileName = scriptFile.getName();
+        _internalScriptName = StringParsing.getScriptNameFromFileName(_rawFileName);
+        friendlyScriptName.set(StringParsing.prettyFormatScriptName(_internalScriptName));
         _parentCategory = category;
         try
         {
@@ -68,7 +80,7 @@ public class Script
         }
         catch(IOException ex)
         {
-            System.err.printf("\nFailed to get canonical path for %s: %s", _rawScriptName, ex.getMessage());
+            System.err.printf("\nFailed to get canonical path for %s: %s", _rawFileName, ex.getMessage());
         }
         _isVPK = false;
         _vpkPath = null;
@@ -108,9 +120,9 @@ public class Script
 
     public String getScriptName() { return _internalScriptName; }
     
-    public String getRawScriptName() { return _rawScriptName; }
+    public String getRawFileName() { return _rawFileName; }
     
-    public TreeItem<String> getRoodNode()
+    public TreeItem<String> getRootNode()
     {
         if (_rootNode == null)
         {
@@ -120,17 +132,17 @@ public class Script
                 {                
                     VPKFileService fileService = (VPKFileService)ServiceLocator.getService(VPKFileService.class);
                     VPKEntry script = fileService.getVPKEntry(_vpkPath);
-                    _rootNode = ScriptParser.parseScript(getScriptReader(script), _rawScriptName);
+                    _rootNode = ScriptParser.parseScript(getScriptReader(script), _rawFileName);
                 }
                 else
                 {
                     File script = new File(_localPath);
-                    _rootNode = ScriptParser.parseScript(getScriptReader(script), _rawScriptName);
+                    _rootNode = ScriptParser.parseScript(getScriptReader(script), _rawFileName);
                 }
             }
             catch(IOException ex)
             {
-                
+                System.err.println("Unable to read file: " + ex.getMessage());
             }
         }
         return _rootNode;
@@ -151,6 +163,6 @@ public class Script
     @Override
     public String toString()
     {
-        return _friendlyScriptName;
+        return friendlyScriptName.get();
     }
 }

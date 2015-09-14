@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40" fx:controller="sonicScream.controllers.SetVPKLocationController">
+    <children>
+        <VBox AnchorPane.topAnchor="12" AnchorPane.leftAnchor="12" AnchorPane.rightAnchor="12"  >
+            <Label text="Find your VPK."/>
+            <AnchorPane>
+                <children>            
+                    <Label fx:id="StatusLabel" AnchorPane.rightAnchor="18" alignment="CENTER_RIGHT" text="" />  
+                </children>
+            </AnchorPane>
+            <HBox>                            
+                <TextField fx:id="VPKBox" HBox.hgrow="ALWAYS" />
+                <Button text="Bro_wse" mnemonicParsing="true" onAction="#handleBrowseButtonPressed" />
+            </HBox>    
+        </VBox>
+        <ButtonBar AnchorPane.bottomAnchor="12" AnchorPane.rightAnchor="12">
+            <buttons>
+                <Button text="_Save" onAction="#handleSaveButtonPressed" mnemonicParsing="true" ButtonBar.buttonData="OK_DONE"/>
+                <Button text="C_ancel" onAction="#handleCancelButtonPressed" mnemonicParsing="true" cancelButton="true" ButtonBar.buttonData="CANCEL_CLOSE" />        
+            </buttons>
+        </ButtonBar>
+    </children>
+</AnchorPane>
