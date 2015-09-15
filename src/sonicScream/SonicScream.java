@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package sonicScream;
 
 import java.io.File;
@@ -45,13 +40,14 @@ public class SonicScream extends Application
      */
     public static void main(String[] args)
     {
+        //Workaround for W10 ComboBox crash. Reference: https://bugs.openjdk.java.net/browse/JDK-8132897
+        System.setProperty("glass.accessible.force", "false");
         launch(args);
     }
 
     private void configureServiceLocator()
     {
         ServiceLocator.initialize();
-        
         try
         {
             File settingsFile = new File(Constants.SETTINGS_FILE_NAME);
@@ -71,7 +67,5 @@ public class SonicScream extends Application
         {
             System.err.printf("Unable to register SettingsService: %s", ex.getMessage());
         }
-
     }
-
 }
