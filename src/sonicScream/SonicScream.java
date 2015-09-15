@@ -57,6 +57,8 @@ public class SonicScream extends Application
      */
     public static void main(String[] args)
     {
+        //Workaround for W10 ComboBox crash. Reference: https://bugs.openjdk.java.net/browse/JDK-8132897
+        System.setProperty("glass.accessible.force", "false");
         launch(args);
     }
 
