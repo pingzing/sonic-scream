@@ -59,7 +59,7 @@ public final class CategoryTab extends Tab
     
     private ObjectProperty selectedScript = new SimpleObjectProperty();
     public final Object getSelectedScript() { return selectedScript.get(); }
-    public ObjectProperty SelectedScriptProperty() { return selectedScript; }
+    public ObjectProperty selectedScriptProperty() { return selectedScript; }
     
     public CategoryTab(Category category)
     {
@@ -89,7 +89,7 @@ public final class CategoryTab extends Tab
                 .then(CategoryTabComboBox.valueProperty())
                 .otherwise(CategoryTabTreeView.getSelectionModel().selectedItemProperty());
         
-        SelectedScriptProperty().bind(selectedItemBinding);        
+        selectedScriptProperty().bind(selectedItemBinding);        
     }
     
     @FXML

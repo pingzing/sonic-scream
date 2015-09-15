@@ -9,10 +9,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import sonicScream.controllers.SetVPKLocationController;
 import sonicScream.services.ServiceLocator;
 import sonicScream.services.SettingsService;
 import sonicScream.services.VPKFileService;
@@ -32,12 +35,18 @@ public class SonicScream extends Application
         FXMLLoader loader = new FXMLLoader(location);
         Parent root = loader.load();
 
+        configureServiceLocator();
+        SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
+        if (settings.getSetting(Constants.SETTING_MAIN_VPK_PATH) == null)
+        {
+            setVPKPaths(settings);
+        }
+
         Scene scene = new Scene(root);
 
         stage.setScene(scene);
+        stage.setTitle("Sonic Scream");
         stage.show();
-
-        configureServiceLocator();
     }
 
     /**
@@ -51,7 +60,7 @@ public class SonicScream extends Application
     private void configureServiceLocator()
     {
         ServiceLocator.initialize();
-        
+
         try
         {
             File settingsFile = new File(Constants.SETTINGS_FILE_NAME);
@@ -74,4 +83,38 @@ public class SonicScream extends Application
 
     }
 
+    private void setVPKPaths(SettingsService settings)
+    {
+        try
+        {
+            URL location = getClass().getResource("/sonicScream/views/SetVPKLocation.fxml");
+            FXMLLoader loader = new FXMLLoader(location);
+            Parent root = loader.load();
+            SetVPKLocationController controller = loader.<SetVPKLocationController>getController();
+            controller.setNavigationSource(Constants.navigationSource.STARTUP);
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+            stage.showAndWait();
+        }
+        catch (IOException ex)
+        {
+            //well, now we're kinda screwed
+            System.err.printf("Unable to open VPKPath dialog: %s", ex.getMessage());
+        }
+        if(settings.getSetting(Constants.SETTING_MAIN_VPK_PATH) == null)
+        {
+            Platform.exit();
+        }
+    }
+    
+    /**
+     * Called when the application is closing by normal means.
+     */
+    @Override public void stop()
+    {
+        SettingsService settings = (SettingsService)ServiceLocator.getService(SettingsService.class);
+        settings.saveSettings();
+    }
 }

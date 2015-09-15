@@ -144,7 +144,7 @@ public class SettingsService
         }
     }
     
-    public void writeSettings()
+    public void saveSettings()
     {
         XStream serializer = new XStream(new KXml2Driver());
         File settingsFile = new File(Constants.SETTINGS_FILE_NAME);

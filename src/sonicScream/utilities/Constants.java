@@ -26,15 +26,21 @@ package sonicScream.utilities;
 
 public class Constants 
 {
+    //Navigation enum
+    public enum navigationSource {UNSET, STARTUP, MAIN}
+    
+    //-------Category names-------
     public static final String CATEGORY_HEROES = "Heroes";
     public static final String CATEGORY_ITEMS = "Items";
     public static final String CATEGORY_MUSIC = "Music";
     public static final String CATEGORY_VOICES = "Voices";
     
+    //-------Settings file names-------
     public static final String SETTINGS_FILE_NAME = "settings.xml";
     public static final String CRC_CACHE_FILE_NAME = "crcs.xml";
     public static final String PROFILES_FILE_NAME = "profiles.xml";
     
+    //-------Settings keys-------
     public static final String SETTING_MAIN_VPK_PATH = "mainVPKPathSetting";
     public static final String SETTING_MAIN_VPK_DIR = "mainVPKDirSetting";
 }

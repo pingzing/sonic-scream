@@ -30,9 +30,12 @@ import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
@@ -49,26 +52,33 @@ import sonicScream.utilities.Constants;
  */
 public class SetVPKLocationController implements Initializable
 {
-
+    private Constants.navigationSource _navigationSource = Constants.navigationSource.UNSET;
+    
     @FXML
     private Label StatusLabel;
 
     @FXML
-    private TextField VPKBox;    
+    private TextField VPKBox;
+    
+    @FXML
+    private Button CancelButton;
+    
+    @FXML
+    private Button SaveButton;
 
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
         BooleanBinding vpkFoundBinding = Bindings.createBooleanBinding(
                 () ->
-                {                   
+                {
                     String path = VPKBox.getText();
                     if (path == null || !path.contains(File.separator))
                     {
                         return false;
                     }
-                    path = path.substring(path.lastIndexOf(File.separator) + 1, path.length());
-                    return path.equals("pak01_dir.vpk");
+                    File vpkFile = new File(path);                                        
+                    return vpkFile.isFile() && vpkFile.getName().equals("pak01_dir.vpk");
                 }, VPKBox.textProperty());
 
         StatusLabel.textProperty().bind(Bindings
@@ -79,7 +89,20 @@ public class SetVPKLocationController implements Initializable
         StatusLabel.textFillProperty().bind(Bindings
                 .when(vpkFoundBinding)
                 .then(Color.GREEN)
-                .otherwise(Color.RED));       
+                .otherwise(Color.RED));
+
+        BooleanBinding cancelHiddenBinding = Bindings.createBooleanBinding(
+                () -> 
+                {
+                    return _navigationSource.equals(Constants.navigationSource.STARTUP);
+                }, null);
+        
+        SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
+        VPKBox.setText(settings.getSetting(Constants.SETTING_MAIN_VPK_PATH));
+        CancelButton.visibleProperty().bind(cancelHiddenBinding);
+        CancelButton.managedProperty().bind(CancelButton.visibleProperty());
+        SaveButton.disableProperty().bind(vpkFoundBinding.not());
+        
     }
 
     @FXML
@@ -88,7 +111,7 @@ public class SetVPKLocationController implements Initializable
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Find pak01.vpk");
         chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("VPK Files", "*.vpk"));
-        
+
         Stage currentStage = (Stage) StatusLabel.getScene().getWindow();
         File result = chooser.showOpenDialog(currentStage);
         if (result == null)
@@ -111,7 +134,8 @@ public class SetVPKLocationController implements Initializable
         SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
         settings.putSetting(Constants.SETTING_MAIN_VPK_PATH, VPKBox.getText());
         settings.putSetting(Constants.SETTING_MAIN_VPK_DIR, Paths.get(VPKBox.getText()).getParent().toString());
-        
+        settings.saveSettings();
+
         Stage currentStage = (Stage) StatusLabel.getScene().getWindow();
         currentStage.close();
     }
@@ -122,5 +146,6 @@ public class SetVPKLocationController implements Initializable
         Stage currentStage = (Stage) StatusLabel.getScene().getWindow();
         currentStage.close();
     }
-
+    
+    public void setNavigationSource(Constants.navigationSource value) { _navigationSource = value; }
 }

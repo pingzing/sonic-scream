@@ -41,7 +41,7 @@ public class MainController implements Initializable
     private void handleToFileButtonAction(ActionEvent event)
     {
         CategoryTab tab = (CategoryTab) tabSelection.getSelectedItem();
-        Script script = tab.SelectedScriptProperty().get() != null ? (Script) tab.SelectedScriptProperty().get() : null;
+        Script script = tab.selectedScriptProperty().get() != null ? (Script) tab.selectedScriptProperty().get() : null;
         if (script != null)
         {
             String outString = script.getScriptAsString();
