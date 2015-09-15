@@ -39,9 +39,9 @@ import sonicScream.utilities.Constants;
 
 public class SettingsService 
 {
-    private Map<String, String> _settingsDictionary;
-    private Map<String, Long> _crcDictionary;
-    private List<Profile> _profileList;
+    private final Map<String, String> _settingsDictionary;
+    private final Map<String, Long> _crcDictionary;
+    private final List<Profile> _profileList;
     
     public SettingsService(File settingsFile, File crcFile, File profilesFile)
     {        

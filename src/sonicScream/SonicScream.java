@@ -31,6 +31,9 @@ public class SonicScream extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
+        Thread.currentThread().setUncaughtExceptionHandler( (thread, throwable) 
+                -> onUnhandledException(thread, throwable));
+        
         URL location = getClass().getResource("views/Main.fxml");
         FXMLLoader loader = new FXMLLoader(location);
         Parent root = loader.load();
@@ -116,5 +119,11 @@ public class SonicScream extends Application
     {
         SettingsService settings = (SettingsService)ServiceLocator.getService(SettingsService.class);
         settings.saveSettings();
+    }
+    
+    private void onUnhandledException(Thread thread, Throwable throwable)
+    {
+        //TODO: Make this an error dialog
+        throwable.printStackTrace();        
     }
 }
