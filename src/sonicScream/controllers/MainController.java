@@ -84,7 +84,7 @@ public class MainController implements Initializable
         File folder = new File("src/sonicScream/assets/test");
         List<Script> scripts = Arrays.asList(folder.listFiles())
                 .stream()
-                .map(f -> new Script(f, new Category(Constants.CATEGORY_HEROES)))
+                .map(f -> new Script((File)f, new Category(Constants.CATEGORY_HEROES)))
                 .collect(Collectors.toList());
 
         Category testCategory = new Category(Constants.CATEGORY_VOICES);
