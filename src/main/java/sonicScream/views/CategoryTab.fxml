@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+<fx:root type="javafx.scene.control.Tab" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox>
+        <children>
+            <GridPane gridLinesVisible="false">
+                <Label fx:id="CategoryTabLabel" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.halignment="LEFT"  text="Selected: " GridPane.hgrow="SOMETIMES" />
+                <ComboBox fx:id="CategoryTabComboBox" GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" 
+                          onAction="#handleComboBoxChanged" onMousePressed="#handleComboBoxMousePressed"  />
+                <ImageView GridPane.rowIndex ="0" GridPane.columnIndex="1" GridPane.rowSpan="2" GridPane.halignment="RIGHT" GridPane.hgrow="SOMETIMES"/>               
+            </GridPane>
+            <TreeView fx:id="CategoryTabTreeView" showRoot="false" VBox.vgrow="ALWAYS"/>
+        </children>
+    </VBox>
+</fx:root>
