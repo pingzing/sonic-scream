@@ -24,89 +24,107 @@
 package sonicScream.controllers;
 
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import sonicScream.models.Profile;
+import sonicScream.services.ProfileNameExistsException;
 import sonicScream.services.ServiceLocator;
 import sonicScream.services.SettingsService;
 
 public class ProfileManagerController implements Initializable
-{       
+{
     private ObservableList<Profile> _profiles;
-    private Profile _selectedProfile;
     
-    @FXML 
-    private AnchorPane RootPane;
-    
+    private ObjectProperty<Profile> selectedProfile = new SimpleObjectProperty<>();
+    public final Profile getSelectedProfile() { return selectedProfile.get(); }
+    public final void setSelectedProfile(Profile value) { selectedProfile.set(value); }
+    public ObjectProperty<Profile> selectedProfileProperty() { return selectedProfile; }        
+
     @FXML
-    private ComboBox SelectedProfileComboBox;    
-        
+    private AnchorPane RootPane;
+
+    @FXML
+    private ComboBox SelectedProfileComboBox;
+
     @Override
     public void initialize(URL url, ResourceBundle rb)
-    {        
-        SettingsService settings = (SettingsService)ServiceLocator.getService(SettingsService.class);
+    {
+        SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
         _profiles = FXCollections.observableArrayList(settings.getAllProfiles());
-        SelectedProfileComboBox.itemsProperty().set(_profiles); //Don't need to bind here, _profiles should update itself.        
-        SelectedProfileComboBox.valueProperty().addListener((ov, oldVal, newVal) ->
-        {
-            if(oldVal instanceof String || !(newVal instanceof String))
-            {
-                return;
-            }
-            SelectedProfileComboBox.editableProperty().set(false);
-            Profile newProfile = new Profile((String)newVal);
-             _profiles.add(newProfile);
-            SelectedProfileComboBox.setValue(newProfile);
-        });
+        SelectedProfileComboBox.itemsProperty().set(_profiles); //Don't need to bind here, _profiles should update itself.                
+        SelectedProfileComboBox.valueProperty().addListener(
+                (ObservableValue ov, Object oldVal, Object newVal) ->
+                {
+                    if (oldVal instanceof String || !(newVal instanceof String))
+                    {
+                        return;
+                    }
+                    SelectedProfileComboBox.editableProperty().set(false);
+                    if (settings.getProfile((String) newVal) != null)
+                    {
+                        //Tell the user NO WAY JOSE
+                    }
+
+                    Profile newProfile = new Profile((String) newVal);
+                    _profiles.add(newProfile);
+                    selectedProfile.set(newProfile);
+                });
+        
+        SelectedProfileComboBox.valueProperty().bindBidirectional(selectedProfile);
     }
-    
-    public Profile getSelectedProfile()
-    {
-        return _selectedProfile;
-    }
-    
-    @FXML
-    private void handleComboBoxChanged(ActionEvent event)
-    {
-        _selectedProfile = (Profile)SelectedProfileComboBox.getValue();
-    }
-    
+
+
     @FXML
     private void handleAddButtonPressed(ActionEvent event)
-    {        
-        SelectedProfileComboBox.editableProperty().set(true);  
+    {
+        SelectedProfileComboBox.editableProperty().set(true);
         SelectedProfileComboBox.requestFocus();
     }
-    
+
     @FXML
     private void handleDeleteButtonPressed(ActionEvent event)
     {
-        
+        _profiles.remove((Profile) SelectedProfileComboBox.getValue());
     }
-    
+
     @FXML
     private void handleOkButtonPressed(ActionEvent event)
     {
-        _selectedProfile = (Profile)SelectedProfileComboBox.getValue();
-        Stage currentStage = (Stage) SelectedProfileComboBox.getScene().getWindow();                
-        currentStage.close();        
+        SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
+        _profiles.stream()
+                .filter(p -> settings.getProfile(p.getProfileName()) == null)
+                .forEach(p ->
+                        {
+                            try
+                            {
+                                settings.addProfile(p);
+                            }
+                            catch (ProfileNameExistsException ex)
+                            {
+                                System.err.println(ex);
+                            }
+                });
+
+        selectedProfile.set((Profile) SelectedProfileComboBox.getValue());
+        Stage currentStage = (Stage) SelectedProfileComboBox.getScene().getWindow();
+        currentStage.close();
     }
-    
+
     @FXML
     private void handleImportButtonPressed(ActionEvent event)
     {
-        
+        //TODO: Open up filechooser
     }
-    
+
 }

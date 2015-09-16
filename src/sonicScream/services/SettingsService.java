@@ -26,13 +26,16 @@ package sonicScream.services;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.KXml2Driver;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import sonicScream.models.Profile;
 import sonicScream.utilities.Constants;
+import sonicScream.utilities.FilesEx;
 
 public class SettingsService 
 {
@@ -40,35 +43,45 @@ public class SettingsService
     private final Map<String, Long> _crcDictionary;
     private final List<Profile> _profileList;
     
-    public SettingsService(File settingsFile, File crcFile, File profilesFile)
+    public SettingsService(Path settingsFile, Path crcFile, Path profilesDirectory) throws IOException
     {        
         XStream stream = new XStream(new KXml2Driver());
-        if(settingsFile.length() == 0)
+        if(Files.size(settingsFile) == 0)
         {
             _settingsDictionary = new HashMap<>();
         }
         else
         {
-            _settingsDictionary = (Map<String, String>)stream.fromXML(settingsFile);
+            _settingsDictionary = (Map<String, String>)stream.fromXML(Files.newInputStream(settingsFile));
         }
         
-        if(crcFile.length() == 0)
+        if(Files.size(crcFile) == 0)
         {
             _crcDictionary = new HashMap<>();
         }
         else
         {
-            _crcDictionary = (Map<String, Long>)stream.fromXML(crcFile);
+            _crcDictionary = (Map<String, Long>)stream.fromXML(Files.newInputStream(crcFile));
         }        
         
-        if(profilesFile.length() == 0)
-        {
-            _profileList = new ArrayList();
+        List<Path> profiles = FilesEx.listFiles(profilesDirectory);
+        _profileList = new ArrayList();
+        if(profiles.isEmpty())
+        {            
             _profileList.add(new Profile());
         }
         else
         {
-            _profileList = (List<Profile>)stream.fromXML(profilesFile);
+            profiles.stream().forEach(p ->
+            {
+                try{
+                _profileList.add((Profile)stream.fromXML(Files.newInputStream(p)));
+                }
+                catch(IOException ex)
+                {
+                    System.err.printf("\nUnable to read profile %s:", p, ex.getMessage());
+                }
+            });            
         }
     }
     
@@ -105,11 +118,18 @@ public class SettingsService
         _crcDictionary.put(fileName, crc);
     }
     
+    /**
+     * Attempts to get profile from the internal profile list by name. 
+     * Returns null if no such profile is found.
+     * @param profileName The name of the profile to search for.
+     * @return The Profile in question, or null if no profile is found.
+     */
     public Profile getProfile(String profileName)
     {
         return _profileList.stream()
                 .filter(p -> p.getProfileName().equals(profileName))
-                .findFirst().get();
+                .findFirst()
+                .orElse(null);
     }
     
     public List<Profile> getAllProfiles()
@@ -150,34 +170,38 @@ public class SettingsService
     public void saveSettings()
     {
         XStream serializer = new XStream(new KXml2Driver());
-        File settingsFile = new File(Constants.SETTINGS_FILE_NAME);
-        try(FileOutputStream fos = new FileOutputStream(settingsFile))
+        Path settingsFile = Paths.get(Constants.SETTINGS_FILE_NAME);
+        try(BufferedWriter bw = Files.newBufferedWriter(settingsFile, StandardOpenOption.CREATE))
         {
-            serializer.toXML(_settingsDictionary, fos);
+            serializer.toXML(_settingsDictionary, bw);
         }
         catch(IOException ex)
         {
             System.err.println("Failed to write out " + Constants.SETTINGS_FILE_NAME);
         }
         
-        File crcFile = new File(Constants.CRC_CACHE_FILE_NAME);
-        try(FileOutputStream fos = new FileOutputStream(crcFile))
+        Path crcFile = Paths.get(Constants.CRC_CACHE_FILE_NAME);
+        try(BufferedWriter bw = Files.newBufferedWriter(crcFile, StandardOpenOption.CREATE))
         {
-            serializer.toXML(_crcDictionary, fos);
+            serializer.toXML(_crcDictionary, bw);
         }
         catch(IOException ex)
         {
             System.err.println("Failed to write out " + Constants.CRC_CACHE_FILE_NAME);
         }
         
-        File profilesFile = new File(Constants.PROFILES_FILE_NAME);
-        try(FileOutputStream fos = new FileOutputStream(profilesFile))
+        _profileList.stream()
+                .map((profile) -> Paths.get(profile.getProfileName() + "_" + Constants.PROFILE_FILE_SUFFIX))
+                .forEach((profile) ->
         {
-            serializer.toXML(_profileList, fos);
-        }
-        catch(IOException ex)
-        {
-            System.err.println("Failed to write out " + Constants.CRC_CACHE_FILE_NAME);
-        }
+            try(BufferedWriter bw = Files.newBufferedWriter(profile, StandardOpenOption.CREATE))
+            {
+                serializer.toXML(profile, bw);
+            }
+            catch(IOException ex)
+            {
+                System.err.println("Failed to write out " + Constants.CRC_CACHE_FILE_NAME);
+            }
+        });
     }
 }

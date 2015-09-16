@@ -23,7 +23,7 @@
  */
 package sonicScream.services;
 
-class ProfileNameExistsException extends Exception
+public class ProfileNameExistsException extends Exception
 {
     public ProfileNameExistsException(String message)
     {

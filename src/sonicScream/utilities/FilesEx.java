@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2015 Neil McAlister.
+ * Copyright 2015 nmca.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,25 +24,32 @@
 
 package sonicScream.utilities;
 
-public class Constants 
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.DirectoryStream.Filter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+public class FilesEx 
 {
-    //Navigation enum
-    public enum navigationSource {UNSET, STARTUP, MAIN}
+    public static List<Path> listFiles(Path path) throws IOException
+    {
+        return listFiles(path, null);
+    }
     
-    //-------Category names-------
-    public static final String CATEGORY_HEROES = "Heroes";
-    public static final String CATEGORY_ITEMS = "Items";
-    public static final String CATEGORY_MUSIC = "Music";
-    public static final String CATEGORY_VOICES = "Voices";
-    
-    //-------Settings file names-------
-    public static final String SETTINGS_FILE_NAME = "settings.xml";
-    public static final String CRC_CACHE_FILE_NAME = "crcs.xml";
-    public static final String PROFILE_FILE_SUFFIX = "profile.xml";
-    public static final String PROFILE_FILES_DIRECTORY = "profiles";
-    
-    //-------Settings keys-------
-    public static final String SETTING_MAIN_VPK_PATH = "mainVPKPathSetting";
-    public static final String SETTING_MAIN_VPK_DIR = "mainVPKDirSetting";
-    public static final String SETTING_ACTIVE_PROFILE ="activeProfile";
+    public static List<Path> listFiles(Path path, Filter<? super Path> filter) throws IOException
+    {
+        List<Path> files = new ArrayList<>();
+        try(DirectoryStream<Path> ds = Files.newDirectoryStream(path, filter))
+        {
+            for(Path p : ds)
+            {
+                files.add(p);
+            }
+        }
+        return files;
+    }
+
 }

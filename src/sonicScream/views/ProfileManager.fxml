@@ -11,7 +11,7 @@
     <children>
         <VBox AnchorPane.leftAnchor="12" AnchorPane.rightAnchor="12" AnchorPane.topAnchor="12">
             <Label text="Choose your profile." />
-            <ComboBox fx:id="SelectedProfileComboBox" onAction="#handleComboBoxChanged">
+            <ComboBox fx:id="SelectedProfileComboBox">
                 <VBox.margin>
                     <Insets top="12.0" />
                 </VBox.margin>

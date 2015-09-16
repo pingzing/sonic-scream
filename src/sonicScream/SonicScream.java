@@ -8,6 +8,9 @@ package sonicScream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -66,13 +69,22 @@ public class SonicScream extends Application
 
         try
         {
-            File settingsFile = new File(Constants.SETTINGS_FILE_NAME);
-            settingsFile.createNewFile();
-            File crcFile = new File(Constants.CRC_CACHE_FILE_NAME);
-            crcFile.createNewFile();
-            File profileFile = new File(Constants.PROFILES_FILE_NAME);
-            profileFile.createNewFile();
-            ServiceLocator.registerService(SettingsService.class, new SettingsService(settingsFile, crcFile, profileFile));
+            Path settingsFile = Paths.get(Constants.SETTINGS_FILE_NAME);
+            if(!Files.exists(settingsFile))
+            {
+                settingsFile = Files.createFile(settingsFile);
+            }
+            Path crcFile = Paths.get(Constants.CRC_CACHE_FILE_NAME);
+            if(!Files.exists(crcFile))
+            {
+                crcFile = Files.createFile(crcFile);
+            }
+            Path profileDir = Paths.get(Constants.PROFILE_FILES_DIRECTORY);
+            if(!Files.exists(profileDir))
+            {
+                profileDir = Files.createDirectory(profileDir);
+            }
+            ServiceLocator.registerService(SettingsService.class, new SettingsService(settingsFile, crcFile, profileDir));
 
             SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
             String mainVPKPath = settings.getSetting(Constants.SETTING_MAIN_VPK_PATH);
