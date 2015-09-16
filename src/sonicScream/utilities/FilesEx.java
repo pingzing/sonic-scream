@@ -36,7 +36,15 @@ public class FilesEx
 {
     public static List<Path> listFiles(Path path) throws IOException
     {
-        return listFiles(path, null);
+        List<Path> files = new ArrayList<>();
+        try(DirectoryStream<Path> ds = Files.newDirectoryStream(path))
+        {
+            for(Path p : ds)
+            {
+                files.add(p);
+            }
+        }
+        return files;
     }
     
     public static List<Path> listFiles(Path path, Filter<? super Path> filter) throws IOException

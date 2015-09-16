@@ -21,8 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package sonicScream.utilities;
+package sonicScream.services;
 
+import info.ata4.vpk.VPKEntry;
+import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -34,10 +36,10 @@ import static org.junit.Assert.*;
  *
  * @author nmca
  */
-public class StringParsingTest
+public class VPKFileServiceTest
 {
     
-    public StringParsingTest()
+    public VPKFileServiceTest()
     {
     }
     
@@ -62,39 +64,48 @@ public class StringParsingTest
     }
 
     /**
-     * Test of getScriptNameFromFileName method, of class StringParsing.
+     * Test of getVPKEntry method, of class VPKFileService.
      */
     @Test
-    public void testGetScriptNameFromFileName()
-    {        
-        String fileName = "game_sounds_vo_announcer_dlc_axe_killing_spree.vsndevts_c";
-        String expResult = "announcer_dlc_axe_killing_spree";
-        String result = StringParsing.getScriptNameFromFileName(fileName);
-        assertEquals(expResult, result);        
-    }
-
-    /**
-     * Test of prettyFormatScriptName method, of class StringParsing.
-     */
-    @Test
-    public void testPrettyFormatScriptName()
-    {        
-        String name = "announcer_dlc_axe_killing_spree";
-        String expResult = "Announcer Dlc Axe Killing Spree";
-        String result = StringParsing.prettyFormatScriptName(name);
-        assertEquals(expResult, result);        
-    }
-
-    /**
-     * Test of handleSpecialCaseName method, of class StringParsing.
-     */
-    @Test
-    public void testHandleSpecialCaseName()
+    public void testGetVPKEntry() throws Exception
     {
-        System.out.println("handleSpecialCaseName");
-        String name = "";
-        String expResult = "";
-        String result = StringParsing.handleSpecialCaseName(name);
+        System.out.println("getVPKEntry");
+        String _vpkPath = "";
+        VPKFileService instance = null;
+        VPKEntry expResult = null;
+        VPKEntry result = instance.getVPKEntry(_vpkPath);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of getVPKEntries method, of class VPKFileService.
+     */
+    @Test
+    public void testGetVPKEntries() throws Exception
+    {
+        System.out.println("getVPKEntries");
+        List<String> _vpkPaths = null;
+        VPKFileService instance = null;
+        List<VPKEntry> expResult = null;
+        List<VPKEntry> result = instance.getVPKEntries(_vpkPaths);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of getVPKEntriesInDirectory method, of class VPKFileService.
+     */
+    @Test
+    public void testGetVPKEntriesInDirectory() throws Exception
+    {
+        System.out.println("getVPKEntriesInDirectory");
+        String _vpkDirectory = "";
+        VPKFileService instance = null;
+        List<VPKEntry> expResult = null;
+        List<VPKEntry> result = instance.getVPKEntriesInDirectory(_vpkDirectory);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

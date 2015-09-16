@@ -21,8 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package sonicScream.utilities;
+package sonicScream.services;
 
+import java.lang.reflect.Type;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -34,10 +35,10 @@ import static org.junit.Assert.*;
  *
  * @author nmca
  */
-public class StringParsingTest
+public class ServiceLocatorTest
 {
     
-    public StringParsingTest()
+    public ServiceLocatorTest()
     {
     }
     
@@ -62,39 +63,41 @@ public class StringParsingTest
     }
 
     /**
-     * Test of getScriptNameFromFileName method, of class StringParsing.
+     * Test of initialize method, of class ServiceLocator.
      */
     @Test
-    public void testGetScriptNameFromFileName()
-    {        
-        String fileName = "game_sounds_vo_announcer_dlc_axe_killing_spree.vsndevts_c";
-        String expResult = "announcer_dlc_axe_killing_spree";
-        String result = StringParsing.getScriptNameFromFileName(fileName);
-        assertEquals(expResult, result);        
-    }
-
-    /**
-     * Test of prettyFormatScriptName method, of class StringParsing.
-     */
-    @Test
-    public void testPrettyFormatScriptName()
-    {        
-        String name = "announcer_dlc_axe_killing_spree";
-        String expResult = "Announcer Dlc Axe Killing Spree";
-        String result = StringParsing.prettyFormatScriptName(name);
-        assertEquals(expResult, result);        
-    }
-
-    /**
-     * Test of handleSpecialCaseName method, of class StringParsing.
-     */
-    @Test
-    public void testHandleSpecialCaseName()
+    public void testInitialize()
     {
-        System.out.println("handleSpecialCaseName");
-        String name = "";
-        String expResult = "";
-        String result = StringParsing.handleSpecialCaseName(name);
+        System.out.println("initialize");
+        ServiceLocator.initialize();
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of registerService method, of class ServiceLocator.
+     */
+    @Test
+    public void testRegisterService()
+    {
+        System.out.println("registerService");
+        Type serviceType = null;
+        Object service = null;
+        ServiceLocator.registerService(serviceType, service);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of getService method, of class ServiceLocator.
+     */
+    @Test
+    public void testGetService()
+    {
+        System.out.println("getService");
+        Type serviceType = null;
+        Object expResult = null;
+        Object result = ServiceLocator.getService(serviceType);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

@@ -89,7 +89,12 @@ public final class CategoryTabController extends Tab
                 .then(CategoryTabComboBox.valueProperty())
                 .otherwise(CategoryTabTreeView.getSelectionModel().selectedItemProperty());
         
-        selectedScriptProperty().bind(selectedItemBinding);  
+        selectedScriptProperty().bind(selectedItemBinding);
+        
+        if(!category.getCategoryScripts().isEmpty())
+        {
+            CategoryTabComboBox.valueProperty().set(category.categoryScriptsProperty().get(0));
+        }
         
         updateCategoryFromVPK();
     }

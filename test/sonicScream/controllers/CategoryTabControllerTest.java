@@ -21,23 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package sonicScream.utilities;
+package sonicScream.controllers;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import javafx.beans.property.ObjectProperty;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Rule;
+import sonicScream.models.Category;
+import sonicScream.models.Profile;
+import sonicScream.models.Script;
+import sonicScream.utilities.Constants;
+import testHelpers.JavaFXThreadingRule;
 
 /**
  *
  * @author nmca
  */
-public class StringParsingTest
+public class CategoryTabControllerTest
 {
+    @Rule public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
+    Profile profile = new Profile();
+    private CategoryTabController controller;    
     
-    public StringParsingTest()
+    public CategoryTabControllerTest()
     {
     }
     
@@ -53,7 +67,17 @@ public class StringParsingTest
     
     @Before
     public void setUp()
-    {
+    {        
+        File folder = new File("src/sonicScream/assets/test");
+        List<Script> scripts = Arrays.asList(folder.listFiles())
+                .stream()
+                .map(f -> new Script((File) f, new Category(Constants.CATEGORY_HEROES)))
+                .collect(Collectors.toList());
+        Category category = new Category(Constants.CATEGORY_VOICES);
+        category.setCategoryScripts(scripts);
+        profile._categories.add(category);
+        
+        controller = new CategoryTabController(profile.getCategories().get(0));
     }
     
     @After
@@ -62,42 +86,12 @@ public class StringParsingTest
     }
 
     /**
-     * Test of getScriptNameFromFileName method, of class StringParsing.
+     * Test of getSelectedScript method, of class CategoryTabController.
      */
     @Test
-    public void testGetScriptNameFromFileName()
-    {        
-        String fileName = "game_sounds_vo_announcer_dlc_axe_killing_spree.vsndevts_c";
-        String expResult = "announcer_dlc_axe_killing_spree";
-        String result = StringParsing.getScriptNameFromFileName(fileName);
-        assertEquals(expResult, result);        
-    }
-
-    /**
-     * Test of prettyFormatScriptName method, of class StringParsing.
-     */
-    @Test
-    public void testPrettyFormatScriptName()
-    {        
-        String name = "announcer_dlc_axe_killing_spree";
-        String expResult = "Announcer Dlc Axe Killing Spree";
-        String result = StringParsing.prettyFormatScriptName(name);
-        assertEquals(expResult, result);        
-    }
-
-    /**
-     * Test of handleSpecialCaseName method, of class StringParsing.
-     */
-    @Test
-    public void testHandleSpecialCaseName()
+    public void testGetSelectedScript()
     {
-        System.out.println("handleSpecialCaseName");
-        String name = "";
-        String expResult = "";
-        String result = StringParsing.handleSpecialCaseName(name);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-    
+         Script selected = (Script)controller.getSelectedScript();
+         assertEquals(selected, profile.getCategories().get(0).getCategoryScripts().get(0));         
+    }    
 }

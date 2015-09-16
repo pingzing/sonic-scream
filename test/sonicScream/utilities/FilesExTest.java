@@ -23,6 +23,9 @@
  */
 package sonicScream.utilities;
 
+import java.nio.file.DirectoryStream;
+import java.nio.file.Path;
+import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -34,10 +37,10 @@ import static org.junit.Assert.*;
  *
  * @author nmca
  */
-public class StringParsingTest
+public class FilesExTest
 {
     
-    public StringParsingTest()
+    public FilesExTest()
     {
     }
     
@@ -62,39 +65,31 @@ public class StringParsingTest
     }
 
     /**
-     * Test of getScriptNameFromFileName method, of class StringParsing.
+     * Test of listFiles method, of class FilesEx.
      */
     @Test
-    public void testGetScriptNameFromFileName()
-    {        
-        String fileName = "game_sounds_vo_announcer_dlc_axe_killing_spree.vsndevts_c";
-        String expResult = "announcer_dlc_axe_killing_spree";
-        String result = StringParsing.getScriptNameFromFileName(fileName);
-        assertEquals(expResult, result);        
-    }
-
-    /**
-     * Test of prettyFormatScriptName method, of class StringParsing.
-     */
-    @Test
-    public void testPrettyFormatScriptName()
-    {        
-        String name = "announcer_dlc_axe_killing_spree";
-        String expResult = "Announcer Dlc Axe Killing Spree";
-        String result = StringParsing.prettyFormatScriptName(name);
-        assertEquals(expResult, result);        
-    }
-
-    /**
-     * Test of handleSpecialCaseName method, of class StringParsing.
-     */
-    @Test
-    public void testHandleSpecialCaseName()
+    public void testListFiles_Path() throws Exception
     {
-        System.out.println("handleSpecialCaseName");
-        String name = "";
-        String expResult = "";
-        String result = StringParsing.handleSpecialCaseName(name);
+        System.out.println("listFiles");
+        Path path = null;
+        List<Path> expResult = null;
+        List<Path> result = FilesEx.listFiles(path);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of listFiles method, of class FilesEx.
+     */
+    @Test
+    public void testListFiles_Path_DirectoryStreamFilter() throws Exception
+    {
+        System.out.println("listFiles");
+        Path path = null;
+        DirectoryStream.Filter<? super Path> filter = null;
+        List<Path> expResult = null;
+        List<Path> result = FilesEx.listFiles(path, filter);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

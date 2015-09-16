@@ -123,4 +123,19 @@ public class ScriptParserTest
         }
     }
 
+    /**
+     * Test of parseScriptTreeToString method, of class ScriptParser.
+     */
+    @Test
+    public void testParseScriptTreeToString()
+    {
+        System.out.println("parseScriptTreeToString");
+        TreeItem<String> currentScriptTree = null;
+        String expResult = "";
+        String result = ScriptParser.parseScriptTreeToString(currentScriptTree);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
 }

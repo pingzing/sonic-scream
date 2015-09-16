@@ -21,23 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package sonicScream.utilities;
+package sonicScream.controllers;
 
+import java.net.URL;
+import java.util.ResourceBundle;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import sonicScream.utilities.Constants;
 
 /**
  *
  * @author nmca
  */
-public class StringParsingTest
+public class SetVPKLocationControllerTest
 {
     
-    public StringParsingTest()
+    public SetVPKLocationControllerTest()
     {
     }
     
@@ -62,40 +65,30 @@ public class StringParsingTest
     }
 
     /**
-     * Test of getScriptNameFromFileName method, of class StringParsing.
+     * Test of initialize method, of class SetVPKLocationController.
      */
     @Test
-    public void testGetScriptNameFromFileName()
-    {        
-        String fileName = "game_sounds_vo_announcer_dlc_axe_killing_spree.vsndevts_c";
-        String expResult = "announcer_dlc_axe_killing_spree";
-        String result = StringParsing.getScriptNameFromFileName(fileName);
-        assertEquals(expResult, result);        
-    }
-
-    /**
-     * Test of prettyFormatScriptName method, of class StringParsing.
-     */
-    @Test
-    public void testPrettyFormatScriptName()
-    {        
-        String name = "announcer_dlc_axe_killing_spree";
-        String expResult = "Announcer Dlc Axe Killing Spree";
-        String result = StringParsing.prettyFormatScriptName(name);
-        assertEquals(expResult, result);        
-    }
-
-    /**
-     * Test of handleSpecialCaseName method, of class StringParsing.
-     */
-    @Test
-    public void testHandleSpecialCaseName()
+    public void testInitialize()
     {
-        System.out.println("handleSpecialCaseName");
-        String name = "";
-        String expResult = "";
-        String result = StringParsing.handleSpecialCaseName(name);
-        assertEquals(expResult, result);
+        System.out.println("initialize");
+        URL url = null;
+        ResourceBundle rb = null;
+        SetVPKLocationController instance = new SetVPKLocationController();
+        instance.initialize(url, rb);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of setNavigationSource method, of class SetVPKLocationController.
+     */
+    @Test
+    public void testSetNavigationSource()
+    {
+        System.out.println("setNavigationSource");
+        Constants.navigationSource value = null;
+        SetVPKLocationController instance = new SetVPKLocationController();
+        instance.setNavigationSource(value);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
