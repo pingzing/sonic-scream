@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="150.0" minWidth="300.0" prefHeight="150.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sonicScream.controllers.ProfileManagerController">
+    <children>
+        <VBox AnchorPane.leftAnchor="12" AnchorPane.rightAnchor="12" AnchorPane.topAnchor="12">
+            <Label text="Choose your profile." />
+            <ComboBox fx:id="SelectedProfileComboBox" onAction="#handleComboBoxChanged">
+                <VBox.margin>
+                    <Insets top="12.0" />
+                </VBox.margin>
+            </ComboBox>
+            <HBox>
+                <children>
+                    <Button onAction="#handleAddButtonPressed" text="Add" />
+                    <Button onAction="#handleDeleteButtonPressed" text="Delete">
+                        <HBox.margin>
+                           <Insets left="12.0" />
+                        </HBox.margin>
+                    </Button>
+                    <Button text="Import..." onAction="#handleImportButtonPressed">
+                            <HBox.margin>
+                           <Insets left="12.0" />
+                        </HBox.margin>
+                    </Button>
+                </children>
+            <VBox.margin>
+               <Insets top="12.0" />
+            </VBox.margin>
+            </HBox>
+        </VBox>
+        <ButtonBar AnchorPane.bottomAnchor="12" AnchorPane.rightAnchor="12">
+            <buttons>
+                <Button mnemonicParsing="true" text="_Ok" onAction="#handleOkButtonPressed" ButtonBar.buttonData="OK_DONE"/>                
+            </buttons>
+        </ButtonBar>
+    </children>
+</AnchorPane>

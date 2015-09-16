@@ -46,7 +46,7 @@ import sonicScream.models.Script;
  * FXML Controller class
  * 
  */
-public final class CategoryTab extends Tab
+public final class CategoryTabController extends Tab
 {
     @FXML
     private TreeView CategoryTabTreeView;
@@ -61,7 +61,7 @@ public final class CategoryTab extends Tab
     public final Object getSelectedScript() { return selectedScript.get(); }
     public ObjectProperty selectedScriptProperty() { return selectedScript; }
     
-    public CategoryTab(Category category)
+    public CategoryTabController(Category category)
     {
         URL location = getClass().getResource("/sonicScream/views/CategoryTab.fxml");
         FXMLLoader loader = new FXMLLoader(location);
@@ -89,7 +89,9 @@ public final class CategoryTab extends Tab
                 .then(CategoryTabComboBox.valueProperty())
                 .otherwise(CategoryTabTreeView.getSelectionModel().selectedItemProperty());
         
-        selectedScriptProperty().bind(selectedItemBinding);        
+        selectedScriptProperty().bind(selectedItemBinding);  
+        
+        updateCategoryFromVPK();
     }
     
     @FXML
@@ -114,5 +116,10 @@ public final class CategoryTab extends Tab
     private void handleComboBoxMousePressed(MouseEvent mouseEvent)
     {
         CategoryTabComboBox.requestFocus();
+    }
+
+    private void updateCategoryFromVPK()
+    {
+        
     }
 }

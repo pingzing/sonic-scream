@@ -40,15 +40,29 @@ public class Profile
     public final void setProfileDescription(String value) { profileDescription.set(value); }
     public StringProperty profileDescriptionProperty() { return profileName; }
     
-    public List<Script> _scripts;
-    public List<Script> getScripts() { return _scripts; }
-    public void setScripst(List<Script> value) {_scripts = value; }
+    public List<Category> _categories;
+    public List<Category> getCategories() { return _categories; }
+    public void setCategories(List<Category> value) {_categories = value; }
     
     public Profile()
     {
-        _scripts = new ArrayList<>();
+        _categories = new ArrayList<>();
         profileName.set("Default");
         profileDescription.set("The default profile");
     }    
+    
+    public Profile(String name)
+    {
+        //TODO: change this to the default set
+        _categories = new ArrayList<>(); 
+        profileName.set(name);
+        profileDescription.set("");
+    }
+    
+    @Override
+    public String toString()
+    {
+        return profileName.get();
+    }
 
 }

@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" prefHeight="200" prefWidth="400" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sonicScream.controllers.SetVPKLocationController">
+<AnchorPane fx:id="RootPane" id="AnchorPane" prefHeight="200" prefWidth="400" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sonicScream.controllers.SetVPKLocationController">
     <children>
         <VBox AnchorPane.leftAnchor="12" AnchorPane.rightAnchor="12" AnchorPane.topAnchor="12">
             <Label text="Find your VPK." />

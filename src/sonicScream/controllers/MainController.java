@@ -36,7 +36,7 @@ public class MainController implements Initializable
 {
 
     private Profile _activeProfile = null;
-    
+
     @FXML
     private TabPane MainTabPane;
 
@@ -46,7 +46,7 @@ public class MainController implements Initializable
     @FXML
     private void handleToFileButtonAction(ActionEvent event)
     {
-        CategoryTab tab = (CategoryTab) tabSelection.getSelectedItem();
+        CategoryTabController tab = (CategoryTabController) tabSelection.getSelectedItem();
         Script script = tab.selectedScriptProperty().get() != null ? (Script) tab.selectedScriptProperty().get() : null;
         if (script != null)
         {
@@ -71,13 +71,13 @@ public class MainController implements Initializable
             URL location = getClass().getResource("/sonicScream/views/SetVPKLocation.fxml");
             FXMLLoader loader = new FXMLLoader(location);
             Parent root = loader.load();
-            
-            Stage stage = new Stage();            
-            Scene scene = new Scene(root);            
+
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
         }
-        catch(IOException ex)
+        catch (IOException ex)
         {
             System.err.printf("Unable to open VPK dialog: %s", ex.getMessage());
         }
@@ -86,46 +86,60 @@ public class MainController implements Initializable
 
     @Override
     public void initialize(URL url, ResourceBundle rb)
-    {        
-        setActiveProfile();
-        
+    {
+        Profile savedActiveProfile = getActiveProfile();        
+
         File folder = new File("src/sonicScream/assets/test");
         List<Script> scripts = Arrays.asList(folder.listFiles())
                 .stream()
-                .map(f -> new Script((File)f, new Category(Constants.CATEGORY_HEROES)))
+                .map(f -> new Script((File) f, new Category(Constants.CATEGORY_HEROES)))
                 .collect(Collectors.toList());
 
         Category testCategory = new Category(Constants.CATEGORY_VOICES);
         testCategory.setCategoryScripts(scripts);
 
-        MainTabPane.getTabs().add(new CategoryTab(testCategory));
+        MainTabPane.getTabs().add(new CategoryTabController(testCategory));
         tabSelection = MainTabPane.getSelectionModel();
     }
 
-    private void setActiveProfile()
+    private Profile getActiveProfile()
     {
-        SettingsService settings = (SettingsService)ServiceLocator.getService(SettingsService.class);
-        String profileName = settings.getSetting(Constants.SETTING_ACTIVE_PROFILE); 
-        if(profileName == null)
-        {                        
-            List<Profile> allProfiles = settings.getAllProfiles();
-            ChoiceDialog dialog = new ChoiceDialog(allProfiles.get(0), allProfiles);
-            dialog.setTitle("Select a profile");            
-            dialog.showAndWait()
-                .filter(response -> response instanceof Profile)
-                .ifPresent(response -> _activeProfile = (Profile)response);
-            return;
-        }
-        
-        Profile active = settings.getProfile(profileName);
-        if(active == null)
+        SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
+        String profileName = settings.getSetting(Constants.SETTING_ACTIVE_PROFILE);
+        if (profileName == null) //no active profile saved
         {
-            List<Profile> allProfiles = settings.getAllProfiles();
-            ChoiceDialog dialog = new ChoiceDialog(allProfiles.get(0), allProfiles);
-            dialog.setTitle("Select a profile");
-            dialog.showAndWait()
-                .filter(response -> response instanceof Profile)
-                .ifPresent(response -> _activeProfile = (Profile)response);                    
+            return getActiveProfileFromDialog();
+        }
+
+        Profile active = settings.getProfile(profileName); //Saved active profile no longer exis
+        if (active == null)
+        {
+            return getActiveProfileFromDialog();
+        }
+
+        return active;
+    }
+
+    private Profile getActiveProfileFromDialog()
+    {         
+        try
+        {
+            URL location = getClass().getResource("/sonicScream/views/ProfileManager.fxml");
+            FXMLLoader loader = new FXMLLoader(location);
+            Parent root = loader.load();                        
+            ProfileManagerController controller = loader.<ProfileManagerController>getController();
+            
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.showAndWait();    
+            
+            return controller.getSelectedProfile();            
+        }
+        catch (IOException ex)
+        {
+            System.err.printf("Unable to open Profile Manager dialog: %s", ex.getMessage());
+            return null;
         }        
     }
 }

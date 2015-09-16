@@ -34,14 +34,14 @@ import sonicScream.utilities.StringParsing;
 import sonicScream.services.VPKFileService;
 
 public class Script
-{
+{        
     private final Category _parentCategory;
     private final String _internalScriptName; //no file extension, or "game_sounds_etc" prefix      
     private final String _rawFileName; //full file name
     private TreeItem<String> _rootNode;
-    private String _treeAsString = null;
+    private String _treeAsString = null;    
+    private final Boolean _isCustom ;
     
-    private final Boolean _isVPK ;
     private final String _vpkPath;
     private long _lastKnownCrc;
     
@@ -58,7 +58,7 @@ public class Script
         _internalScriptName = StringParsing.getScriptNameFromFileName(_rawFileName);
         friendlyScriptName.set(StringParsing.prettyFormatScriptName(_internalScriptName));
         _parentCategory = category;
-        _isVPK = true;
+        _isCustom = false;
         _vpkPath = scriptFile.getPath();
     }
     
@@ -82,7 +82,7 @@ public class Script
         {
             System.err.printf("\nFailed to get canonical path for %s: %s", _rawFileName, ex.getMessage());
         }
-        _isVPK = false;
+        _isCustom = true;
         _vpkPath = null;
     }
     
@@ -128,7 +128,7 @@ public class Script
         {
             try
             {
-                if(_isVPK)
+                if(_isCustom)
                 {                
                     VPKFileService fileService = (VPKFileService)ServiceLocator.getService(VPKFileService.class);
                     VPKEntry script = fileService.getVPKEntry(_vpkPath);
