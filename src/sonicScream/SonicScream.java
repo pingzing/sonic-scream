@@ -33,20 +33,18 @@ public class SonicScream extends Application
     {
         Thread.currentThread().setUncaughtExceptionHandler( (thread, throwable) 
                 -> onUnhandledException(thread, throwable));
-        
-        URL location = getClass().getResource("views/Main.fxml");
-        FXMLLoader loader = new FXMLLoader(location);
-        Parent root = loader.load();
-
+                
         configureServiceLocator();
         SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
         if (settings.getSetting(Constants.SETTING_MAIN_VPK_PATH) == null)
         {
             setVPKPaths(settings);
         }
-
+        
+        URL location = getClass().getResource("views/Main.fxml");
+        FXMLLoader loader = new FXMLLoader(location);
+        Parent root = loader.load();
         Scene scene = new Scene(root);
-
         stage.setScene(scene);
         stage.setTitle("Sonic Scream");
         stage.show();

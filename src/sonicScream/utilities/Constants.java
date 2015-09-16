@@ -43,4 +43,5 @@ public class Constants
     //-------Settings keys-------
     public static final String SETTING_MAIN_VPK_PATH = "mainVPKPathSetting";
     public static final String SETTING_MAIN_VPK_DIR = "mainVPKDirSetting";
+    public static final String SETTING_ACTIVE_PROFILE ="activeProfile";
 }

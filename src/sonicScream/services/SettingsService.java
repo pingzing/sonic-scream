@@ -30,10 +30,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import sonicScream.models.Profile;
 import sonicScream.utilities.Constants;
 
@@ -67,6 +64,7 @@ public class SettingsService
         if(profilesFile.length() == 0)
         {
             _profileList = new ArrayList();
+            _profileList.add(new Profile());
         }
         else
         {
@@ -112,6 +110,11 @@ public class SettingsService
         return _profileList.stream()
                 .filter(p -> p.getProfileName().equals(profileName))
                 .findFirst().get();
+    }
+    
+    public List<Profile> getAllProfiles()
+    {
+        return Collections.unmodifiableList(_profileList);
     }
     
     public void addProfile(Profile profileToAdd) throws ProfileNameExistsException

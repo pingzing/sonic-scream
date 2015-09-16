@@ -47,8 +47,8 @@ public class Profile
     public Profile()
     {
         _scripts = new ArrayList<>();
-        profileName.set("");
-        profileDescription.set("");
+        profileName.set("Default");
+        profileDescription.set("The default profile");
     }    
 
 }
