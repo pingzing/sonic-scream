@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="RootPane" id="AnchorPane" prefHeight="200" prefWidth="400" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sonicScream.controllers.SetVPKLocationController">
+    <children>
+        <VBox AnchorPane.leftAnchor="12" AnchorPane.rightAnchor="12" AnchorPane.topAnchor="12">
+            <Label text="Find your VPK." />
+            <AnchorPane>
+                <children>            
+                    <Label fx:id="StatusLabel" alignment="CENTER_RIGHT" text="teeeext" AnchorPane.rightAnchor="75" />  
+                </children>
+            </AnchorPane>
+            <HBox>                            
+                <TextField fx:id="VPKBox" HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets right="12.0" />
+               </HBox.margin></TextField>
+                <Button mnemonicParsing="true" onAction="#handleBrowseButtonPressed" text="Bro_wse" />
+            </HBox>    
+        </VBox>
+        <ButtonBar AnchorPane.bottomAnchor="12" AnchorPane.rightAnchor="12">
+            <buttons>
+                <Button fx:id="SaveButton" mnemonicParsing="true" onAction="#handleSaveButtonPressed" text="_Save" ButtonBar.buttonData="OK_DONE" />
+                <Button fx:id="CancelButton" cancelButton="true" mnemonicParsing="true" onAction="#handleCancelButtonPressed" text="C_ancel" ButtonBar.buttonData="CANCEL_CLOSE" />        
+            </buttons>
+        </ButtonBar>
+    </children>
+</AnchorPane>

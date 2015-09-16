@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="sonicScream.controllers.CategoryTabControllerTest" tests="1" skipped="0" failures="1" errors="0" timestamp="2015-09-16T21:32:15" hostname="DESKTOP-LMOTGJT" time="0.414">
+  <properties/>
+  <testcase name="testGetSelectedScript" classname="sonicScream.controllers.CategoryTabControllerTest" time="0.414">
+    <failure message="java.lang.NullPointerException" type="java.lang.NullPointerException">java.lang.NullPointerException
+	at java.util.Objects.requireNonNull(Objects.java:203)
+	at java.util.Arrays$ArrayList.&lt;init&gt;(Arrays.java:3813)
+	at java.util.Arrays.asList(Arrays.java:3800)
+	at sonicScream.controllers.CategoryTabControllerTest.setUp(CategoryTabControllerTest.java:72)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:45)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:42)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:27)
+	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:30)
+	at testHelpers.JavaFXThreadingRule$OnJFXThreadStatement$1.run(JavaFXThreadingRule.java:95)
+	at com.sun.javafx.application.PlatformImpl.lambda$null$174(PlatformImpl.java:295)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at com.sun.javafx.application.PlatformImpl.lambda$runLater$175(PlatformImpl.java:294)
+	at com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:95)
+	at com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+	at com.sun.glass.ui.win.WinApplication.lambda$null$149(WinApplication.java:191)
+	at java.lang.Thread.run(Thread.java:745)
+</failure>
+  </testcase>
+  <system-out><![CDATA[javafx initialising...
+javafx is initialised in 409ms
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
