@@ -1,45 +1,0 @@
-javafx initialising...
- javafx is initialised in 409ms
-initialize
-getSelectedProfile
-setSelectedProfile
-selectedProfileProperty
-	initialize
-
-setNavigationSource
-initialize
-getCategoryName
-setCategoryName
-getCategoryScripts
-setCategoryScripts
-categoryNameProperty
-categoryScriptsProperty
-profileNameProperty
-getCategories
-profileDescriptionProperty
-getProfileDescription
-setProfileDescription
-setCategories
-getProfileName
-setProfileName
-
-toString
-+*getService
-+,initialize
-+-registerService
-/.getProfile
-/0addProfile
-/1saveSettings
-/2getCrc
-/3putCrc
-/4getSetting
-/5putSetting
-/6getAllProfiles
-/7updateProfile
-/8deleteProfile
-:9getVPKEntries
-:;getVPKEntriesInDirectory
-:<getVPKEntry
->=listFiles
->?listFiles
-EGhandleSpecialCaseName
