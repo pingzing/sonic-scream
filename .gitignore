@@ -14,13 +14,10 @@ hs_err_pid*
 bin/
 dist/
 build/
-out.vsndevts
-
 
 #NetBeans specific
 nbproject/private/**
 build/
-/profiles/
 nbbuild/
 dist/
 nbdist/
@@ -66,3 +63,9 @@ atlassian-ide-plugin.xml
 *.sublime-*
 .nb-gradle
 .java-version
+
+#Sonic Scream specific
+out.vsndevts
+settings.xml
+crcs.xml
+/profiles/

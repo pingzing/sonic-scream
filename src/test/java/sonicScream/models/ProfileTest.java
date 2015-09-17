@@ -23,6 +23,7 @@
  */
 package sonicScream.models;
 
+import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.StringProperty;
 import org.junit.After;
@@ -31,6 +32,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -38,6 +42,8 @@ import static org.junit.Assert.*;
  */
 public class ProfileTest
 {
+ 
+    private static Profile _testProfile;
     
     public ProfileTest()
     {
@@ -46,6 +52,20 @@ public class ProfileTest
     @BeforeClass
     public static void setUpClass()
     {
+        Script mockScript = mock(Script.class);
+        when(mockScript.friendlyScriptNameProperty().get()).thenReturn("Axe");        
+        ArrayList<Script> scripts = new ArrayList<>();
+        scripts.add(mockScript);
+        scripts.add(mockScript);
+        
+        Category mockCategory = mock(Category.class);
+        when(mockCategory.categoryNameProperty().get()).thenReturn("Test");
+        when(mockCategory.getCategoryScripts()).thenReturn(scripts);        
+        
+        _testProfile = new Profile("Test Profile");
+        ArrayList<Category> categories = new ArrayList<>();
+        categories.add(mockCategory);
+        _testProfile.setCategories(null);
     }
     
     @AfterClass
@@ -69,130 +89,7 @@ public class ProfileTest
     @Test
     public void testGetProfileName()
     {
-        System.out.println("getProfileName");
-        Profile instance = new Profile();
-        String expResult = "";
-        String result = instance.getProfileName();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of setProfileName method, of class Profile.
-     */
-    @Test
-    public void testSetProfileName()
-    {
-        System.out.println("setProfileName");
-        String value = "";
-        Profile instance = new Profile();
-        instance.setProfileName(value);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of profileNameProperty method, of class Profile.
-     */
-    @Test
-    public void testProfileNameProperty()
-    {
-        System.out.println("profileNameProperty");
-        Profile instance = new Profile();
-        StringProperty expResult = null;
-        StringProperty result = instance.profileNameProperty();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getProfileDescription method, of class Profile.
-     */
-    @Test
-    public void testGetProfileDescription()
-    {
-        System.out.println("getProfileDescription");
-        Profile instance = new Profile();
-        String expResult = "";
-        String result = instance.getProfileDescription();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of setProfileDescription method, of class Profile.
-     */
-    @Test
-    public void testSetProfileDescription()
-    {
-        System.out.println("setProfileDescription");
-        String value = "";
-        Profile instance = new Profile();
-        instance.setProfileDescription(value);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of profileDescriptionProperty method, of class Profile.
-     */
-    @Test
-    public void testProfileDescriptionProperty()
-    {
-        System.out.println("profileDescriptionProperty");
-        Profile instance = new Profile();
-        StringProperty expResult = null;
-        StringProperty result = instance.profileDescriptionProperty();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getCategories method, of class Profile.
-     */
-    @Test
-    public void testGetCategories()
-    {
-        System.out.println("getCategories");
-        Profile instance = new Profile();
-        List<Category> expResult = null;
-        List<Category> result = instance.getCategories();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of setCategories method, of class Profile.
-     */
-    @Test
-    public void testSetCategories()
-    {
-        System.out.println("setCategories");
-        List<Category> value = null;
-        Profile instance = new Profile();
-        instance.setCategories(value);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of toString method, of class Profile.
-     */
-    @Test
-    public void testToString()
-    {
-        System.out.println("toString");
-        Profile instance = new Profile();
-        String expResult = "";
-        String result = instance.toString();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-    
+        String profileName = _testProfile.getProfileName();
+        assertEquals(profileName, "Test Profile");
+    } 
 }

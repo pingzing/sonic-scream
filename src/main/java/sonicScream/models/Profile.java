@@ -24,9 +24,12 @@
 package sonicScream.models;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 public class Profile
 {
@@ -63,6 +66,37 @@ public class Profile
     public String toString()
     {
         return profileName.get();
+    }
+    
+    @Override
+    public boolean equals(Object p)
+    {
+        if(!(p instanceof Profile))
+        {
+            return false;
+        }
+        if(p == this)
+        {
+            return true;
+        }        
+        
+        Profile other = (Profile)p;
+        boolean equalsBuilder =  new EqualsBuilder()
+                .append(profileName.get(), other.profileName.get())                
+                .append(profileDescription.get(), other.profileDescription.get())                
+                .isEquals();
+        return equalsBuilder
+                && Arrays.deepEquals(_categories.toArray(), other._categories.toArray());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int hash = 3;
+        hash = 29 * hash + Objects.hashCode(this.profileName);
+        hash = 29 * hash + Objects.hashCode(this.profileDescription);
+        hash = 29 * hash + Objects.hashCode(this._categories);
+        return hash;
     }
 
 }

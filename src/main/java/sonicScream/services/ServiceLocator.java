@@ -21,37 +21,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package sonicScream.services;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ServiceLocator 
+public class ServiceLocator
 {
+
     private static Map<Type, Object> _services;
-    
+
     public static void initialize()
     {
-        _services = new HashMap<>();        
+        _services = new HashMap<>();
     }
-    
+
     public static <T> void registerService(Type serviceType, Object service)
     {
-        try
+        if(_services == null)
         {
-            _services.put(serviceType, service);
+            initialize();
         }
-        catch(NullPointerException ex)
-        {
-            System.err.printf("\nFailed to register service. Did you forget to initialize "
-                    + "the ServiceLocator? Cause: %s", ex.getMessage());
-        }
+        _services.put(serviceType, service);                
     }
-    
+
     public static Object getService(Type serviceType)
     {
-        return _services.get(serviceType);
+        if(_services == null)
+        {
+            initialize();
+        }
+        
+        return _services.get(serviceType);        
     }
 }

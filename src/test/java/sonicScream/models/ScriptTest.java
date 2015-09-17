@@ -23,9 +23,14 @@
  */
 package sonicScream.models;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TreeItem;
@@ -36,6 +41,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import sonicScream.utilities.Constants;
+import sonicScream.utilities.ScriptParser;
 
 /**
  *
@@ -44,12 +50,12 @@ import sonicScream.utilities.Constants;
 public class ScriptTest
 {
     private final URL FOLDER_LOCATION = getClass().getResource("/sonicScream/assets/test/game_sounds_vo_nevermore.vsndevts_c");    
-    private final File _testScriptFile;
+    private final Path _testScriptFile;
     private Script _testScript;
     
     public ScriptTest() throws URISyntaxException
     {
-        _testScriptFile = new File(FOLDER_LOCATION.toURI());        
+        _testScriptFile = Paths.get(FOLDER_LOCATION.toURI());
     }
     
     @BeforeClass
@@ -64,7 +70,7 @@ public class ScriptTest
     
     @Before
     public void setUp()
-    {
+    {                
         _testScript = new Script(_testScriptFile, new Category(Constants.CATEGORY_VOICES));
     }
     
@@ -107,121 +113,31 @@ public class ScriptTest
     }
 
     /**
-     * Test of getFriendlyScriptName method, of class Script.
-     */
-    @Test
-    public void testGetFriendlyScriptName()
-    {
-        System.out.println("getFriendlyScriptName");
-        Script instance = null;
-        String expResult = "";
-        String result = instance.getFriendlyScriptName();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of setFriendlyScriptName method, of class Script.
-     */
-    @Test
-    public void testSetFriendlyScriptName()
-    {
-        System.out.println("setFriendlyScriptName");
-        String value = "";
-        Script instance = null;
-        instance.setFriendlyScriptName(value);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of friendlyScriptNameProperty method, of class Script.
-     */
-    @Test
-    public void testFriendlyScriptNameProperty()
-    {
-        System.out.println("friendlyScriptNameProperty");
-        Script instance = null;
-        StringProperty expResult = null;
-        StringProperty result = instance.friendlyScriptNameProperty();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getRawFileName method, of class Script.
-     */
-    @Test
-    public void testGetRawFileName()
-    {
-        System.out.println("getRawFileName");
-        Script instance = null;
-        String expResult = "";
-        String result = instance.getRawFileName();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
      * Test of getRootNode method, of class Script.
      */
     @Test
-    public void testGetRootNode()
-    {
-        System.out.println("getRootNode");
-        Script instance = null;
-        TreeItem<String> expResult = null;
-        TreeItem<String> result = instance.getRootNode();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of setRootNode method, of class Script.
-     */
-    @Test
-    public void testSetRootNode()
-    {
-        System.out.println("setRootNode");
-        TreeItem<String> value = null;
-        Script instance = null;
-        instance.setRootNode(value);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testGetRootNode() throws IOException
+    {                
+        BufferedReader br = new BufferedReader(Files.newBufferedReader(_testScriptFile));
+        TreeItem<String> expResult = ScriptParser.parseScript(br, _testScriptFile.getFileName().toString());        
+        
+        TreeItem<String> result = _testScript.getRootNode();
+        
+        assertEquals(expResult, result);        
     }
 
     /**
      * Test of getScriptAsString method, of class Script.
      */
     @Test
-    public void testGetScriptAsString()
+    public void testGetScriptAsString() throws IOException
     {
-        System.out.println("getScriptAsString");
-        Script instance = null;
-        String expResult = "";
-        String result = instance.getScriptAsString();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        BufferedReader br = new BufferedReader(Files.newBufferedReader(_testScriptFile));
+        TreeItem<String> inTree = ScriptParser.parseScript(br, _testScriptFile.getFileName().toString());        
+        String expResult = ScriptParser.parseScriptTreeToString(inTree);                                
+        
+        String result = _testScript.getScriptAsString();
+        
+        assertEquals(expResult, result);        
     }
-
-    /**
-     * Test of getParentCategory method, of class Script.
-     */
-    @Test
-    public void testGetParentCategory()
-    {
-        System.out.println("getParentCategory");
-        Script instance = null;
-        Category expResult = null;
-        Category result = instance.getParentCategory();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-    
 }

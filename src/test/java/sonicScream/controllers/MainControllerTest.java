@@ -39,6 +39,7 @@ import static org.junit.Assert.*;
 public class MainControllerTest
 {
     
+    
     public MainControllerTest()
     {
     }
@@ -68,14 +69,11 @@ public class MainControllerTest
      */
     @Test
     public void testInitialize()
-    {
-        System.out.println("initialize");
+    {        
         URL url = null;
         ResourceBundle rb = null;
         MainController instance = new MainController();
-        instance.initialize(url, rb);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-    
+        instance.initialize(url, rb);                        
+        assert(true); //just testing to see if initialize throws any exceptions, really
+    }    
 }

@@ -23,14 +23,21 @@
  */
 package sonicScream.services;
 
+import java.awt.color.ProfileDataException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import java.util.Map;
+import org.apache.commons.io.FileUtils;
+import org.junit.*;
 import static org.junit.Assert.*;
+import org.junit.rules.ExpectedException;
 import sonicScream.models.Profile;
+import sonicScream.utilities.Constants;
 
 /**
  *
@@ -38,91 +45,70 @@ import sonicScream.models.Profile;
  */
 public class SettingsServiceTest
 {
+    private SettingsService _testService;
     
+    Path settingsFile;
+    Path crcFile;
+    Path profileDir;
+    
+    Profile testProfile1 = new Profile("Profile 1");
+    Profile testProfileZ = new Profile("Profile Z");
+    Profile testProfileWeirdChar = new Profile("Profile äãöâö");
+    
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
     public SettingsServiceTest()
     {
     }
-    
+
     @BeforeClass
     public static void setUpClass()
     {
     }
-    
+
     @AfterClass
     public static void tearDownClass()
     {
     }
-    
+
     @Before
-    public void setUp()
+    public void setUp() throws IOException, ProfileNameExistsException
     {
+        Path testFolder = Paths.get("test");
+        if(Files.exists(testFolder))
+        {
+            FileUtils.deleteDirectory(testFolder.toFile());            
+        }                
+        
+        testFolder = Files.createDirectory(testFolder);
+        
+        //TODO: Replace these with test settings files
+        settingsFile = Paths.get(testFolder.toString(), Constants.SETTINGS_FILE_NAME);
+        if (!Files.exists(settingsFile))
+        {
+            settingsFile = Files.createFile(settingsFile);
+        }
+        crcFile = Paths.get(testFolder.toString(), Constants.CRC_CACHE_FILE_NAME);
+        if (!Files.exists(crcFile))
+        {
+            crcFile = Files.createFile(crcFile);
+        }
+        profileDir = Paths.get(testFolder.toString(), Constants.PROFILE_FILES_DIRECTORY);
+        if (!Files.exists(profileDir))
+        {
+            profileDir = Files.createDirectory(profileDir);
+        }
+        _testService = new SettingsService(settingsFile, crcFile, profileDir);                
+        
+        _testService.addProfile(testProfile1);
+        _testService.addProfile(testProfileZ);
+        _testService.addProfile(testProfileWeirdChar);
     }
-    
+
     @After
     public void tearDown()
     {
-    }
-
-    /**
-     * Test of getSetting method, of class SettingsService.
-     */
-    @Test
-    public void testGetSetting()
-    {
-        System.out.println("getSetting");
-        String setting = "";
-        SettingsService instance = null;
-        String expResult = "";
-        String result = instance.getSetting(setting);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of putSetting method, of class SettingsService.
-     */
-    @Test
-    public void testPutSetting()
-    {
-        System.out.println("putSetting");
-        String setting = "";
-        String newValue = "";
-        SettingsService instance = null;
-        instance.putSetting(setting, newValue);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getCrc method, of class SettingsService.
-     */
-    @Test
-    public void testGetCrc()
-    {
-        System.out.println("getCrc");
-        String fileName = "";
-        SettingsService instance = null;
-        long expResult = 0L;
-        long result = instance.getCrc(fileName);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of putCrc method, of class SettingsService.
-     */
-    @Test
-    public void testPutCrc()
-    {
-        System.out.println("putCrc");
-        String fileName = "";
-        long crc = 0L;
-        SettingsService instance = null;
-        instance.putCrc(fileName, crc);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -131,14 +117,23 @@ public class SettingsServiceTest
     @Test
     public void testGetProfile()
     {
-        System.out.println("getProfile");
-        String profileName = "";
-        SettingsService instance = null;
-        Profile expResult = null;
-        Profile result = instance.getProfile(profileName);
+        Profile expResult = testProfile1;
+        Profile result = _testService.getProfile("Profile 1");
+        assertEquals(testProfile1, result);
+        
+        expResult = testProfileZ;
+        result = _testService.getProfile("Profile Z");
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        
+        expResult = testProfileWeirdChar;
+        result = _testService.getProfile("Profile äãöâö");
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetProfile_invalidNameReturnsNull()
+    {        
+        assertEquals(_testService.getProfile("Doesn't Exist"), null);
     }
 
     /**
@@ -147,68 +142,77 @@ public class SettingsServiceTest
     @Test
     public void testGetAllProfiles()
     {
-        System.out.println("getAllProfiles");
-        SettingsService instance = null;
-        List<Profile> expResult = null;
-        List<Profile> result = instance.getAllProfiles();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+       ArrayList<Profile> expResult = new ArrayList<Profile>();
+       expResult.add(testProfile1);
+       expResult.add(testProfileZ);
+       expResult.add(testProfileWeirdChar);
+       
+        assertEquals(_testService.getAllProfiles(), expResult);
     }
 
     /**
      * Test of addProfile method, of class SettingsService.
+     * @throws java.lang.Exception
      */
     @Test
     public void testAddProfile() throws Exception
     {
-        System.out.println("addProfile");
-        Profile profileToAdd = null;
-        SettingsService instance = null;
-        instance.addProfile(profileToAdd);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        _testService.addProfile(new Profile("test"));
     }
-
-    /**
-     * Test of updateProfile method, of class SettingsService.
-     */
+    
     @Test
-    public void testUpdateProfile()
+    public void addProfile_throwsOnDuplicateProfile() throws ProfileNameExistsException
     {
-        System.out.println("updateProfile");
-        Profile updated = null;
-        SettingsService instance = null;
-        instance.updateProfile(updated);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        exception.expect(ProfileDataException.class);
+        _testService.addProfile(new Profile("Profile 1"));        
     }
-
+    
     /**
      * Test of deleteProfile method, of class SettingsService.
      */
     @Test
     public void testDeleteProfile()
     {
-        System.out.println("deleteProfile");
-        String profileToDelete = "";
-        SettingsService instance = null;
-        instance.deleteProfile(profileToDelete);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        _testService.deleteProfile("Profile 1");
+        Profile result = _testService.getProfile("Profile 1");
+        assertEquals(result, null);
+    }
+    
+    @Test
+    public void deleteProfile_handlesInvalidName()
+    {
+        _testService.deleteProfile("Doesn't Exist");
     }
 
     /**
      * Test of saveSettings method, of class SettingsService.
+     * @throws sonicScream.services.ProfileNameExistsException
+     * @throws java.io.IOException
      */
     @Test
-    public void testSaveSettings()
-    {
-        System.out.println("saveSettings");
-        SettingsService instance = null;
-        instance.saveSettings();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testSaveSettings() throws ProfileNameExistsException, IOException
+    {                
+        _testService.putSetting("testSetting", "1");
+        _testService.putCrc("testCrc", 214980124);
+        
+        _testService.saveSettings("test");               
+        
+        Map<String, String> expSettings = _testService.getReadonlySettings();
+        Map<String, Long> expCrcs = _testService.getReadonlyCRCs();
+        List<Profile> expProfiles = _testService.getAllProfiles();
+        
+        SettingsService result = new SettingsService(settingsFile, crcFile, profileDir);
+        Map<String, String> resultSettings = result.getReadonlySettings();
+        Map<String, Long> resultCrcs = result.getReadonlyCRCs();
+        List<Profile> resultProfiles = result.getAllProfiles();
+        
+        assertEquals(expSettings, resultSettings);
+        assertEquals(expCrcs, resultCrcs);
+        assertEquals(expProfiles.size(), resultProfiles.size());
+        for(int i = 0; i < expProfiles.size(); i++)
+        {
+            assertEquals(expProfiles.get(i), resultProfiles.get(i));
+        }
     }
-    
+
 }

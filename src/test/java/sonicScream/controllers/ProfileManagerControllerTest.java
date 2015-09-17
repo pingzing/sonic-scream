@@ -32,6 +32,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import sonicScream.models.Profile;
 
 /**
@@ -41,6 +43,7 @@ import sonicScream.models.Profile;
 public class ProfileManagerControllerTest
 {
     
+    
     public ProfileManagerControllerTest()
     {
     }
@@ -48,6 +51,7 @@ public class ProfileManagerControllerTest
     @BeforeClass
     public static void setUpClass()
     {
+        
     }
     
     @AfterClass
@@ -70,14 +74,11 @@ public class ProfileManagerControllerTest
      */
     @Test
     public void testGetSelectedProfile()
-    {
-        System.out.println("getSelectedProfile");
-        ProfileManagerController instance = new ProfileManagerController();
-        Profile expResult = null;
-        Profile result = instance.getSelectedProfile();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    {        
+        ProfileManagerController controller = new ProfileManagerController();
+        Profile defaultProfile = new Profile();
+        controller.setSelectedProfile(defaultProfile);
+        assertEquals(controller.getSelectedProfile(), defaultProfile);                
     }
 
     /**
@@ -86,42 +87,10 @@ public class ProfileManagerControllerTest
     @Test
     public void testSetSelectedProfile()
     {
-        System.out.println("setSelectedProfile");
-        Profile value = null;
-        ProfileManagerController instance = new ProfileManagerController();
-        instance.setSelectedProfile(value);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of selectedProfileProperty method, of class ProfileManagerController.
-     */
-    @Test
-    public void testSelectedProfileProperty()
-    {
-        System.out.println("selectedProfileProperty");
-        ProfileManagerController instance = new ProfileManagerController();
-        ObjectProperty<Profile> expResult = null;
-        ObjectProperty<Profile> result = instance.selectedProfileProperty();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of initialize method, of class ProfileManagerController.
-     */
-    @Test
-    public void testInitialize()
-    {
-        System.out.println("initialize");
-        URL url = null;
-        ResourceBundle rb = null;
-        ProfileManagerController instance = new ProfileManagerController();
-        instance.initialize(url, rb);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-    
+        ProfileManagerController controller = new ProfileManagerController();
+        Profile defaultProfile = new Profile();
+        assertEquals(controller.getSelectedProfile(), null);
+        controller.setSelectedProfile(defaultProfile);
+        assertEquals(controller.getSelectedProfile(), defaultProfile);
+    }    
 }

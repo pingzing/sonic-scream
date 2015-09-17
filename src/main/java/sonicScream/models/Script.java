@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TreeItem;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import sonicScream.services.ServiceLocator;
 import sonicScream.utilities.ScriptParser;
 import sonicScream.utilities.StringParsing;
@@ -159,4 +160,28 @@ public class Script
     {
         return friendlyScriptName.get();
     }
+    
+    @Override
+    public boolean equals(Object scr)
+    {
+        if(!(scr instanceof Script))
+        {
+            return false;
+        }
+        if(scr == this)
+        {
+            return true;
+        }
+        
+        Script other = (Script)scr;
+        return new EqualsBuilder()
+                .append(this._internalScriptName, other._internalScriptName)
+                .append(this._isCustom, other._isCustom)
+                .append(this._lastKnownCrc, other._lastKnownCrc)
+                .append(this._localPath, other._localPath)
+                .append(this._rawFileName, other._rawFileName)
+                .append(this._vpkPath, other._vpkPath)
+                .isEquals();
+    }
+    
 }

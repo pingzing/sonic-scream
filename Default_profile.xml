@@ -3,7 +3,7 @@
     <provider>
       <theFileSystem reference="../.."/>
     </provider>
-    <defaultDirectory>C:\Users\mcali\Desktop\Repositories\sonic-scream-gradle</defaultDirectory>
+    <defaultDirectory>C:\Users\mcali\Desktop\Repositories\sonic-scream</defaultDirectory>
     <defaultRoot>C:\</defaultRoot>
     <supportsLinks>true</supportsLinks>
     <supportsStreamEnumeration>true</supportsStreamEnumeration>
@@ -12,11 +12,12 @@
   <root></root>
   <path>Default_profile.xml</path>
   <pathForWin32Calls>
-    <referent class="string">C:\Users\mcali\Desktop\Repositories\sonic-scream-gradle\Default_profile.xml</referent>
+    <referent class="string">C:\Users\mcali\Desktop\Repositories\sonic-scream\Default_profile.xml</referent>
     <queue class="java.lang.ref.ReferenceQueue$Null">
       <lock/>
       <queueLength>0</queueLength>
     </queue>
   </pathForWin32Calls>
   <hash>0</hash>
+</sun.nio.fs.WindowsPath>0</hash>
 </sun.nio.fs.WindowsPath>

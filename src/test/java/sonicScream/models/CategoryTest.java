@@ -32,6 +32,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -39,6 +41,7 @@ import static org.junit.Assert.*;
  */
 public class CategoryTest
 {
+    Category _testCategory;
     
     public CategoryTest()
     {
@@ -46,7 +49,7 @@ public class CategoryTest
     
     @BeforeClass
     public static void setUpClass()
-    {
+    {                
     }
     
     @AfterClass
@@ -57,6 +60,10 @@ public class CategoryTest
     @Before
     public void setUp()
     {
+        List<String> mockPaths = mock(List.class);
+        when(mockPaths.get(0)).thenReturn("/Somepath/wherever");
+        when(mockPaths.size()).thenReturn(1);
+        _testCategory = new Category("Test", mockPaths);
     }
     
     @After
@@ -69,14 +76,8 @@ public class CategoryTest
      */
     @Test
     public void testGetCategoryName()
-    {
-        System.out.println("getCategoryName");
-        Category instance = null;
-        String expResult = "";
-        String result = instance.getCategoryName();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    {        
+        assertEquals("Test", _testCategory.getCategoryName());
     }
 
     /**
@@ -85,71 +86,7 @@ public class CategoryTest
     @Test
     public void testSetCategoryName()
     {
-        System.out.println("setCategoryName");
-        String value = "";
-        Category instance = null;
-        instance.setCategoryName(value);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        _testCategory.setCategoryName("New Name");
+        assertEquals(_testCategory.getCategoryName(), "New Name");
     }
-
-    /**
-     * Test of categoryNameProperty method, of class Category.
-     */
-    @Test
-    public void testCategoryNameProperty()
-    {
-        System.out.println("categoryNameProperty");
-        Category instance = null;
-        StringProperty expResult = null;
-        StringProperty result = instance.categoryNameProperty();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getCategoryScripts method, of class Category.
-     */
-    @Test
-    public void testGetCategoryScripts()
-    {
-        System.out.println("getCategoryScripts");
-        Category instance = null;
-        List<Script> expResult = null;
-        List<Script> result = instance.getCategoryScripts();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of setCategoryScripts method, of class Category.
-     */
-    @Test
-    public void testSetCategoryScripts()
-    {
-        System.out.println("setCategoryScripts");
-        List<Script> value = null;
-        Category instance = null;
-        instance.setCategoryScripts(value);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of categoryScriptsProperty method, of class Category.
-     */
-    @Test
-    public void testCategoryScriptsProperty()
-    {
-        System.out.println("categoryScriptsProperty");
-        Category instance = null;
-        ListProperty<Script> expResult = null;
-        ListProperty<Script> result = instance.categoryScriptsProperty();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-    
 }

@@ -24,12 +24,15 @@
 package sonicScream.models;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 public class Category
 {
@@ -55,6 +58,35 @@ public class Category
     {
         setCategoryName(name);
         _vpkPaths = vpkPaths;
+    }
+    
+    @Override public boolean equals(Object cat)
+    {
+        if(!(cat instanceof Category))
+        {
+            return false;
+        }
+        if(cat == this)
+        {
+            return true;
+        }
+        
+        Category other = (Category)cat;
+        return new EqualsBuilder()
+                .append(this.categoryName.get(), other.categoryName.get())
+                .isEquals()
+                && Arrays.deepEquals(this._vpkPaths.toArray(), other._vpkPaths.toArray())                
+                && Arrays.deepEquals(this.categoryScripts.toArray(), other.categoryScripts.toArray());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.categoryName);
+        hash = 97 * hash + Objects.hashCode(this.categoryScripts);
+        hash = 97 * hash + Objects.hashCode(this._vpkPaths);
+        return hash;
     }
     
 }

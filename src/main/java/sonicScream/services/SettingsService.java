@@ -27,6 +27,7 @@ package sonicScream.services;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.KXml2Driver;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,6 +43,9 @@ public class SettingsService
     private final Map<String, String> _settingsDictionary;
     private final Map<String, Long> _crcDictionary;
     private final List<Profile> _profileList;
+    
+    public Map<String, String> getReadonlySettings() { return Collections.unmodifiableMap(_settingsDictionary); }
+    public Map<String, Long> getReadonlyCRCs() { return Collections.unmodifiableMap(_crcDictionary); }    
     
     public SettingsService(Path settingsFile, Path crcFile, Path profilesDirectory) throws IOException
     {        
@@ -74,8 +78,9 @@ public class SettingsService
         {
             profiles.stream().forEach(p ->
             {
-                try{
-                _profileList.add((Profile)stream.fromXML(Files.newInputStream(p)));
+                try
+                {
+                    _profileList.add((Profile)stream.fromXML(Files.newInputStream(p)));
                 }
                 catch(IOException ex)
                 {
@@ -141,12 +146,12 @@ public class SettingsService
     {
         if(_profileList.stream().anyMatch(
                 p -> p.getProfileName().equals(profileToAdd.getProfileName())))
-        {
-            _profileList.add(profileToAdd);
+        {            
+            throw new ProfileNameExistsException("A profile named " + profileToAdd.getProfileName() + " already exists.");
         }
         else
         {
-            throw new ProfileNameExistsException("A profile named " + profileToAdd.getProfileName() + " already exists.");
+            _profileList.add(profileToAdd);            
         }
     }
     
@@ -167,10 +172,24 @@ public class SettingsService
         }
     }
     
+    /**
+     * Serializes all current settings objects out to disk, to the current directory.
+     */
     public void saveSettings()
     {
+        saveSettings("");
+    }
+    
+    /**
+     *Serializes all current settings objects out to disk, to the specified directory, 
+     * relative to the current directory. A folder separator is automatically 
+     * appended to the passed string.
+     * @param pathToWriteTo The name, or relative path of the folder to write to, without a trailing slash.
+     */
+    public void saveSettings(String pathToWriteTo)
+    {
         XStream serializer = new XStream(new KXml2Driver());
-        Path settingsFile = Paths.get(Constants.SETTINGS_FILE_NAME);
+        Path settingsFile = Paths.get(pathToWriteTo, File.separator, Constants.SETTINGS_FILE_NAME);
         try(BufferedWriter bw = Files.newBufferedWriter(settingsFile, StandardOpenOption.CREATE))
         {
             serializer.toXML(_settingsDictionary, bw);
@@ -180,7 +199,7 @@ public class SettingsService
             System.err.println("Failed to write out " + Constants.SETTINGS_FILE_NAME);
         }
         
-        Path crcFile = Paths.get(Constants.CRC_CACHE_FILE_NAME);
+        Path crcFile = Paths.get(pathToWriteTo, File.separator, Constants.CRC_CACHE_FILE_NAME);
         try(BufferedWriter bw = Files.newBufferedWriter(crcFile, StandardOpenOption.CREATE))
         {
             serializer.toXML(_crcDictionary, bw);
@@ -190,18 +209,20 @@ public class SettingsService
             System.err.println("Failed to write out " + Constants.CRC_CACHE_FILE_NAME);
         }
         
-        _profileList.stream()
-                .map((profile) -> Paths.get(profile.getProfileName() + "_" + Constants.PROFILE_FILE_SUFFIX))
-                .forEach((profile) ->
+        for(Profile profile : _profileList)
         {
-            try(BufferedWriter bw = Files.newBufferedWriter(profile, StandardOpenOption.CREATE))
+            Path profilePath = Paths.get(pathToWriteTo, File.separator, 
+                    Constants.PROFILE_FILES_DIRECTORY, File.separator,
+                    profile.getProfileName() + "_" + Constants.PROFILE_FILE_SUFFIX);
+            try(BufferedWriter bw = Files.newBufferedWriter(profilePath))
             {
                 serializer.toXML(profile, bw);
             }
             catch(IOException ex)
             {
-                System.err.println("Failed to write out " + Constants.CRC_CACHE_FILE_NAME);
+                System.err.printf("\nFailed to write out profile: %s " + ex.getMessage());
             }
-        });
+        }
+               
     }
 }

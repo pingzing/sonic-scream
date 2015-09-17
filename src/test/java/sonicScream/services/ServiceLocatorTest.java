@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 /**
  *
@@ -67,11 +68,8 @@ public class ServiceLocatorTest
      */
     @Test
     public void testInitialize()
-    {
-        System.out.println("initialize");
-        ServiceLocator.initialize();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    {        
+        ServiceLocator.initialize();                        
     }
 
     /**
@@ -80,12 +78,8 @@ public class ServiceLocatorTest
     @Test
     public void testRegisterService()
     {
-        System.out.println("registerService");
-        Type serviceType = null;
-        Object service = null;
-        ServiceLocator.registerService(serviceType, service);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        SettingsService settings = mock(SettingsService.class);
+        ServiceLocator.registerService(SettingsService.class, settings);
     }
 
     /**
@@ -94,13 +88,11 @@ public class ServiceLocatorTest
     @Test
     public void testGetService()
     {
-        System.out.println("getService");
-        Type serviceType = null;
-        Object expResult = null;
-        Object result = ServiceLocator.getService(serviceType);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        SettingsService settings = mock(SettingsService.class);
+        ServiceLocator.registerService(SettingsService.class, settings);
+        
+        SettingsService result =  (SettingsService)ServiceLocator.getService(SettingsService.class);
+        assertEquals(settings, result);
     }
     
 }
