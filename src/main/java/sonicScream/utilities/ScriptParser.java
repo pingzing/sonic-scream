@@ -28,6 +28,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import javafx.scene.control.TreeItem;
 
@@ -48,6 +51,12 @@ public class ScriptParser
     //tracking the number of brace-pairs after that.
     private static int _openBraces = 0;
     private static int _closeBraces = 0;
+    
+    public static TreeItem<String> parseScript(Path script, String fileName) throws IOException
+    {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(script)));
+        return parseScript(reader, fileName);
+    }
 
     public static TreeItem<String> parseScript(BufferedReader scriptReader, String fileName) throws IOException
     {

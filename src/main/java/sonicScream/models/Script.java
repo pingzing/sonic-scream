@@ -25,7 +25,9 @@ package sonicScream.models;
 
 import info.ata4.vpk.VPKEntry;
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TreeItem;
@@ -79,22 +81,7 @@ public class Script
         _localPath = scriptFile.toAbsolutePath().toString();        
         _isCustom = true;
         _vpkPath = null;
-    }
-    
-    private BufferedReader getScriptReader(File scriptFile)
-    {
-        try
-        {
-            FileInputStream fis = new FileInputStream(scriptFile);
-            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-            return br;
-        }
-        catch(FileNotFoundException ex)
-        {
-            System.err.println("Unable to read script file " + scriptFile.getName() + ": " + ex.getMessage());
-            return null;
-        }        
-    }
+    }       
     
     private BufferedReader getScriptReader(VPKEntry entry)
     {
@@ -124,9 +111,9 @@ public class Script
             try
             {
                 if (_isCustom)
-                {
-                    File script = new File(_localPath);
-                    _rootNode = ScriptParser.parseScript(getScriptReader(script), _rawFileName);
+                {   
+                    Path script = Paths.get(_localPath);
+                    _rootNode = ScriptParser.parseScript(script, _rawFileName);
                 }
                 else
                 {

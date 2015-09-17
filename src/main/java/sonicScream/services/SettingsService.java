@@ -188,8 +188,14 @@ public class SettingsService
      */
     public void saveSettings(String pathToWriteTo)
     {
+        if(pathToWriteTo.length() > 2 
+                && !(pathToWriteTo.charAt(pathToWriteTo.length() - 1) == File.separatorChar))
+        {
+            pathToWriteTo.concat(File.separator);
+        }
+        
         XStream serializer = new XStream(new KXml2Driver());
-        Path settingsFile = Paths.get(pathToWriteTo, File.separator, Constants.SETTINGS_FILE_NAME);
+        Path settingsFile = Paths.get(pathToWriteTo, Constants.SETTINGS_FILE_NAME);
         try(BufferedWriter bw = Files.newBufferedWriter(settingsFile, StandardOpenOption.CREATE))
         {
             serializer.toXML(_settingsDictionary, bw);
@@ -199,7 +205,7 @@ public class SettingsService
             System.err.println("Failed to write out " + Constants.SETTINGS_FILE_NAME);
         }
         
-        Path crcFile = Paths.get(pathToWriteTo, File.separator, Constants.CRC_CACHE_FILE_NAME);
+        Path crcFile = Paths.get(pathToWriteTo, Constants.CRC_CACHE_FILE_NAME);
         try(BufferedWriter bw = Files.newBufferedWriter(crcFile, StandardOpenOption.CREATE))
         {
             serializer.toXML(_crcDictionary, bw);
@@ -211,9 +217,8 @@ public class SettingsService
         
         for(Profile profile : _profileList)
         {
-            Path profilePath = Paths.get(pathToWriteTo, File.separator, 
-                    Constants.PROFILE_FILES_DIRECTORY, File.separator,
-                    profile.getProfileName() + "_" + Constants.PROFILE_FILE_SUFFIX);
+            Path profilePath = Paths.get(pathToWriteTo, Constants.PROFILE_FILES_DIRECTORY, 
+                File.separator, profile.getProfileName() + "_" + Constants.PROFILE_FILE_SUFFIX);
             try(BufferedWriter bw = Files.newBufferedWriter(profilePath))
             {
                 serializer.toXML(profile, bw);

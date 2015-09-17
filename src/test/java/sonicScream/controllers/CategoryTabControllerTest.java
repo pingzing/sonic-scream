@@ -76,7 +76,7 @@ public class CategoryTabControllerTest
     {
         URL location = getClass().getResource("/sonicScream/assets/test");
         Path folder = Paths.get(location.toURI());
-        List<Script> scripts = Arrays.asList(FilesEx.listFiles(folder))
+        List<Script> scripts = FilesEx.listFiles(folder)
                 .stream()
                 .map(p -> new Script((Path) p, new Category(Constants.CATEGORY_HEROES)))
                 .collect(Collectors.toList());

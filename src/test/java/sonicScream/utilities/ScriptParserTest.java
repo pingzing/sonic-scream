@@ -26,6 +26,9 @@ package sonicScream.utilities;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,13 +50,13 @@ public class ScriptParserTest
 {
 
     private final URL FOLDER_LOCATION = getClass().getResource("/sonicScream/assets/test");
-    private final File _scriptFolder;
-    private final ArrayList<File> _scriptFiles;
+    private final Path _scriptFolder;
+    private final List<Path> _scriptFiles;
 
-    public ScriptParserTest() throws URISyntaxException
+    public ScriptParserTest() throws URISyntaxException, IOException
     {
-        _scriptFolder = new File(FOLDER_LOCATION.toURI());
-        _scriptFiles = new ArrayList<>(Arrays.asList(_scriptFolder.listFiles()));
+        _scriptFolder = Paths.get(FOLDER_LOCATION.toURI());
+        _scriptFiles = FilesEx.listFiles(_scriptFolder);
     }
 
     @BeforeClass
@@ -87,12 +90,12 @@ public class ScriptParserTest
         _scriptFiles.stream().forEach((f) ->
         {
             try
-            {
-                ScriptParser.parseScript(getReaderForFile(f), f.getName());
+            {                
+                ScriptParser.parseScript(f, f.getFileName().toString());
             }            
             catch (Exception ex)
             {
-                fail("Failed to parse " + f.getName() + " due to: " + ex.getMessage());
+                fail("Failed to parse " + f.getFileName() + " due to: " + ex.getMessage());
             }
         });
     }
@@ -100,42 +103,27 @@ public class ScriptParserTest
     @Test    
     public void testParseScript_HandlesFirstTwoLines() throws Exception
     {
-        File file = _scriptFiles
+        Path file = _scriptFiles
                 .stream()
-                .filter(f -> f.getName().equals("game_sounds_vo_abaddon.vsndevts_c"))
+                .filter(f -> f.getFileName().toString().equals("game_sounds_vo_abaddon.vsndevts_c"))
                 .findFirst().get();        
-        TreeItem<String> tree = ScriptParser.parseScript(getReaderForFile(file), file.getName());
+        TreeItem<String> tree = ScriptParser.parseScript(file, file.getFileName().toString());
         assertEquals("\"abaddon_abad_spawn_01\"", tree.getChildren().get(0).getValue()); //first child
         assertEquals("\"operator_stacks\"", tree.getChildren().get(0).getChildren().get(0).getValue()); //first child's child
-    }
-    
-    private BufferedReader getReaderForFile(File file)
-    {
-        try (FileInputStream fis = new FileInputStream(file))
-        {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
-            return reader;
-        }
-        catch(IOException ex)
-        {
-            fail("IOException on " + file.getName() + ": " + ex.getMessage());
-            return null;
-        }
-    }
+    }       
 
     /**
      * Test of parseScriptTreeToString method, of class ScriptParser.
      */
     @Test
-    public void testParseScriptTreeToString()
+    public void testParseScriptTreeToString() throws IOException
     {
-        System.out.println("parseScriptTreeToString");
-        TreeItem<String> currentScriptTree = null;
-        String expResult = "";
-        String result = ScriptParser.parseScriptTreeToString(currentScriptTree);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        Path file = _scriptFiles
+                .stream()
+                .filter(f -> f.getFileName().toString().equals("game_sounds_vo_abaddon.vsndevts_c"))
+                .findFirst().get();        
+        TreeItem<String> tree = ScriptParser.parseScript(file, file.getFileName().toString());
+        
     }
 
 }

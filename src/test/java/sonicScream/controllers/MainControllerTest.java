@@ -62,18 +62,5 @@ public class MainControllerTest
     @After
     public void tearDown()
     {
-    }
-
-    /**
-     * Test of initialize method, of class MainController.
-     */
-    @Test
-    public void testInitialize()
-    {        
-        URL url = null;
-        ResourceBundle rb = null;
-        MainController instance = new MainController();
-        instance.initialize(url, rb);                        
-        assert(true); //just testing to see if initialize throws any exceptions, really
-    }    
+    }   
 }
