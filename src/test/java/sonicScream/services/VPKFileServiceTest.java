@@ -23,7 +23,13 @@
  */
 package sonicScream.services;
 
+import info.ata4.vpk.VPKArchive;
 import info.ata4.vpk.VPKEntry;
+import info.ata4.vpk.VPKException;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -31,13 +37,20 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.*;
 
 /**
  *
  * @author nmca
  */
 public class VPKFileServiceTest
-{
+{        
+    private VPKFileService _testService;
+    private VPKEntry _testVPKEntry;
+    private VPKArchive _testVPKArchive;
+    List<VPKEntry> _manyTestVPKs = new ArrayList<>();
     
     public VPKFileServiceTest()
     {
@@ -54,8 +67,17 @@ public class VPKFileServiceTest
     }
     
     @Before
-    public void setUp()
-    {
+    public void setUp() throws VPKException, IOException
+    {        
+        _testVPKEntry = mock(VPKEntry.class);
+        _testVPKArchive = mock(VPKArchive.class);
+                
+        _manyTestVPKs.add(_testVPKEntry);
+        _manyTestVPKs.add(_testVPKEntry);
+        when(_testVPKArchive.getEntry(Mockito.anyString())).thenReturn(_testVPKEntry);
+        when(_testVPKArchive.getEntriesForDir(Mockito.anyString())).thenReturn(_manyTestVPKs); 
+                
+        _testService = new VPKFileService(_testVPKArchive);           
     }
     
     @After
@@ -69,14 +91,10 @@ public class VPKFileServiceTest
     @Test
     public void testGetVPKEntry() throws Exception
     {
-        System.out.println("getVPKEntry");
-        String _vpkPath = "";
-        VPKFileService instance = null;
-        VPKEntry expResult = null;
-        VPKEntry result = instance.getVPKEntry(_vpkPath);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        VPKEntry result = _testService.getVPKEntry("anywhere");
+        verify(_testVPKArchive).load(Mockito.any());     
+        verify(_testVPKArchive).getEntry("anywhere");
+        assertEquals(result, _testVPKEntry);
     }
 
     /**
@@ -85,14 +103,15 @@ public class VPKFileServiceTest
     @Test
     public void testGetVPKEntries() throws Exception
     {
-        System.out.println("getVPKEntries");
-        List<String> _vpkPaths = null;
-        VPKFileService instance = null;
-        List<VPKEntry> expResult = null;
-        List<VPKEntry> result = instance.getVPKEntries(_vpkPaths);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        ArrayList<String> vpkPaths = new ArrayList<>();
+        vpkPaths.add("anything");
+        vpkPaths.add("anything");
+                
+        List<VPKEntry> result = _testService.getVPKEntries(vpkPaths);
+        verify(_testVPKArchive).load(Mockito.any());               
+        verify(_testVPKArchive, times(2)).getEntry("anything");
+        boolean equal = Arrays.deepEquals(result.toArray(), _manyTestVPKs.toArray());
+        assertEquals(equal, true);
     }
 
     /**
@@ -101,14 +120,12 @@ public class VPKFileServiceTest
     @Test
     public void testGetVPKEntriesInDirectory() throws Exception
     {
-        System.out.println("getVPKEntriesInDirectory");
-        String _vpkDirectory = "";
-        VPKFileService instance = null;
-        List<VPKEntry> expResult = null;
-        List<VPKEntry> result = instance.getVPKEntriesInDirectory(_vpkDirectory);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        List<VPKEntry> result = _testService.getVPKEntriesInDirectory("anywhere");
+        verify(_testVPKArchive).load(Mockito.any());
+        verify(_testVPKArchive).getEntriesForDir("anywhere");
+        boolean equals = Arrays.deepEquals(result.toArray(), _manyTestVPKs.toArray());
+        assertEquals(equals, true);
+        
     }
     
 }

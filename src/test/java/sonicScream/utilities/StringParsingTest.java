@@ -91,13 +91,7 @@ public class StringParsingTest
     @Test
     public void testHandleSpecialCaseName()
     {
-        System.out.println("handleSpecialCaseName");
-        String name = "";
-        String expResult = "";
-        String result = StringParsing.handleSpecialCaseName(name);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(StringParsing.handleSpecialCaseName("shredder"), "timbersaw");
     }
     
 }

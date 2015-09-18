@@ -34,39 +34,104 @@ import java.util.List;
 
 public class VPKFileService 
 {
-    private String _mainVPKPath = "";
-    private String _mainVPKParentDirectory = "";
+    private String _vpkPath = "";
+    private String _vpkParentDirectory = "";
+    private boolean _vpkLoaded = false;
+    private VPKArchive _vpk;
     
-    public VPKFileService(String mainVPKPath, String mainVPKParentDir)
+    private void loadVPK()
     {
-        _mainVPKPath = mainVPKPath;
-        _mainVPKParentDirectory = mainVPKParentDir;
+        if(!_vpkLoaded)
+        {
+            try
+            {
+                _vpk.load(new File(_vpkPath));
+            }            
+            catch(IOException ex)
+            {
+                //TODO: Display error message
+                ex.printStackTrace();
+            }
+            _vpkLoaded = true;
+        }
+    }
+    
+    /**
+     * Primarily used for testing. We don't really want the caller to be
+     * responsible for finding the VPKs.
+     * @param vpk 
+     */
+    public VPKFileService(VPKArchive vpk)
+    {
+        _vpk = vpk;
+    }
+    
+    /**
+     * Constructs a new VPKFileService, but does NOT load the VPK.
+     * @param vpkPath
+     * @param vpkParentDir 
+     */
+    public VPKFileService(String vpkPath, String vpkParentDir)
+    {
+        _vpkPath = vpkPath;
+        _vpkParentDirectory = vpkParentDir;
     }
 
-    public VPKEntry getVPKEntry(String _vpkPath) throws VPKException, IOException
+    /**
+     * Attempts to the get the VPK entry at the provided path. Lazily-loads the 
+     * VPK Archive. Returns null if the VPKArchive fails to load, or no entry is found.
+     * @param _vpkPath The internal VPK path to search.
+     * @return The entry in question, or null of nothing is found, or the VPKArchive fails to load.
+     */
+    public VPKEntry getVPKEntry(String _vpkPath)
     {
-        VPKArchive archive = new VPKArchive();
-        archive.load(new File(_mainVPKPath));
-        return archive.getEntry(_vpkPath);        
+        loadVPK();
+        if(!_vpkLoaded)
+        {
+            return null;
+        }
+                            
+        return _vpk.getEntry(_vpkPath);                                
     }
     
-    public List<VPKEntry> getVPKEntries(List<String> _vpkPaths) throws VPKException, IOException
+    /**
+     * Attempts to get all VPKEntries at the provided paths. Lazily-loads the VPK Archive.
+     * Returns null if the VPKArchive fails to load, or no entries are found.
+     * @param _vpkPaths A list of fully-qualified internal VPK paths.
+     * @return a List of entries, or null if nothing is found, or the VPKArchive fails to load.
+     */
+    public List<VPKEntry> getVPKEntries(List<String> _vpkPaths)
     {
-        VPKArchive archive = new VPKArchive();
-        archive.load(new File(_mainVPKPath));
+        loadVPK();
+        if(!_vpkLoaded)
+        {
+            return null;
+        }
+        
         ArrayList<VPKEntry> entryList = new ArrayList<>();
         for(String path : _vpkPaths)
         {
-          entryList.add(archive.getEntry(path));
+          entryList.add(_vpk.getEntry(path));
         }
         return entryList;
     }
     
-    public List<VPKEntry> getVPKEntriesInDirectory(String _vpkDirectory) throws VPKException, IOException
+    /**
+     * Attempts to return all inside the provided internal directory. Lazily-loads 
+     * the VPKArchive. Returns null if the VPKArchive fails to load, the 
+     * directory doesn't exist, or contains nothing.
+     * @param _vpkDirectory The internal VPK directory to search.
+     * @return The list of found VPKEntries, or null if the VPKArchive fails to load, or if nothing is found.
+     */
+    public List<VPKEntry> getVPKEntriesInDirectory(String _vpkDirectory)
     {
-        VPKArchive archive = new VPKArchive();
-        archive.load(new File(_mainVPKPath));
-        return archive.getEntriesForDir(_vpkDirectory);
+        loadVPK();
+        if(!_vpkLoaded)
+        {
+            return null;
+        }
+        
+        return _vpk.getEntriesForDir(_vpkDirectory);
     }
 
 }
