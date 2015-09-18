@@ -30,12 +30,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
 import static org.junit.Assert.*;
 import org.junit.rules.ExpectedException;
+import org.junit.runners.MethodSorters;
 import sonicScream.models.Profile;
 import sonicScream.utilities.Constants;
 
@@ -43,14 +45,17 @@ import sonicScream.utilities.Constants;
  *
  * @author nmca
  */
+
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SettingsServiceTest
 {
     private SettingsService _testService;
     
-    Path settingsFile;
-    Path crcFile;
-    Path profileDir;
+    private static Path settingsFile;
+    private static Path crcFile;
+    private static Path profileDir;
     
+    Profile defaultProfile = new Profile();
     Profile testProfile1 = new Profile("Profile 1");
     Profile testProfileZ = new Profile("Profile Z");
     Profile testProfileWeirdChar = new Profile("Profile äãöâö");
@@ -63,24 +68,16 @@ public class SettingsServiceTest
     }
 
     @BeforeClass
-    public static void setUpClass()
-    {
-    }
-
-    @AfterClass
-    public static void tearDownClass()
-    {
-    }
-
-    @Before
-    public void setUp() throws IOException, ProfileNameExistsException
+    public static void setUpClass() throws IOException
     {
         Path testFolder = Paths.get("test");
+        Path profilesFolder = Paths.get("test", "profiles");
         if(Files.exists(testFolder))
         {
-            FileUtils.deleteDirectory(testFolder.toFile());            
-        }                
-        
+            FileUtils.deleteDirectory(profilesFolder.toFile());
+            FileUtils.deleteDirectory(testFolder.toFile());
+        }
+                   
         testFolder = Files.createDirectory(testFolder);
         
         //TODO: Replace these with test settings files
@@ -98,17 +95,44 @@ public class SettingsServiceTest
         if (!Files.exists(profileDir))
         {
             profileDir = Files.createDirectory(profileDir);
-        }
+        }        
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws IOException, InterruptedException
+    {
+        Thread.sleep(2000);        
+        Path testFolder = Paths.get("test");
+        Path profilesFolder = Paths.get("test", "profiles");
+        if(Files.exists(testFolder))
+        {
+            try{
+                FileUtils.deleteDirectory(profilesFolder.toFile());
+            FileUtils.deleteDirectory(testFolder.toFile());            
+            }
+            catch(IOException ex)
+            {
+                System.out.println(ex.getMessage());
+                ex.printStackTrace();                
+            }
+        }        
+    }
+
+    @Before
+    public void setUp() throws IOException, ProfileNameExistsException
+    {
         _testService = new SettingsService(settingsFile, crcFile, profileDir);                
-        
+                
         _testService.addProfile(testProfile1);
         _testService.addProfile(testProfileZ);
         _testService.addProfile(testProfileWeirdChar);
+        
     }
 
     @After
-    public void tearDown()
+    public void tearDown() throws IOException
     {
+          
     }
 
     /**
@@ -143,11 +167,13 @@ public class SettingsServiceTest
     public void testGetAllProfiles()
     {
        ArrayList<Profile> expResult = new ArrayList<Profile>();
+       expResult.add(defaultProfile);
        expResult.add(testProfile1);
        expResult.add(testProfileZ);
        expResult.add(testProfileWeirdChar);
        
-        assertEquals(_testService.getAllProfiles(), expResult);
+       boolean equal = Arrays.deepEquals(expResult.toArray(), _testService.getAllProfiles().toArray());
+       assertEquals(equal, true);
     }
 
     /**
@@ -163,7 +189,7 @@ public class SettingsServiceTest
     @Test
     public void addProfile_throwsOnDuplicateProfile() throws ProfileNameExistsException
     {
-        exception.expect(ProfileDataException.class);
+        exception.expect(ProfileNameExistsException.class);
         _testService.addProfile(new Profile("Profile 1"));        
     }
     
@@ -185,12 +211,13 @@ public class SettingsServiceTest
     }
 
     /**
-     * Test of saveSettings method, of class SettingsService.
+     * Test of saveSettings method, of class SettingsService. Occurs last, because
+     * it causes side effects that affect the rest of the tests.
      * @throws sonicScream.services.ProfileNameExistsException
      * @throws java.io.IOException
      */
     @Test
-    public void testSaveSettings() throws ProfileNameExistsException, IOException
+    public void z_testSaveSettings() throws ProfileNameExistsException, IOException
     {                
         _testService.putSetting("testSetting", "1");
         _testService.putCrc("testCrc", 214980124);

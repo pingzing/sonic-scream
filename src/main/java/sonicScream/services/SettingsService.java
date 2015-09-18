@@ -167,7 +167,8 @@ public class SettingsService
         if(_profileList.stream().anyMatch(p -> p.getProfileName().equals(profileToDelete)))
         {
             int toDelete = _profileList.indexOf(_profileList.stream()
-                    .filter(p -> p.getProfileName().equals(profileToDelete)));
+                    .filter(p -> p.getProfileName().equals(profileToDelete))
+                    .findFirst().get());
             _profileList.remove(toDelete);
         }
     }
