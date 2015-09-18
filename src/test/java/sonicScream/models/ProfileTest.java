@@ -25,7 +25,10 @@ package sonicScream.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -53,14 +56,15 @@ public class ProfileTest
     public static void setUpClass()
     {
         Script mockScript = mock(Script.class);
-        when(mockScript.friendlyScriptNameProperty().get()).thenReturn("Axe");        
+        when(mockScript.friendlyScriptNameProperty()).thenReturn(new SimpleStringProperty("Axe"));
         ArrayList<Script> scripts = new ArrayList<>();
         scripts.add(mockScript);
         scripts.add(mockScript);
         
         Category mockCategory = mock(Category.class);
-        when(mockCategory.categoryNameProperty().get()).thenReturn("Test");
-        when(mockCategory.getCategoryScripts()).thenReturn(scripts);        
+        when(mockCategory.categoryNameProperty()).thenReturn(new SimpleStringProperty("Test"));
+        when(mockCategory.categoryScriptsProperty())
+                .thenReturn(new SimpleListProperty<Script>(FXCollections.observableArrayList(scripts)));
         
         _testProfile = new Profile("Test Profile");
         ArrayList<Category> categories = new ArrayList<>();

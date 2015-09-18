@@ -62,20 +62,7 @@ public class SetVPKLocationControllerTest
     @After
     public void tearDown()
     {
-    }
-
-    /**
-     * Test of initialize method, of class SetVPKLocationController.
-     */
-    @Test
-    public void testInitialize()
-    {        
-        URL url = null;
-        ResourceBundle rb = null;
-        SetVPKLocationController instance = new SetVPKLocationController();
-        instance.initialize(url, rb);
-        assert(true);
-    }
+    }    
 
     /**
      * Test of setNavigationSource method, of class SetVPKLocationController.

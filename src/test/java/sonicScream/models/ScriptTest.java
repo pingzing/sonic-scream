@@ -117,13 +117,15 @@ public class ScriptTest
      */
     @Test
     public void testGetRootNode() throws IOException
-    {                
-        BufferedReader br = new BufferedReader(Files.newBufferedReader(_testScriptFile));
-        TreeItem<String> expResult = ScriptParser.parseScript(br, _testScriptFile.getFileName().toString());        
+    {                        
+        TreeItem<String> expResult = ScriptParser.parseScript(_testScriptFile, _testScriptFile.getFileName().toString());        
         
         TreeItem<String> result = _testScript.getRootNode();
         
-        assertEquals(expResult, result);        
+        boolean treesEqual = ScriptParser.areScriptTreesEqual(result, expResult);
+        
+        assertEquals(treesEqual, true);        
+            
     }
 
     /**
@@ -131,13 +133,12 @@ public class ScriptTest
      */
     @Test
     public void testGetScriptAsString() throws IOException
-    {
-        BufferedReader br = new BufferedReader(Files.newBufferedReader(_testScriptFile));
-        TreeItem<String> inTree = ScriptParser.parseScript(br, _testScriptFile.getFileName().toString());        
+    {        
+        TreeItem<String> inTree = ScriptParser.parseScript(_testScriptFile, _testScriptFile.getFileName().toString());        
         String expResult = ScriptParser.parseScriptTreeToString(inTree);                                
         
         String result = _testScript.getScriptAsString();
-        
+                
         assertEquals(expResult, result);        
     }
 }

@@ -131,10 +131,16 @@ public class Script
     }
     public void setRootNode(TreeItem<String> value) { _rootNode = value; }
 
+    /**
+     * Returns the current script's Tree as a single string, formatted for output.
+     * If the current script has not yet been transformed into a Tree, this will do so.
+     * @return A string containing the entire script, formatted for human-readability.
+     */
     public String getScriptAsString()
     {
         if (_treeAsString == null)
         {
+            getRootNode();
             _treeAsString = ScriptParser.parseScriptTreeToString(_rootNode);
         }
         return _treeAsString;

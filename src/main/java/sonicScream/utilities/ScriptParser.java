@@ -247,4 +247,27 @@ public class ScriptParser
         }
         return scriptString;
     }
+    
+    //TODO: Optimize this. It traverses both trees in their entirety. Can we halt
+    //the instant we get a "false"?
+    public static boolean areScriptTreesEqual(TreeItem<String> lhs, TreeItem<String> rhs)
+    {
+        if(lhs.getChildren().size() != rhs.getChildren().size()
+                || lhs.isLeaf() != rhs.isLeaf())
+        {
+            return false;
+        }        
+        
+        boolean areEqual = true;    
+        
+        if(!lhs.isLeaf())
+        {
+            for(int i = 0; i < lhs.getChildren().size() - 1; i++)
+            {            
+                areScriptTreesEqual(lhs.getChildren().get(i), rhs.getChildren().get(i));
+            }                            
+        }
+        
+        return lhs.getValue().equals(rhs.getValue());
+    }
 }
