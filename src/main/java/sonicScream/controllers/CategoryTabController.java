@@ -88,13 +88,16 @@ public final class CategoryTabController extends Tab
         //script (items) and those with multiple (everything else)
         CategoryTabComboBox.visibleProperty().bind(
                 Bindings.greaterThan(category.categoryScriptsProperty().sizeProperty(), 1)
-        );        
-        ObjectBinding selectedItemBinding = new When(
-                Bindings.greaterThan(category.categoryScriptsProperty().sizeProperty(), 1))
-                .then(CategoryTabComboBox.valueProperty())
-                .otherwise(CategoryTabTreeView.getSelectionModel().selectedItemProperty());
-        
-        selectedScriptProperty().bind(selectedItemBinding);
+        );
+
+        if( category.getCategoryScripts().size() > 1)
+        {
+            selectedScriptProperty().bind(CategoryTabComboBox.valueProperty());
+        }
+        else
+        {
+            selectedScriptProperty().bind(CategoryTabTreeView.getSelectionModel().selectedItemProperty());
+        }
         
         ObservableList<Script> test = category.categoryScriptsProperty().get();
         

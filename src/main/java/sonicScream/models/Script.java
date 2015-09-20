@@ -38,8 +38,8 @@ import sonicScream.utilities.StringParsing;
 import sonicScream.services.VPKFileService;
 
 public class Script
-{        
-    private final Category _parentCategory;
+{
+    private final Category _parentCategory; //TODO: Don't deserialize this, maybe? Maybe turn it into a string, or UUID?
     private final String _internalScriptName; //no file extension, or "game_sounds_etc" prefix      
     private final String _rawFileName; //full file name
     private TreeItem<String> _rootNode;
@@ -58,7 +58,7 @@ public class Script
 
     public Script(VPKEntry scriptFile, Category category)
     {
-        _rawFileName = scriptFile.getName() + scriptFile.getType();
+        _rawFileName = scriptFile.getName() + "." +  scriptFile.getType();
         _internalScriptName = StringParsing.getScriptNameFromFileName(_rawFileName);
         friendlyScriptName.set(StringParsing.prettyFormatScriptName(_internalScriptName));
         _parentCategory = category;

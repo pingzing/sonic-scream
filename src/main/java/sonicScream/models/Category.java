@@ -44,6 +44,7 @@ import sonicScream.services.VPKFileService;
 import sonicScream.utilities.Constants;
 import sonicScream.utilities.FilesEx;
 
+//TODO: Fix deserialization to NOT save properties, and instead save backing values
 public class Category
 {
     private StringProperty categoryName = new SimpleStringProperty();

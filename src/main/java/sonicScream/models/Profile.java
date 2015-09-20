@@ -37,6 +37,7 @@ import sonicScream.services.ServiceLocator;
 import sonicScream.services.VPKFileService;
 import sonicScream.utilities.Constants;
 
+//TODO: Fix deserialization to NOT save the properties, and instead save their backing values.
 public class Profile
 {
     private StringProperty profileName = new SimpleStringProperty();
@@ -49,10 +50,9 @@ public class Profile
     public final void setProfileDescription(String value) { profileDescription.set(value); }
     public StringProperty profileDescriptionProperty() { return profileName; }
     
-    private ListProperty<Category> categories = new SimpleListProperty();    
-    public List<Category> getCategories() { return categories.get(); }
-    public void setCategories(List<Category> value) {categories.set(FXCollections.observableArrayList(value)); }
-    public ListProperty<Category> categoriesProperty() { return categories; }
+    private List<Category> _categories;
+    public List<Category> getCategories() { return _categories; }
+    public void setCategories(List<Category> value) { _categories = value; }
 
     /**
      * Constructs a Profile with the name "Default", the description "The default profile", and with
@@ -81,7 +81,7 @@ public class Profile
     {
         profileName.set(name);
         profileDescription.set(description);
-        categories.set(FXCollections.observableArrayList(getDefaultCategories()));
+        _categories = getDefaultCategories();
     }
 
     /**
@@ -96,7 +96,7 @@ public class Profile
     {
         profileName.set(name);
         profileDescription.set(description);
-        categories.set(FXCollections.observableArrayList(getDefaultCategories(vpkService)));
+        _categories = getDefaultCategories(vpkService);
     }
 
     /**
@@ -109,7 +109,7 @@ public class Profile
     {
         profileName.set(name);
         profileDescription.set(description);
-        categories.set(FXCollections.observableArrayList(newCats));
+        _categories = newCats;
     }
 
     private List<Category> getDefaultCategories()
@@ -170,7 +170,7 @@ public class Profile
                 .append(profileDescription.get(), other.profileDescription.get())                
                 .isEquals();
 
-        boolean listsEqual = categories.equals(other.categories);
+        boolean listsEqual = _categories.equals(other._categories);
         return equalsBuilder && listsEqual;
     }
 
@@ -180,7 +180,7 @@ public class Profile
         int hash = 7;
         hash = 83 * hash + Objects.hashCode(this.profileName);
         hash = 83 * hash + Objects.hashCode(this.profileDescription);
-        hash = 83 * hash + Objects.hashCode(this.categories);
+        hash = 83 * hash + Objects.hashCode(this._categories);
         return hash;
     }
 }

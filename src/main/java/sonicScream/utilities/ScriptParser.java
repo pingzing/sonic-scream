@@ -100,21 +100,37 @@ public class ScriptParser
     //This strips out all the header junk and correctly separates and parses the first two lines of the actual script.
     private static void parseHeaderAndFirstTwoLines(BufferedReader br, String scriptSubject) throws IOException
     {
+        /* TODO: Make it handle stupid inconsistencies where some heroes with two-word names have underscore_names
+         * and others have PascalCaseNames. Ugh. */
         int seenCount = 0;
+        scriptSubject = handleSpecialCaseFiles(scriptSubject);
+        String alternateSubject = "Hero_" + scriptSubject; //Some of the names of "Hero_" in front of them. Account for that...
         //Seek to the end of the header                                                  
         while (seenCount < 2)
         {
             String line = br.readLine();
-            int dataStartIndex = line.indexOf(scriptSubject);
+            int dataStartIndex = line.toLowerCase().indexOf(scriptSubject.toLowerCase());
+            if(dataStartIndex == -1) //Check for the alternate "Hero_<name>" syntax too
+            {
+                dataStartIndex = line.toLowerCase().indexOf(alternateSubject.toLowerCase());
+            }
             if (dataStartIndex != -1)
             {
                 seenCount++;
             }
 
             //Sometimes the entire header is a single line. Check for a second occurrence immediately.
-            if (seenCount < 2 && line.lastIndexOf(scriptSubject) != dataStartIndex)
+            if (seenCount < 2 && line.toLowerCase().lastIndexOf(scriptSubject.toLowerCase()) != dataStartIndex)
             {
-                dataStartIndex = line.lastIndexOf(scriptSubject);
+                dataStartIndex = line.toLowerCase().lastIndexOf(scriptSubject.toLowerCase());
+                seenCount++;
+            }
+
+            int alternateSeenIndex = line.toLowerCase().lastIndexOf(alternateSubject.toLowerCase());
+            //Same as above, but now with the alaternate "Hero_<name>" syntax
+            if(seenCount < 2 && alternateSeenIndex != dataStartIndex && alternateSeenIndex != -1)
+            {
+                dataStartIndex = alternateSeenIndex;
                 seenCount++;
             }
 
@@ -124,11 +140,21 @@ public class ScriptParser
                 line = line.substring(dataStartIndex - 1, line.length() - 1);
                 int separatorIndex = line.indexOf("\"");                               
                 //now we have the sound name and "operator stacks" mashed together 
-                //like so: heroname"operator stacks" we need to add a quote to 
-                //the beginning, then separate these two.                
+                //like so: heroname"operator stacks"
+                // We need to add a quote to the beginning, then separate these two.
                 parseNameAndOperatorStacks(line);
             }
         }
+    }
+
+    private static String handleSpecialCaseFiles(String scriptSubject)
+    {
+        switch(scriptSubject)
+        {
+            case("items"):
+                return "DOTA_Item";
+        }
+        return scriptSubject;
     }
 
     private static void parseNameAndOperatorStacks(String line)
