@@ -26,8 +26,10 @@ package sonicScream.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
@@ -89,8 +91,7 @@ public class SetVPKLocationController implements Initializable
                 .then(Color.GREEN)
                 .otherwise(Color.RED));
 
-        BooleanBinding cancelHiddenBinding = Bindings.createBooleanBinding(
-                () -> 
+        BooleanBinding cancelHiddenBinding = Bindings.createBooleanBinding(() -> 
                 {
                     return _navigationSource.equals(Constants.navigationSource.STARTUP);
                 }, null);
@@ -131,7 +132,10 @@ public class SetVPKLocationController implements Initializable
     {
         SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
         settings.putSetting(Constants.SETTING_MAIN_VPK_PATH, VPKBox.getText());
-        settings.putSetting(Constants.SETTING_MAIN_VPK_DIR, Paths.get(VPKBox.getText()).getParent().toString());
+        String vpkDir = Paths.get(VPKBox.getText()).getParent().toString();
+        settings.putSetting(Constants.SETTING_MAIN_VPK_DIR, vpkDir);
+        Path addonPath = Paths.get(Paths.get(vpkDir).getParent().toString(), "dota_addons", "sonic_scream");
+        settings.putSetting(Constants.SETTING_ADDON_PATH, addonPath.toString());
         settings.saveSettings();
 
         Stage currentStage = (Stage) StatusLabel.getScene().getWindow();

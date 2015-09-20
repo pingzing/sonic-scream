@@ -11,6 +11,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -19,6 +21,7 @@ import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import sonicScream.controllers.SetVPKLocationController;
+import sonicScream.models.Profile;
 import sonicScream.services.ServiceLocator;
 import sonicScream.services.SettingsService;
 import sonicScream.services.VPKFileService;
@@ -34,7 +37,7 @@ public class SonicScream extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
-        Thread.currentThread().setUncaughtExceptionHandler( (thread, throwable) 
+        Thread.currentThread().setUncaughtExceptionHandler((thread, throwable)
                 -> onUnhandledException(thread, throwable));
                 
         configureServiceLocator();
@@ -43,7 +46,7 @@ public class SonicScream extends Application
         {
             setVPKPaths(settings);
         }
-        
+
         URL location = getClass().getResource("views/Main.fxml");
         FXMLLoader loader = new FXMLLoader(location);
         Parent root = loader.load();

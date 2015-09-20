@@ -23,6 +23,10 @@ dist/
 nbdist/
 nbactions.xml
 
+#IntelliJ specifiic
+**/.idea/workspace.xml
+**/.idea/tasks.xml
+
 #Gradle-specific
 *~
 .gradle

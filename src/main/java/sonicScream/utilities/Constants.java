@@ -25,7 +25,7 @@
 package sonicScream.utilities;
 
 public class Constants 
-{
+{    
     //Navigation enum
     public enum navigationSource {UNSET, STARTUP, MAIN}
     
@@ -44,5 +44,17 @@ public class Constants
     //-------Settings keys-------
     public static final String SETTING_MAIN_VPK_PATH = "mainVPKPathSetting";
     public static final String SETTING_MAIN_VPK_DIR = "mainVPKDirSetting";
+    public static final String SETTING_ADDON_PATH = "addonPath";
     public static final String SETTING_ACTIVE_PROFILE ="activeProfile";
+    
+    //-------Standard VPK paths------
+    public static final String HERO_SPELLS_SCRIPTS_VPK_PATH = "soundevents/game_sounds_heroes/";
+    public static final String ITEMS_SCRIPTS_VPK_PATH = "soundevents/game_sounds_items.vsndevts_c";
+    public static final String VOICE_SCRIPTS_VPK_PATH = "soundevents/voscripts/";
+    //Music
+    public static final String MUSIC_DEFAULT_SCRIPTS_VPK_PATH = "soundevents/music/valve_dota_001/";
+    public static final String MUSIC_TI4_SCRIPTS_VPK_PATH = "soundevents/music/valve_ti4/";
+    public static final String MUSIC_TI5_SCRIPTS_VPK_PATH = "soundevents/music/valve_ti5/";
+    //TODO add custom music packs?
+    
 }

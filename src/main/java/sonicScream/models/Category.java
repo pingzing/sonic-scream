@@ -23,43 +23,125 @@
  */
 package sonicScream.models;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import info.ata4.vpk.VPKEntry;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import sonicScream.services.ServiceLocator;
+import sonicScream.services.VPKFileService;
+import sonicScream.utilities.Constants;
+import sonicScream.utilities.FilesEx;
 
 public class Category
 {
     private StringProperty categoryName = new SimpleStringProperty();
-    public final String getCategoryName() { return categoryName.get(); } 
+    public final String getCategoryName() { return categoryName.get(); }
     public final void setCategoryName(String value) { categoryName.set(value); }
     public StringProperty categoryNameProperty() { return categoryName; }
-    
-    private ListProperty<Script> categoryScripts = new SimpleListProperty<>();
+
+    private ListProperty<Script> categoryScripts = new SimpleListProperty<Script>();
     public final List<Script> getCategoryScripts() {return categoryScripts.get(); }
     public final void setCategoryScripts(List<Script> value) {categoryScripts.set(FXCollections.observableArrayList(value)); }
     public ListProperty<Script> categoryScriptsProperty() { return categoryScripts; }
-    
+
     private List<String> _vpkPaths;
-    
+
     public Category(String name)
     {
-        setCategoryName(name);
-       _vpkPaths = new ArrayList<>();       
+        this(name, new ArrayList<>());
     }
-    
+
     public Category(String name, List<String> vpkPaths)
+    {
+        this(name, null, vpkPaths);
+    }
+
+    public Category(String name, VPKFileService vpkService)
+    {
+        this(name, vpkService, new ArrayList<>());
+    }
+
+    public Category(String name, VPKFileService vpkService, List<String> vpkPaths)
     {
         setCategoryName(name);
         _vpkPaths = vpkPaths;
+        populateScripts(vpkService);
     }
-    
+
+    public void populateScripts(VPKFileService vpkService)
+    {
+        categoryScripts.clear(); //So we don't double up on entries.
+
+        if(vpkService == null)
+        {
+            vpkService = (VPKFileService)ServiceLocator.getService(VPKFileService.class);
+        }
+
+        ArrayList<Script> scriptsToInitWith = new ArrayList<>();
+        Path addonFolder = Paths.get(Constants.SETTING_ADDON_PATH);
+        ArrayList<String> localScripts = new ArrayList<String>();
+        for(String p : _vpkPaths)
+        {
+            Path scriptPath = Paths.get(addonFolder.toString(), p);
+            if( Files.exists(scriptPath) && Files.isDirectory(scriptPath))
+            {
+                try
+                {
+                    for (Path fp : FilesEx.listFiles(scriptPath))
+                    {
+                        localScripts.add(p);
+                        Script local = new Script(fp, this);
+                        scriptsToInitWith.add(local);
+                    }
+                }
+                catch(IOException ex)
+                {
+                    System.err.printf("\nUnable to open %s: %s", scriptPath.toString(), ex.getMessage());
+                }
+            }
+            else if(Files.exists(scriptPath)) //individual script path
+            {
+                localScripts.add(p);
+                Script local = new Script(scriptPath, this);
+                scriptsToInitWith.add(local);
+            }
+        }
+
+        final VPKFileService finalVpkService = vpkService;
+        _vpkPaths.stream()
+                .filter(s -> localScripts.contains(s) == false)
+                .forEach(str ->
+                {
+                    if(str.contains(".")) //Individual script file
+                    {
+                        Script vpkScript = new Script(finalVpkService.getVPKEntry(str), this);
+                        scriptsToInitWith.add(vpkScript);
+                    }
+                    else //Scripts folder, non-recursive
+                    {
+                        List<VPKEntry> vpkEntries = finalVpkService.getVPKEntriesInDirectory(str);
+                        for (VPKEntry entry : vpkEntries)
+                        {
+                            Script vpkScript = new Script(entry, this);
+                            scriptsToInitWith.add(vpkScript);
+                        }
+                    }
+                });
+        setCategoryScripts(scriptsToInitWith);
+    }
+
     @Override public boolean equals(Object cat)
     {
         if(!(cat instanceof Category))
@@ -70,13 +152,13 @@ public class Category
         {
             return true;
         }
-        
+
         Category other = (Category)cat;
-        return new EqualsBuilder()
-                .append(this.categoryName.get(), other.categoryName.get())
-                .isEquals()
-                && Arrays.deepEquals(this._vpkPaths.toArray(), other._vpkPaths.toArray())                
-                && Arrays.deepEquals(this.categoryScripts.toArray(), other.categoryScripts.toArray());
+        boolean nameEquals = this.categoryName.get().equals(other.categoryName.get());
+        boolean vpkPathsEquals = Arrays.deepEquals(this._vpkPaths.toArray(), other._vpkPaths.toArray());
+        boolean categoryScriptsEquals = Arrays.deepEquals(this.categoryScripts.toArray(), other.categoryScripts.toArray());;
+
+        return nameEquals && vpkPathsEquals && categoryScriptsEquals;
     }
 
     @Override
@@ -88,5 +170,5 @@ public class Category
         hash = 97 * hash + Objects.hashCode(this._vpkPaths);
         return hash;
     }
-    
+
 }

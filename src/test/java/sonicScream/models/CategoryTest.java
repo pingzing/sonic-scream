@@ -23,7 +23,10 @@
  */
 package sonicScream.models;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import info.ata4.vpk.VPKEntry;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.StringProperty;
 import org.junit.After;
@@ -31,8 +34,13 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
+import sonicScream.services.VPKFileService;
+
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -41,8 +49,9 @@ import static org.mockito.Mockito.when;
  */
 public class CategoryTest
 {
-    Category _testCategory;
-    
+    VPKFileService vpkFileService = mock(VPKFileService.class);
+    List<String> mockPaths = new ArrayList<String>();
+
     public CategoryTest()
     {
     }
@@ -60,10 +69,16 @@ public class CategoryTest
     @Before
     public void setUp()
     {
-        List<String> mockPaths = mock(List.class);
-        when(mockPaths.get(0)).thenReturn("/Somepath/wherever");
-        when(mockPaths.size()).thenReturn(1);
-        _testCategory = new Category("Test", mockPaths);
+        mockPaths.add("/somepath/wherever");
+
+        VPKEntry mockVPKEntry = mock(VPKEntry.class);
+        when(mockVPKEntry.getName()).thenReturn("Somename");
+        when(mockVPKEntry.getType()).thenReturn(".vsndevts");
+        when(mockVPKEntry.getPath()).thenReturn("/somepath/wherever/Somename.vsndevts");
+
+        List<VPKEntry> mockVPKList = new ArrayList<>();
+        mockVPKList.add(mockVPKEntry);
+        when(vpkFileService.getVPKEntriesInDirectory(anyString())).thenReturn(mockVPKList);
     }
     
     @After
@@ -71,22 +86,9 @@ public class CategoryTest
     {
     }
 
-    /**
-     * Test of getCategoryName method, of class Category.
-     */
     @Test
-    public void testGetCategoryName()
-    {        
-        assertEquals("Test", _testCategory.getCategoryName());
-    }
-
-    /**
-     * Test of setCategoryName method, of class Category.
-     */
-    @Test
-    public void testSetCategoryName()
+    public void testConstructCategory()
     {
-        _testCategory.setCategoryName("New Name");
-        assertEquals(_testCategory.getCategoryName(), "New Name");
+        Category category = new Category("Test", vpkFileService, mockPaths);
     }
 }

@@ -23,6 +23,10 @@
  */
 package sonicScream.controllers;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.XStreamException;
+import com.thoughtworks.xstream.io.xml.KXml2Driver;
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.beans.property.ObjectProperty;
@@ -36,20 +40,36 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.NotImplementedException;
 import sonicScream.models.Profile;
 import sonicScream.services.ProfileNameExistsException;
 import sonicScream.services.ServiceLocator;
 import sonicScream.services.SettingsService;
+import sonicScream.utilities.Constants;
 
 public class ProfileManagerController implements Initializable
 {
+
     private ObservableList<Profile> _profiles;
-    
+
     private ObjectProperty<Profile> selectedProfile = new SimpleObjectProperty<>();
-    public final Profile getSelectedProfile() { return selectedProfile.get(); }
-    public final void setSelectedProfile(Profile value) { selectedProfile.set(value); }
-    public ObjectProperty<Profile> selectedProfileProperty() { return selectedProfile; }        
+
+    public final Profile getSelectedProfile()
+    {
+        return selectedProfile.get();
+    }
+
+    public final void setSelectedProfile(Profile value)
+    {
+        selectedProfile.set(value);
+    }
+
+    public ObjectProperty<Profile> selectedProfileProperty()
+    {
+        return selectedProfile;
+    }
 
     @FXML
     private AnchorPane RootPane;
@@ -80,10 +100,14 @@ public class ProfileManagerController implements Initializable
                     _profiles.add(newProfile);
                     selectedProfile.set(newProfile);
                 });
-        
-        SelectedProfileComboBox.valueProperty().bindBidirectional(selectedProfile);
-    }
 
+        SelectedProfileComboBox.valueProperty().bindBidirectional(selectedProfile);
+
+        if (!_profiles.isEmpty())
+        {
+            selectedProfile.set(_profiles.get(0));
+        }
+    }
 
     @FXML
     private void handleAddButtonPressed(ActionEvent event)
@@ -102,20 +126,24 @@ public class ProfileManagerController implements Initializable
     private void handleOkButtonPressed(ActionEvent event)
     {
         SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
-        _profiles.stream()
-                .filter(p -> settings.getProfile(p.getProfileName()) == null)
-                .forEach(p ->
-                        {
-                            try
-                            {
-                                settings.addProfile(p);
-                            }
-                            catch (ProfileNameExistsException ex)
-                            {
-                                System.err.println(ex);
-                            }
-                });
+        //Add newly-added profiles if there are no name conflicts
+        _profiles.stream().filter((p) -> (settings.getProfile(p.getProfileName()) == null)).forEach((p) ->
+        {
+            try
+            {
+                settings.addProfile(p);
+                settings.saveSettings();
+            }
+            catch (ProfileNameExistsException ex)
+            {
+                //Collect the bad profile names here
+                System.err.println(ex);
+            }
+        });
+        
+        //TODO: Tell the user there were name conflicts. Ask them "hey dude you sure bout this"
 
+        settings.putSetting(Constants.SETTING_ACTIVE_PROFILE, selectedProfile.get().getProfileName());
         selectedProfile.set((Profile) SelectedProfileComboBox.getValue());
         Stage currentStage = (Stage) SelectedProfileComboBox.getScene().getWindow();
         currentStage.close();
@@ -124,7 +152,30 @@ public class ProfileManagerController implements Initializable
     @FXML
     private void handleImportButtonPressed(ActionEvent event)
     {
-        //TODO: Open up filechooser
+        SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
+        
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Import profile");       
+        chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Profiles", "*.xml"));
+        File result = chooser.showOpenDialog(SelectedProfileComboBox.getScene().getWindow());
+        try
+        {
+            XStream reader = new XStream(new KXml2Driver());
+            Profile importedProfile = (Profile)reader.fromXML(result);
+            _profiles.add(importedProfile);
+            selectedProfile.set(importedProfile);
+            settings.addProfile(importedProfile);
+        }
+        catch(ProfileNameExistsException ex)
+        {
+            throw new NotImplementedException("Profile name exists handler not implemented");
+            //Tell the user a profile with that name already exists. NO CAN DO
+        }
+        catch(XStreamException ex)
+        {
+            throw new NotImplementedException("Invalid profile handler not implemented");
+            //Tell the user that the profile is improperly formatted. ALSO NO CAN DO
+        }
     }
 
 }

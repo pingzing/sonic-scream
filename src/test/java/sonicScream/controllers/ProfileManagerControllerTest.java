@@ -24,7 +24,11 @@
 package sonicScream.controllers;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
+
+import info.ata4.vpk.VPKEntry;
 import javafx.beans.property.ObjectProperty;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -32,9 +36,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import sonicScream.models.Profile;
+import sonicScream.services.VPKFileService;
 
 /**
  *
@@ -42,7 +48,8 @@ import sonicScream.models.Profile;
  */
 public class ProfileManagerControllerTest
 {
-    
+    private VPKFileService vpkService = mock(VPKFileService.class);
+    List<String> mockPaths = new ArrayList<String>();
     
     public ProfileManagerControllerTest()
     {
@@ -62,6 +69,17 @@ public class ProfileManagerControllerTest
     @Before
     public void setUp()
     {
+        mockPaths.add("/somepath/wherever");
+
+        VPKEntry mockVPKEntry = mock(VPKEntry.class);
+        when(mockVPKEntry.getName()).thenReturn("Somename");
+        when(mockVPKEntry.getType()).thenReturn(".vsndevts");
+        when(mockVPKEntry.getPath()).thenReturn("/somepath/wherever/Somename.vsndevts");
+
+        List<VPKEntry> mockVPKList = new ArrayList<>();
+        mockVPKList.add(mockVPKEntry);
+        when(vpkService.getVPKEntriesInDirectory(anyString())).thenReturn(mockVPKList);
+        when(vpkService.getVPKEntry(anyString())).thenReturn(mockVPKEntry);
     }
     
     @After
@@ -76,7 +94,7 @@ public class ProfileManagerControllerTest
     public void testGetSelectedProfile()
     {        
         ProfileManagerController controller = new ProfileManagerController();
-        Profile defaultProfile = new Profile();
+        Profile defaultProfile = new Profile("Test", "Test profile", vpkService);
         controller.setSelectedProfile(defaultProfile);
         assertEquals(controller.getSelectedProfile(), defaultProfile);                
     }
@@ -88,7 +106,7 @@ public class ProfileManagerControllerTest
     public void testSetSelectedProfile()
     {
         ProfileManagerController controller = new ProfileManagerController();
-        Profile defaultProfile = new Profile();
+        Profile defaultProfile = new Profile("Test", "Test profile", vpkService);
         assertEquals(controller.getSelectedProfile(), null);
         controller.setSelectedProfile(defaultProfile);
         assertEquals(controller.getSelectedProfile(), defaultProfile);

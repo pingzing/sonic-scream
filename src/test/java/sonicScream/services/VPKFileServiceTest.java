@@ -75,7 +75,8 @@ public class VPKFileServiceTest
         _manyTestVPKs.add(_testVPKEntry);
         _manyTestVPKs.add(_testVPKEntry);
         when(_testVPKArchive.getEntry(Mockito.anyString())).thenReturn(_testVPKEntry);
-        when(_testVPKArchive.getEntriesForDir(Mockito.anyString())).thenReturn(_manyTestVPKs); 
+        when(_testVPKArchive.getEntriesForDir(Mockito.anyString())).thenReturn(_manyTestVPKs);
+        when(_testVPKArchive.getEntry(anyString())).thenReturn(_testVPKEntry);
                 
         _testService = new VPKFileService(_testVPKArchive);           
     }

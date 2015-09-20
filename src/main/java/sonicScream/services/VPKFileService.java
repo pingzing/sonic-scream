@@ -75,6 +75,7 @@ public class VPKFileService
     {
         _vpkPath = vpkPath;
         _vpkParentDirectory = vpkParentDir;
+        _vpk = new VPKArchive();
     }
 
     /**

@@ -25,6 +25,8 @@ package sonicScream.models;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import info.ata4.vpk.VPKEntry;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -34,24 +36,30 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
+
 import org.mockito.Mockito;
+import sonicScream.services.VPKFileService;
+
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- *
  * @author nmca
  */
 public class ProfileTest
 {
- 
+
     private static Profile _testProfile;
-    
+    VPKFileService vpkFileService = mock(VPKFileService.class);
+    List<String> mockPaths = new ArrayList<String>();
+
     public ProfileTest()
     {
     }
-    
+
     @BeforeClass
     public static void setUpClass()
     {
@@ -60,28 +68,37 @@ public class ProfileTest
         ArrayList<Script> scripts = new ArrayList<>();
         scripts.add(mockScript);
         scripts.add(mockScript);
-        
+
         Category mockCategory = mock(Category.class);
         when(mockCategory.categoryNameProperty()).thenReturn(new SimpleStringProperty("Test"));
         when(mockCategory.categoryScriptsProperty())
                 .thenReturn(new SimpleListProperty<Script>(FXCollections.observableArrayList(scripts)));
-        
-        _testProfile = new Profile("Test Profile");
-        ArrayList<Category> categories = new ArrayList<>();
-        categories.add(mockCategory);
-        _testProfile.setCategories(null);
     }
-    
+
     @AfterClass
     public static void tearDownClass()
     {
     }
-    
+
     @Before
     public void setUp()
     {
+        mockPaths.add("/somepath/wherever");
+
+        VPKEntry mockVPKEntry = mock(VPKEntry.class);
+        when(mockVPKEntry.getName()).thenReturn("Somename");
+        when(mockVPKEntry.getType()).thenReturn(".vsndevts");
+        when(mockVPKEntry.getPath()).thenReturn("/somepath/wherever/Somename.vsndevts");
+
+        List<VPKEntry> mockVPKList = new ArrayList<>();
+        mockVPKList.add(mockVPKEntry);
+        when(vpkFileService.getVPKEntriesInDirectory(anyString())).thenReturn(mockVPKList);
+        when(vpkFileService.getVPKEntry(anyString())).thenReturn(mockVPKEntry);
+
+        _testProfile = new Profile("Test Profile", "Test profile description", vpkFileService);
+        ArrayList<Category> categories = new ArrayList<>();
     }
-    
+
     @After
     public void tearDown()
     {
@@ -95,5 +112,13 @@ public class ProfileTest
     {
         String profileName = _testProfile.getProfileName();
         assertEquals(profileName, "Test Profile");
-    } 
+    }
+
+    @Test
+    public void testGetCategories()
+    {
+        List<Category> result = _testProfile.getCategories();
+        List<Category> expected = new Profile("Test 2", "Test 2 Description", vpkFileService).getCategories();
+        assertEquals(result, expected);
+    }
 }

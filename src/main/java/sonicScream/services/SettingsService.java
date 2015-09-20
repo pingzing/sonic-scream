@@ -48,7 +48,7 @@ public class SettingsService
     public Map<String, Long> getReadonlyCRCs() { return Collections.unmodifiableMap(_crcDictionary); }    
     
     public SettingsService(Path settingsFile, Path crcFile, Path profilesDirectory) throws IOException
-    {        
+    {
         XStream stream = new XStream(new KXml2Driver());
         if(Files.size(settingsFile) == 0)
         {
@@ -70,24 +70,19 @@ public class SettingsService
         
         List<Path> profiles = FilesEx.listFiles(profilesDirectory);
         _profileList = new ArrayList();
-        if(profiles.isEmpty())
-        {            
-            _profileList.add(new Profile());
-        }
-        else
+
+        profiles.stream().forEach(p ->
         {
-            profiles.stream().forEach(p ->
+            try
             {
-                try
-                {
-                    _profileList.add((Profile)stream.fromXML(Files.newInputStream(p)));
-                }
-                catch(IOException ex)
-                {
-                    System.err.printf("\nUnable to read profile %s:", p, ex.getMessage());
-                }
-            });            
-        }
+                _profileList.add((Profile) stream.fromXML(Files.newInputStream(p)));
+            }
+            catch (IOException ex)
+            {
+                System.err.printf("\nUnable to read profile %s:", p, ex.getMessage());
+            }
+        });
+
     }
     
     public String getSetting(String setting)

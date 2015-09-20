@@ -5,32 +5,31 @@
  */
 package sonicScream.controllers;
 
-import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.SingleSelectionModel;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
-import sonicScream.models.Script;
-import javafx.scene.control.*;
 import javafx.stage.Stage;
 import sonicScream.models.Category;
 import sonicScream.models.Profile;
+import sonicScream.models.Script;
 import sonicScream.services.ServiceLocator;
 import sonicScream.services.SettingsService;
 import sonicScream.utilities.Constants;
-import sonicScream.utilities.FilesEx;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  *
@@ -91,27 +90,14 @@ public class MainController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
-        Profile savedActiveProfile = getActiveProfile();        
+        Profile savedActiveProfile = getActiveProfile();
 
-        try
+        for (Category c : savedActiveProfile.getCategories())
         {
-            URL location = getClass().getResource("/sonicScream/assets/test");
-            Path folder = Paths.get(location.toURI());
-            List<Script> scripts = FilesEx.listFiles(folder)
-                    .stream()
-                    .map(p -> new Script((Path) p, new Category(Constants.CATEGORY_HEROES)))
-                    .collect(Collectors.toList());
-            
-            Category testCategory = new Category(Constants.CATEGORY_VOICES);
-            testCategory.setCategoryScripts(scripts);
-
-            MainTabPane.getTabs().add(new CategoryTabController(testCategory));
-            tabSelection = MainTabPane.getSelectionModel();
+            MainTabPane.getTabs().add(new CategoryTabController(c));
         }
-        catch(URISyntaxException | IOException ex)
-        {
-            ex.printStackTrace();
-        }       
+        tabSelection = MainTabPane.getSelectionModel();
+        tabSelection.selectFirst();
     }
 
     private Profile getActiveProfile()
@@ -142,6 +128,11 @@ public class MainController implements Initializable
             ProfileManagerController controller = loader.<ProfileManagerController>getController();
             
             Stage stage = new Stage();
+            stage.setAlwaysOnTop(true);
+            stage.minHeightProperty().set(325.0);
+            stage.minWidthProperty().set(500.0);
+            stage.maxHeightProperty().set(325.0);
+            stage.maxWidthProperty().set(500.0);
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.showAndWait();    

@@ -27,9 +27,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import sonicScream.services.ServiceLocator;
+import sonicScream.services.VPKFileService;
+import sonicScream.utilities.Constants;
 
 public class Profile
 {
@@ -43,23 +49,101 @@ public class Profile
     public final void setProfileDescription(String value) { profileDescription.set(value); }
     public StringProperty profileDescriptionProperty() { return profileName; }
     
-    public List<Category> _categories;
-    public List<Category> getCategories() { return _categories; }
-    public void setCategories(List<Category> value) {_categories = value; }
-    
+    private ListProperty<Category> categories = new SimpleListProperty();    
+    public List<Category> getCategories() { return categories.get(); }
+    public void setCategories(List<Category> value) {categories.set(FXCollections.observableArrayList(value)); }
+    public ListProperty<Category> categoriesProperty() { return categories; }
+
+    /**
+     * Constructs a Profile with the name "Default", the description "The default profile", and with
+     * the four default Categories.
+     */
     public Profile()
-    {
-        _categories = new ArrayList<>();
-        profileName.set("Default");
-        profileDescription.set("The default profile");
-    }    
-    
+    {        
+        this("Default");
+    }
+
+    /**
+     * Constructs a Profile with the passed name, an empty description, and with the four default Categories.
+     * @param name The Profile's name.
+     */
     public Profile(String name)
+    {        
+        this(name, "");
+    }
+
+    /**
+     * Constructs a Profile with the passed name and description, and with the four default Categories.
+     * @param name The Profile's name.
+     * @param description The Profile's description as it will appear on the Profile selection screen.
+     */
+    public Profile(String name, String description)
     {
-        //TODO: change this to the default set
-        _categories = new ArrayList<>(); 
         profileName.set(name);
-        profileDescription.set("");
+        profileDescription.set(description);
+        categories.set(FXCollections.observableArrayList(getDefaultCategories()));
+    }
+
+    /**
+     * Constructs a Profile with the passed name and description, and with the four default Categories.
+     * Constructs the default Categories using the passed VPKFileService.
+     * This method is primarily for testing. Generally, we want profile to find its own VPKFileService.
+     * @param name The Profile's name.
+     * @param description The profile's description as it will appear on the Profile selection screen.
+     * @param vpkService The VPKFileService to use in construction the default categories.
+     */
+    public Profile(String name, String description, VPKFileService vpkService)
+    {
+        profileName.set(name);
+        profileDescription.set(description);
+        categories.set(FXCollections.observableArrayList(getDefaultCategories(vpkService)));
+    }
+
+    /**
+     * Constructs a Profile with the passed name and description and Categories.
+     * @param name The Profile's name.
+     * @param description The Profile's description as it will appear on the Profile selection screen.
+     * @param newCats The Profile's Categories, which are represented as tabs on the main screen.
+     */
+    public Profile(String name, String description, List<Category> newCats)
+    {
+        profileName.set(name);
+        profileDescription.set(description);
+        categories.set(FXCollections.observableArrayList(newCats));
+    }
+
+    private List<Category> getDefaultCategories()
+    {
+        return getDefaultCategories(null);
+    }
+    
+    private List<Category> getDefaultCategories(VPKFileService vpkService)
+    {
+        ArrayList<Category> defaultCategories = new ArrayList<>();
+        
+        ArrayList<String> vpkPaths = new ArrayList<>();
+        vpkPaths.add(Constants.HERO_SPELLS_SCRIPTS_VPK_PATH);        
+        Category heroSpells = new Category("Hero Spells", vpkService, vpkPaths);
+        defaultCategories.add(heroSpells);
+        
+        vpkPaths.clear();
+        vpkPaths.add(Constants.ITEMS_SCRIPTS_VPK_PATH);
+        Category items = new Category("Items", vpkService, vpkPaths);
+        defaultCategories.add(items);        
+        
+        vpkPaths.clear();
+        vpkPaths.add(Constants.VOICE_SCRIPTS_VPK_PATH);
+        Category voices = new Category("Voices", vpkService, vpkPaths);
+        defaultCategories.add(voices);
+        
+        vpkPaths.clear();
+        vpkPaths.add(Constants.MUSIC_DEFAULT_SCRIPTS_VPK_PATH);
+        vpkPaths.add(Constants.MUSIC_TI4_SCRIPTS_VPK_PATH);
+        vpkPaths.add(Constants.MUSIC_TI5_SCRIPTS_VPK_PATH);
+        Category music = new Category("Music", vpkService, vpkPaths);
+        defaultCategories.add(music);
+        
+        return defaultCategories;
     }
     
     @Override
@@ -85,18 +169,18 @@ public class Profile
                 .append(profileName.get(), other.profileName.get())                
                 .append(profileDescription.get(), other.profileDescription.get())                
                 .isEquals();
-        return equalsBuilder
-                && Arrays.deepEquals(_categories.toArray(), other._categories.toArray());
+
+        boolean listsEqual = categories.equals(other.categories);
+        return equalsBuilder && listsEqual;
     }
 
     @Override
     public int hashCode()
     {
-        int hash = 3;
-        hash = 29 * hash + Objects.hashCode(this.profileName);
-        hash = 29 * hash + Objects.hashCode(this.profileDescription);
-        hash = 29 * hash + Objects.hashCode(this._categories);
+        int hash = 7;
+        hash = 83 * hash + Objects.hashCode(this.profileName);
+        hash = 83 * hash + Objects.hashCode(this.profileDescription);
+        hash = 83 * hash + Objects.hashCode(this.categories);
         return hash;
     }
-
 }

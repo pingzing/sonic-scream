@@ -30,6 +30,7 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.When;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -56,6 +57,8 @@ public final class CategoryTabController extends Tab
     
     @FXML
     private Label CategoryTabLabel;
+
+    private Category _category;
     
     private ObjectProperty selectedScript = new SimpleObjectProperty();
     public final Object getSelectedScript() { return selectedScript.get(); }
@@ -76,6 +79,8 @@ public final class CategoryTabController extends Tab
             throw new RuntimeException(ex);
         }
 
+        _category = category;
+
         this.textProperty().bind(category.categoryNameProperty());        
         CategoryTabComboBox.itemsProperty().bind(category.categoryScriptsProperty());
         
@@ -91,13 +96,13 @@ public final class CategoryTabController extends Tab
         
         selectedScriptProperty().bind(selectedItemBinding);
         
-        if(!category.getCategoryScripts().isEmpty())
+        ObservableList<Script> test = category.categoryScriptsProperty().get();
+        
+        if(category.categoryScriptsProperty().get() != null && !category.categoryScriptsProperty().get().isEmpty())
         {
             CategoryTabComboBox.valueProperty().set(category.categoryScriptsProperty().get(0));
             handleComboBoxChanged(null);
         }
-        
-        updateCategoryFromVPK();
     }
     
     @FXML
@@ -124,8 +129,16 @@ public final class CategoryTabController extends Tab
         CategoryTabComboBox.requestFocus();
     }
 
-    private void updateCategoryFromVPK()
+    /**
+     * Resolve VPK scripts from the current category, and do cache checking
+     * TODO: cache checking
+     */
+    public void updateCategoryScripts()
     {
-        
+        for(Script s : _category.getCategoryScripts())
+        {
+
+        }
+
     }
 }

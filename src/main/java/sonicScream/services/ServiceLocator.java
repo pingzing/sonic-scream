@@ -52,7 +52,7 @@ public class ServiceLocator
         {
             initialize();
         }
-        
-        return _services.get(serviceType);        
+
+        return _services.get(serviceType);
     }
 }
