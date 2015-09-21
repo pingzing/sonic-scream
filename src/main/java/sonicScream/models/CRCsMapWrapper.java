@@ -15,5 +15,5 @@ public class CRCsMapWrapper
 {
     private Map<String, Long> crcs = new HashMap<>();
     public Map<String, Long> getCRCsMap() { return crcs; }
-    public void setCRCs(Map<String, Long> value) { crcs = value; }
+    public void setCRCsMap(Map<String, Long> value) { crcs = value; }
 }

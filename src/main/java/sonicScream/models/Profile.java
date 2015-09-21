@@ -31,6 +31,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import sonicScream.services.ServiceLocator;
 import sonicScream.services.VPKFileService;
 import sonicScream.utilities.Constants;
 
@@ -115,6 +116,10 @@ public class Profile
     
     private List<Category> getDefaultCategories(VPKFileService vpkService)
     {
+        if(vpkService == null)
+        {
+            vpkService = (VPKFileService) ServiceLocator.getService(VPKFileService.class);
+        }
         ArrayList<Category> defaultCategories = new ArrayList<>();
         
         ArrayList<String> vpkPaths = new ArrayList<>();

@@ -232,7 +232,7 @@ public class SettingsService
             try (BufferedWriter bw = Files.newBufferedWriter(crcFile, StandardOpenOption.CREATE))
             {
                 CRCsMapWrapper wrapper = new CRCsMapWrapper();
-                wrapper.setCRCs(_crcDictionary);
+                wrapper.setCRCsMap(_crcDictionary);
                 m.marshal(wrapper, bw);
             }
             catch (IOException ex)

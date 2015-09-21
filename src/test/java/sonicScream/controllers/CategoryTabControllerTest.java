@@ -121,11 +121,4 @@ public class CategoryTabControllerTest
     {
         assert(true);
     }
-
-    @Test
-    public void testUpdateCategoryFromVPK()
-    {
-        //controller.updateCategoryFromVPK();
-
-    }
 }

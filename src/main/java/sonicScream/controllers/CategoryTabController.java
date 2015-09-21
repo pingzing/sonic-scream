@@ -90,7 +90,7 @@ public final class CategoryTabController extends Tab
                 Bindings.greaterThan(category.categoryScriptsProperty().sizeProperty(), 1)
         );
 
-        if( category.getCategoryScripts().size() > 1)
+        if( category.categoryScriptsProperty().size() > 1)
         {
             selectedScriptProperty().bind(CategoryTabComboBox.valueProperty());
         }
