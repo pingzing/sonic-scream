@@ -31,30 +31,35 @@ import java.nio.file.Paths;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TreeItem;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import sonicScream.services.ServiceLocator;
 import sonicScream.utilities.ScriptParser;
 import sonicScream.utilities.StringParsing;
 import sonicScream.services.VPKFileService;
 
+@XmlRootElement
 public class Script
-{
-    private final String _parentCategoryName; //TODO: Don't deserialize this, maybe? Maybe turn it into a string, or UUID?
-    public String getParentCategoryName() { return _parentCategoryName; }    
+{    
+    @XmlElement
+    private String _parentCategoryName; //TODO: Don't deserialize this, maybe? Maybe turn it into a string, or UUID?        
+    @XmlElement
+    private String _internalScriptName; //no file extension, or "game_sounds_etc" prefix      
+    @XmlElement
+    private String _rawFileName; //full file name    
     
-    private final String _internalScriptName; //no file extension, or "game_sounds_etc" prefix  
-    public String getInternalScriptName() { return _internalScriptName; }
-    
-    private final String _rawFileName; //full file name
-    public string
-    
-    private TreeItem<String> _rootNode;
+    private TreeItem<String> _rootNode;    
     private String _treeAsString = null;    
-    private final Boolean _isCustom ;
-    
-    private final String _vpkPath;
+    @XmlElement
+    private Boolean _isCustom ;
+    @XmlElement
+    private String _vpkPath;
+    @XmlElement
     private long _lastKnownCrc;
     
+    @XmlElement
     private String _localPath;
     
     private StringProperty friendlyScriptName = new SimpleStringProperty();
@@ -62,6 +67,14 @@ public class Script
     public final void setFriendlyScriptName(String value) { friendlyScriptName.set(value); }
     public StringProperty friendlyScriptNameProperty() { return friendlyScriptName; }
 
+    /**
+     * Only for compatibility with JAXB
+     */
+    public Script()
+    {
+        
+    }
+    
     public Script(VPKEntry scriptFile, Category category)
     {
         _rawFileName = scriptFile.getName() + "." +  scriptFile.getType();
@@ -87,9 +100,7 @@ public class Script
         _localPath = scriptFile.toAbsolutePath().toString();        
         _isCustom = true;
         _vpkPath = null;
-    }       
-    
-    public Script(Path)
+    }               
     
     private BufferedReader getScriptReader(VPKEntry entry)
     {
@@ -112,6 +123,7 @@ public class Script
     
     public String getRawFileName() { return _rawFileName; }
     
+    @XmlTransient 
     public TreeItem<String> getRootNode()
     {
         if (_rootNode == null)
@@ -144,6 +156,7 @@ public class Script
      * If the current script has not yet been transformed into a Tree, this will do so.
      * @return A string containing the entire script, formatted for human-readability.
      */
+    @XmlTransient
     public String getScriptAsString()
     {
         if (_treeAsString == null)

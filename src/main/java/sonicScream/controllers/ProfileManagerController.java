@@ -23,9 +23,6 @@
  */
 package sonicScream.controllers;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.XStreamException;
-import com.thoughtworks.xstream.io.xml.KXml2Driver;
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -158,24 +155,25 @@ public class ProfileManagerController implements Initializable
         chooser.setTitle("Import profile");       
         chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Profiles", "*.xml"));
         File result = chooser.showOpenDialog(SelectedProfileComboBox.getScene().getWindow());
-        try
-        {
-            XStream reader = new XStream(new KXml2Driver());
-            Profile importedProfile = (Profile)reader.fromXML(result);
-            _profiles.add(importedProfile);
-            selectedProfile.set(importedProfile);
-            settings.addProfile(importedProfile);
-        }
-        catch(ProfileNameExistsException ex)
-        {
-            throw new NotImplementedException("Profile name exists handler not implemented");
-            //Tell the user a profile with that name already exists. NO CAN DO
-        }
-        catch(XStreamException ex)
-        {
-            throw new NotImplementedException("Invalid profile handler not implemented");
-            //Tell the user that the profile is improperly formatted. ALSO NO CAN DO
-        }
+        //TODO: Reimplemnt using JAXB
+//        try
+//        {
+//            XStream reader = new XStream(new KXml2Driver());
+//            Profile importedProfile = (Profile)reader.fromXML(result);
+//            _profiles.add(importedProfile);
+//            selectedProfile.set(importedProfile);
+//            settings.addProfile(importedProfile);
+//        }
+//        catch(ProfileNameExistsException ex)
+//        {
+//            throw new NotImplementedException("Profile name exists handler not implemented");
+//            //Tell the user a profile with that name already exists. NO CAN DO
+//        }
+//        catch(XStreamException ex)
+//        {
+//            throw new NotImplementedException("Invalid profile handler not implemented");
+//            //Tell the user that the profile is improperly formatted. ALSO NO CAN DO
+//        }
     }
 
 }

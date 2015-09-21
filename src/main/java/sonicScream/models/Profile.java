@@ -24,35 +24,32 @@
 package sonicScream.models;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import sonicScream.services.ServiceLocator;
 import sonicScream.services.VPKFileService;
 import sonicScream.utilities.Constants;
 
-//TODO: Fix deserialization to NOT save the properties, and instead save their backing values.
+@XmlRootElement
 public class Profile
 {
     private StringProperty profileName = new SimpleStringProperty();
     public final String getProfileName() { return profileName.get(); }
-    public final void setProfileName(String value) { profileName.set(value); }
+    public final void setProfileName(String value) { profileName.set(value); }    
     public StringProperty profileNameProperty() { return profileName; }
     
     private StringProperty profileDescription = new SimpleStringProperty();
     public final String getProfileDescription() {return profileDescription.get(); }
-    public final void setProfileDescription(String value) { profileDescription.set(value); }
+    public final void setProfileDescription(String value) { profileDescription.set(value); }    
     public StringProperty profileDescriptionProperty() { return profileName; }
     
     private List<Category> _categories;
     public List<Category> getCategories() { return _categories; }
-    public void setCategories(List<Category> value) { _categories = value; }
+    public void setCategories(List<Category> value) { _categories = value; }    
 
     /**
      * Constructs a Profile with the name "Default", the description "The default profile", and with

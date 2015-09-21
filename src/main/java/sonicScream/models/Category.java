@@ -38,28 +38,37 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-import org.apache.commons.lang3.builder.EqualsBuilder;
+import javax.xml.bind.annotation.XmlRootElement;
 import sonicScream.services.ServiceLocator;
 import sonicScream.services.VPKFileService;
 import sonicScream.utilities.Constants;
 import sonicScream.utilities.FilesEx;
 
-//TODO: Fix deserialization to NOT save properties, and instead save backing values
+@XmlRootElement
 public class Category
-{
-    private StringProperty categoryName = new SimpleStringProperty();
+{ 
+    private StringProperty categoryName = new SimpleStringProperty();    
     public final String getCategoryName() { return categoryName.get(); }
-    public final void setCategoryName(String value) { categoryName.set(value); }
+    public final void setCategoryName(String value) { categoryName.set(value); }    
     public StringProperty categoryNameProperty() { return categoryName; }
 
-    private ListProperty<Script> categoryScripts = new SimpleListProperty<Script>();
+    private ListProperty<Script> categoryScripts = new SimpleListProperty<>();
     public final List<Script> getCategoryScripts() {return categoryScripts.get(); }
-    public final void setCategoryScripts(List<Script> value) {categoryScripts.set(FXCollections.observableArrayList(value)); }
+    public final void setCategoryScripts(List<Script> value) {categoryScripts.set(FXCollections.observableArrayList(value)); }    
     public ListProperty<Script> categoryScriptsProperty() { return categoryScripts; }
-
+    
     private List<String> _vpkPaths;
     public List<String> getVPKPaths() { return _vpkPaths; }
+    public void setVPPKPaths(List<String> value) { _vpkPaths = value; }
 
+    /**
+     * Only for compatibility with JAXB
+     */
+    public Category()
+    {
+        
+    }
+    
     public Category(String name)
     {
         this(name, new ArrayList<>());

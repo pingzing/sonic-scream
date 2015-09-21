@@ -40,9 +40,7 @@ dependencies {
     //   http://www.gradle.org/docs/current/userguide/dependency_management.html#sec:how_to_declare_your_dependencies
     testCompile group: 'junit', name: 'junit', version: '4.11' 
     testCompile "org.mockito:mockito-core:1.+"
-    compile name: 'jvpk'
-    compile group: 'com.thoughtworks.xstream', name:'xstream', version: '1.4.8'
+    compile name: 'jvpk'    
     compile group:'org.apache.commons', name:'commons-lang3', version:'3.4'
-    compile group: 'org.apache.commons', name:'commons-io', version: '1.3.2'
-    compile group:'net.sf.kxml', name:'kxml2', version:'2.3.0'
+    compile group: 'org.apache.commons', name:'commons-io', version: '1.3.2'    
 }

@@ -24,8 +24,6 @@
 
 package sonicScream.services;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.KXml2Driver;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -34,55 +32,76 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import sonicScream.models.CRCsMapWrapper;
 import sonicScream.models.Profile;
+import sonicScream.models.SettingsMapWrapper;
 import sonicScream.utilities.Constants;
 import sonicScream.utilities.FilesEx;
 
 public class SettingsService 
 {
-    private final Map<String, String> _settingsDictionary;
-    private final Map<String, Long> _crcDictionary;
-    private final List<Profile> _profileList;
+    private Map<String, String> _settingsDictionary;
+    private Map<String, Long> _crcDictionary;
+    private List<Profile> _profileList;
     
     public Map<String, String> getReadonlySettings() { return Collections.unmodifiableMap(_settingsDictionary); }
     public Map<String, Long> getReadonlyCRCs() { return Collections.unmodifiableMap(_crcDictionary); }    
     
     public SettingsService(Path settingsFile, Path crcFile, Path profilesDirectory) throws IOException
     {
-        XStream stream = new XStream(new KXml2Driver());
-        if(Files.size(settingsFile) == 0)
+        try
         {
-            _settingsDictionary = new HashMap<>();
-        }
-        else
-        {
-            _settingsDictionary = (Map<String, String>)stream.fromXML(Files.newInputStream(settingsFile));
-        }
-        
-        if(Files.size(crcFile) == 0)
-        {
-            _crcDictionary = new HashMap<>();
-        }
-        else
-        {
-            _crcDictionary = (Map<String, Long>)stream.fromXML(Files.newInputStream(crcFile));
-        }        
-        
-        List<Path> profiles = FilesEx.listFiles(profilesDirectory);
-        _profileList = new ArrayList();
+            JAXBContext context = JAXBContext.newInstance(SettingsMapWrapper.class);
+            Unmarshaller um = context.createUnmarshaller();            
 
-        profiles.stream().forEach(p ->
-        {
-            try
+            if (Files.size(settingsFile) == 0)
             {
-                _profileList.add((Profile) stream.fromXML(Files.newInputStream(p)));
+                _settingsDictionary = new HashMap<>();
             }
-            catch (IOException ex)
+            else
             {
-                System.err.printf("\nUnable to read profile %s:", p, ex.getMessage());
-            }
-        });
+                _settingsDictionary = ((SettingsMapWrapper)um.unmarshal(Files.newInputStream(settingsFile))).getSettingsMap();
+            }            
 
+            context = JAXBContext.newInstance(CRCsMapWrapper.class);
+            um = context.createUnmarshaller();
+            
+            if (Files.size(crcFile) == 0)
+            {
+                _crcDictionary = new HashMap<>();
+            }
+            else
+            {
+                _crcDictionary = ((CRCsMapWrapper)um.unmarshal(Files.newInputStream(crcFile))).getCRCsMap();
+            }
+            
+            context = JAXBContext.newInstance(Profile.class);
+            um = context.createUnmarshaller();
+            final Unmarshaller finalUm = um;
+
+            List<Path> profiles = FilesEx.listFiles(profilesDirectory);
+            _profileList = new ArrayList();
+            profiles.stream().forEach(p ->
+            {
+                try
+                {
+                    _profileList.add((Profile) finalUm.unmarshal(Files.newInputStream(p)));
+                }
+                catch (IOException | JAXBException ex)
+                {
+                    System.err.printf("\nUnable to read profile %s:", p, ex.getMessage());
+                }
+            });
+        }
+        catch (JAXBException ex)
+        {
+            //TODO: Error message
+            ex.printStackTrace();              
+        }
     }
     
     public String getSetting(String setting)
@@ -184,45 +203,64 @@ public class SettingsService
      */
     public void saveSettings(String pathToWriteTo)
     {
-        if(pathToWriteTo.length() > 2 
+        if (pathToWriteTo.length() > 2
                 && !(pathToWriteTo.charAt(pathToWriteTo.length() - 1) == File.separatorChar))
         {
-            pathToWriteTo.concat(File.separator);
+            pathToWriteTo = pathToWriteTo.concat(File.separator);
         }
-        
-        XStream serializer = new XStream(new KXml2Driver());
-        Path settingsFile = Paths.get(pathToWriteTo, Constants.SETTINGS_FILE_NAME);
-        try(BufferedWriter bw = Files.newBufferedWriter(settingsFile, StandardOpenOption.CREATE))
+        try
         {
-            serializer.toXML(_settingsDictionary, bw);
-        }
-        catch(IOException ex)
-        {
-            System.err.println("Failed to write out " + Constants.SETTINGS_FILE_NAME);
-        }
-        
-        Path crcFile = Paths.get(pathToWriteTo, Constants.CRC_CACHE_FILE_NAME);
-        try(BufferedWriter bw = Files.newBufferedWriter(crcFile, StandardOpenOption.CREATE))
-        {
-            serializer.toXML(_crcDictionary, bw);
-        }
-        catch(IOException ex)
-        {
-            System.err.println("Failed to write out " + Constants.CRC_CACHE_FILE_NAME);
-        }
-        
-        for(Profile profile : _profileList)
-        {
-            Path profilePath = Paths.get(pathToWriteTo, Constants.PROFILE_FILES_DIRECTORY, 
-                File.separator, profile.getProfileName() + "_" + Constants.PROFILE_FILE_SUFFIX);
-            try(BufferedWriter bw = Files.newBufferedWriter(profilePath))
+            JAXBContext context = JAXBContext.newInstance(SettingsMapWrapper.class);
+            Marshaller m = context.createMarshaller();
+            
+            Path settingsFile = Paths.get(pathToWriteTo, Constants.SETTINGS_FILE_NAME);
+            try (BufferedWriter bw = Files.newBufferedWriter(settingsFile, StandardOpenOption.CREATE))
             {
-                serializer.toXML(profile, bw);
+                SettingsMapWrapper wrapper = new SettingsMapWrapper();
+                wrapper.setSettingsMap(_settingsDictionary);
+                m.marshal(wrapper, bw);
             }
-            catch(IOException ex)
+            catch (IOException ex)
             {
-                System.err.printf("\nFailed to write out profile: %s " + ex.getMessage());
+                System.err.println("Failed to write out " + Constants.SETTINGS_FILE_NAME);
             }
+            
+            context = JAXBContext.newInstance(CRCsMapWrapper.class);
+            m = context.createMarshaller();
+
+            Path crcFile = Paths.get(pathToWriteTo, Constants.CRC_CACHE_FILE_NAME);
+            try (BufferedWriter bw = Files.newBufferedWriter(crcFile, StandardOpenOption.CREATE))
+            {
+                CRCsMapWrapper wrapper = new CRCsMapWrapper();
+                wrapper.setCRCs(_crcDictionary);
+                m.marshal(wrapper, bw);
+            }
+            catch (IOException ex)
+            {
+                System.err.println("Failed to write out " + Constants.CRC_CACHE_FILE_NAME);
+            }
+            
+            context = JAXBContext.newInstance(Profile.class);
+            m = context.createMarshaller();
+
+            for (Profile profile : _profileList)
+            {
+                Path profilePath = Paths.get(pathToWriteTo, Constants.PROFILE_FILES_DIRECTORY,
+                        File.separator, profile.getProfileName() + "_" + Constants.PROFILE_FILE_SUFFIX);
+                try (BufferedWriter bw = Files.newBufferedWriter(profilePath))
+                {
+                    m.marshal(profile, bw);
+                }
+                catch (IOException ex)
+                {
+                    System.err.printf("\nFailed to write out profile: %s " + ex.getMessage());
+                }
+            }
+        }
+        catch (JAXBException ex)
+        {
+            //TODO: Error message
+            ex.printStackTrace();
         }
                
     }
