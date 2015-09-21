@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Objects;
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
+
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -35,7 +37,7 @@ import sonicScream.services.ServiceLocator;
 import sonicScream.services.VPKFileService;
 import sonicScream.utilities.Constants;
 
-@XmlRootElement
+@XmlRootElement(name = "Profile")
 public class Profile
 {
     private StringProperty profileName = new SimpleStringProperty();
@@ -47,7 +49,8 @@ public class Profile
     public final String getProfileDescription() {return profileDescription.get(); }
     public final void setProfileDescription(String value) { profileDescription.set(value); }    
     public StringProperty profileDescriptionProperty() { return profileName; }
-    
+
+    @XmlElement(name = "Category")
     private List<Category> _categories;
     public List<Category> getCategories() { return _categories; }
     public void setCategories(List<Category> value) { _categories = value; }    

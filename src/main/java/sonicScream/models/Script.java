@@ -31,17 +31,18 @@ import java.nio.file.Paths;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TreeItem;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+
+import javax.xml.bind.annotation.*;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import sonicScream.services.ServiceLocator;
 import sonicScream.utilities.ScriptParser;
 import sonicScream.utilities.StringParsing;
 import sonicScream.services.VPKFileService;
 
-@XmlRootElement
-public class Script
+@XmlRootElement(name="Script")
+@XmlAccessorType(XmlAccessType.FIELD)
+public class Script implements Comparable
 {    
     @XmlElement
     private String _parentCategoryName; //TODO: Don't deserialize this, maybe? Maybe turn it into a string, or UUID?        
@@ -49,9 +50,12 @@ public class Script
     private String _internalScriptName; //no file extension, or "game_sounds_etc" prefix      
     @XmlElement
     private String _rawFileName; //full file name    
-    
-    private TreeItem<String> _rootNode;    
+
+    @XmlTransient
+    private TreeItem<String> _rootNode;
+    @XmlTransient
     private String _treeAsString = null;    
+
     @XmlElement
     private Boolean _isCustom ;
     @XmlElement
@@ -61,10 +65,12 @@ public class Script
     
     @XmlElement
     private String _localPath;
-    
+
+    @XmlTransient
     private StringProperty friendlyScriptName = new SimpleStringProperty();
     public final String getFriendlyScriptName() { return friendlyScriptName.get(); }
     public final void setFriendlyScriptName(String value) { friendlyScriptName.set(value); }
+    //@XmlTransient
     public StringProperty friendlyScriptNameProperty() { return friendlyScriptName; }
 
     /**
@@ -195,5 +201,19 @@ public class Script
                 .append(this._vpkPath, other._vpkPath)
                 .isEquals();
     }
-    
+
+    @Override
+    public int compareTo(Object o)
+    {
+        final int LESS_THAN = -1;
+        final int EQUAL = 0;
+        final int MORE_THAN = 1;
+        if(o == this)
+        {
+            return EQUAL;
+        }
+
+        Script other = (Script)o;
+        return this.getFriendlyScriptName().compareTo(other.getFriendlyScriptName());
+    }
 }

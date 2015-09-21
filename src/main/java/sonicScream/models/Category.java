@@ -27,10 +27,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import info.ata4.vpk.VPKEntry;
 import javafx.beans.property.ListProperty;
@@ -38,13 +35,15 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import sonicScream.services.ServiceLocator;
 import sonicScream.services.VPKFileService;
 import sonicScream.utilities.Constants;
 import sonicScream.utilities.FilesEx;
 
-@XmlRootElement
+@XmlRootElement(name = "Category")
 public class Category
 { 
     private StringProperty categoryName = new SimpleStringProperty();    
@@ -53,10 +52,12 @@ public class Category
     public StringProperty categoryNameProperty() { return categoryName; }
 
     private ListProperty<Script> categoryScripts = new SimpleListProperty<>();
+    @XmlElement(name = "Script")
     public final List<Script> getCategoryScripts() {return categoryScripts.get(); }
     public final void setCategoryScripts(List<Script> value) {categoryScripts.set(FXCollections.observableArrayList(value)); }    
     public ListProperty<Script> categoryScriptsProperty() { return categoryScripts; }
-    
+
+    @XmlElement(name = "CategoryVPKPath")
     private List<String> _vpkPaths;
     public List<String> getVPKPaths() { return _vpkPaths; }
     public void setVPPKPaths(List<String> value) { _vpkPaths = value; }
@@ -150,6 +151,8 @@ public class Category
                         }
                     }
                 });
+
+        Collections.sort(scriptsToInitWith);
         setCategoryScripts(scriptsToInitWith);
     }
 

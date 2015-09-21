@@ -31,13 +31,15 @@ public class SonicScream extends Application
     {
         Thread.currentThread().setUncaughtExceptionHandler((thread, throwable)
                 -> onUnhandledException(thread, throwable));
-                
-        configureServiceLocator();
+
+        configureSettingsService();
         SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
+
         if (settings.getSetting(Constants.SETTING_MAIN_VPK_PATH) == null)
         {
             setVPKPaths(settings);
         }
+        configureVPKFileService();
 
         URL location = getClass().getResource("views/Main.fxml");
         FXMLLoader loader = new FXMLLoader(location);
@@ -58,7 +60,7 @@ public class SonicScream extends Application
         launch(args);
     }
 
-    private void configureServiceLocator()
+    private void configureSettingsService()
     {
         ServiceLocator.initialize();
 
@@ -80,17 +82,19 @@ public class SonicScream extends Application
                 profileDir = Files.createDirectory(profileDir);
             }
             ServiceLocator.registerService(SettingsService.class, new SettingsService(settingsFile, crcFile, profileDir));
-
-            SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
-            String mainVPKPath = settings.getSetting(Constants.SETTING_MAIN_VPK_PATH);
-            String mainVPKDir = settings.getSetting(Constants.SETTING_MAIN_VPK_DIR);
-            ServiceLocator.registerService(VPKFileService.class, new VPKFileService(mainVPKPath, mainVPKDir));
         }
         catch (IOException ex)
         {
             System.err.printf("Unable to register SettingsService: %s", ex.getMessage());
         }
+    }
 
+    private void configureVPKFileService()
+    {
+        SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
+        String mainVPKPath = settings.getSetting(Constants.SETTING_MAIN_VPK_PATH);
+        String mainVPKDir = settings.getSetting(Constants.SETTING_MAIN_VPK_DIR);
+        ServiceLocator.registerService(VPKFileService.class, new VPKFileService(mainVPKPath, mainVPKDir));
     }
 
     private void setVPKPaths(SettingsService settings)
