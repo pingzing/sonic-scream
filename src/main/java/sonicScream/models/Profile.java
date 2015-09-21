@@ -52,12 +52,11 @@ public class Profile
     public void setCategories(List<Category> value) { _categories = value; }    
 
     /**
-     * Constructs a Profile with the name "Default", the description "The default profile", and with
-     * the four default Categories.
+     * Exists for compatibility with JAXB.
      */
     public Profile()
     {        
-        this("Default");
+        
     }
 
     /**

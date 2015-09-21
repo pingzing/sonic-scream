@@ -87,7 +87,7 @@ public class ProfileTest
 
         VPKEntry mockVPKEntry = mock(VPKEntry.class);
         when(mockVPKEntry.getName()).thenReturn("Somename");
-        when(mockVPKEntry.getType()).thenReturn(".vsndevts");
+        when(mockVPKEntry.getType()).thenReturn("vsndevts");
         when(mockVPKEntry.getPath()).thenReturn("/somepath/wherever/Somename.vsndevts");
 
         List<VPKEntry> mockVPKList = new ArrayList<>();
