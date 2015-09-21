@@ -37,6 +37,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import sonicScream.services.ServiceLocator;
 import sonicScream.services.VPKFileService;
@@ -52,12 +53,14 @@ public class Category
     public StringProperty categoryNameProperty() { return categoryName; }
 
     private ListProperty<Script> categoryScripts = new SimpleListProperty<>();
-    @XmlElement(name = "Script")
+    @XmlElementWrapper(name = "Scripts")
+    @XmlElement(name = "Script", type = Script.class)
     public final List<Script> getCategoryScripts() {return categoryScripts.get(); }
     public final void setCategoryScripts(List<Script> value) {categoryScripts.set(FXCollections.observableArrayList(value)); }    
-    public ListProperty<Script> categoryScriptsProperty() { return categoryScripts; }
+    public ListProperty<Script> categoryScriptsProperty() { return categoryScripts; }        
 
-    @XmlElement(name = "CategoryVPKPath")
+    @XmlElementWrapper(name = "VPKPaths")
+    @XmlElement(name = "VPKPath")
     private List<String> _vpkPaths;
     public List<String> getVPKPaths() { return _vpkPaths; }
     public void setVPPKPaths(List<String> value) { _vpkPaths = value; }

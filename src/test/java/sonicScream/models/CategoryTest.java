@@ -27,8 +27,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import info.ata4.vpk.VPKEntry;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.StringProperty;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -90,5 +95,29 @@ public class CategoryTest
     public void testConstructCategory()
     {
         Category category = new Category("Test", vpkFileService, mockPaths);
+    }
+    
+    @Test
+    public void testSerialization()
+    {
+        try 
+        {
+            JAXBContext context = JAXBContext.newInstance(Category.class);
+            Marshaller m = context.createMarshaller();
+            Unmarshaller um = context.createUnmarshaller();
+            
+            Category category = new Category("Test", vpkFileService, mockPaths);
+            
+            Path xmlFile = Paths.get("testCategory.xml");
+            m.marshal(category, xmlFile.toFile());
+            
+            Category result = (Category)um.unmarshal(xmlFile.toFile());
+            
+            assertEquals(result, category);
+        }
+        catch(Exception ex)
+        {
+            fail("Failed to deserialze Category");
+        }
     }
 }

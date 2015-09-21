@@ -23,17 +23,17 @@
  */
 package sonicScream.models;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import javafx.beans.property.StringProperty;
+import java.util.ArrayList;
 import javafx.scene.control.TreeItem;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -140,5 +140,55 @@ public class ScriptTest
         String result = _testScript.getScriptAsString();
                 
         assertEquals(expResult, result);        
+    }
+    
+    @Test
+    public void testScriptSerialization()
+    {
+        try
+        {
+            JAXBContext context = JAXBContext.newInstance(Script.class);
+            Marshaller m = context.createMarshaller();
+            Unmarshaller um = context.createUnmarshaller();
+
+            Path xmlFile = Paths.get("testProfile.xml");
+            m.marshal(_testScript, xmlFile.toFile());
+
+            Script result = (Script)um.unmarshal(xmlFile.toFile());
+            assertEquals(result, _testScript);
+        }
+        catch(Exception ex)
+        {
+            fail("Failed to deserialize Profile");
+        }
+    }
+    
+    @Test
+    public void testScriptListSerialization()
+    {
+        try
+        {
+            JAXBContext context = JAXBContext.newInstance(ScriptListWrapper.class);
+            Marshaller m = context.createMarshaller();
+            Unmarshaller um = context.createUnmarshaller();
+            
+            ArrayList<Script> manyScripts = new ArrayList<>();
+            manyScripts.add(_testScript);
+            manyScripts.add(_testScript);
+            manyScripts.add(_testScript);
+            ScriptListWrapper wrapper = new ScriptListWrapper();
+            wrapper.setScriptList(manyScripts);
+            
+            Path xmlFile = Paths.get("testProfiles.xml");
+            m.marshal(wrapper, xmlFile.toFile());
+            
+            ArrayList<Script> result = ((ScriptListWrapper)um.unmarshal(xmlFile.toFile())).getScriptList();
+            assertEquals(result, manyScripts);
+                        
+        }
+        catch(Exception ex)
+        {
+            fail("Failed to deserialize ProfileList");
+        }
     }
 }

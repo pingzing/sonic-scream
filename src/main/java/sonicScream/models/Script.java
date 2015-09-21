@@ -65,12 +65,12 @@ public class Script implements Comparable
     
     @XmlElement
     private String _localPath;
-
+    
     @XmlTransient
     private StringProperty friendlyScriptName = new SimpleStringProperty();
+    @XmlElement
     public final String getFriendlyScriptName() { return friendlyScriptName.get(); }
-    public final void setFriendlyScriptName(String value) { friendlyScriptName.set(value); }
-    //@XmlTransient
+    public final void setFriendlyScriptName(String value) { friendlyScriptName.set(value); }  
     public StringProperty friendlyScriptNameProperty() { return friendlyScriptName; }
 
     /**

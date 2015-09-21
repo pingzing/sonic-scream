@@ -38,7 +38,7 @@ public class Constants
     //-------Settings file names-------
     public static final String SETTINGS_FILE_NAME = "settings.xml";
     public static final String CRC_CACHE_FILE_NAME = "crcs.xml";
-    public static final String PROFILE_FILE_SUFFIX = "profile.xml";
+    public static final String PROFILE_FILE_SUFFIX = "profile.xml";    
     public static final String PROFILE_FILES_DIRECTORY = "profiles";
     
     //-------Settings keys-------

@@ -88,12 +88,13 @@ public class SettingsService
             profiles.stream().forEach(p ->
             {
                 try
-                {
-                    _profileList.add((Profile) finalUm.unmarshal(Files.newInputStream(p)));
+                {                    
+                    Profile profile =  (Profile)finalUm.unmarshal(Files.newInputStream(p));                    
+                    _profileList.add(profile);
                 }
                 catch (IOException | JAXBException ex)
                 {
-                    System.err.printf("\nUnable to read profile %s:", p, ex.getMessage());
+                    System.err.printf("Unable to read profile %s: %s", p.toString(), ex.getMessage());
                 }
             });
         }
@@ -212,6 +213,7 @@ public class SettingsService
         {
             JAXBContext context = JAXBContext.newInstance(SettingsMapWrapper.class);
             Marshaller m = context.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             
             Path settingsFile = Paths.get(pathToWriteTo, Constants.SETTINGS_FILE_NAME);
             try (BufferedWriter bw = Files.newBufferedWriter(settingsFile, StandardOpenOption.CREATE))
@@ -227,6 +229,7 @@ public class SettingsService
             
             context = JAXBContext.newInstance(CRCsMapWrapper.class);
             m = context.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
             Path crcFile = Paths.get(pathToWriteTo, Constants.CRC_CACHE_FILE_NAME);
             try (BufferedWriter bw = Files.newBufferedWriter(crcFile, StandardOpenOption.CREATE))
@@ -242,6 +245,7 @@ public class SettingsService
             
             context = JAXBContext.newInstance(Profile.class);
             m = context.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
             for (Profile profile : _profileList)
             {
@@ -263,5 +267,5 @@ public class SettingsService
             ex.printStackTrace();
         }
                
-    }
+    }   
 }
