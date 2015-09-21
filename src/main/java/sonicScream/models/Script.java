@@ -39,9 +39,15 @@ import sonicScream.services.VPKFileService;
 
 public class Script
 {
-    private final Category _parentCategory; //TODO: Don't deserialize this, maybe? Maybe turn it into a string, or UUID?
-    private final String _internalScriptName; //no file extension, or "game_sounds_etc" prefix      
+    private final String _parentCategoryName; //TODO: Don't deserialize this, maybe? Maybe turn it into a string, or UUID?
+    public String getParentCategoryName() { return _parentCategoryName; }    
+    
+    private final String _internalScriptName; //no file extension, or "game_sounds_etc" prefix  
+    public String getInternalScriptName() { return _internalScriptName; }
+    
     private final String _rawFileName; //full file name
+    public string
+    
     private TreeItem<String> _rootNode;
     private String _treeAsString = null;    
     private final Boolean _isCustom ;
@@ -61,7 +67,7 @@ public class Script
         _rawFileName = scriptFile.getName() + "." +  scriptFile.getType();
         _internalScriptName = StringParsing.getScriptNameFromFileName(_rawFileName);
         friendlyScriptName.set(StringParsing.prettyFormatScriptName(_internalScriptName));
-        _parentCategory = category;
+        _parentCategoryName = category.getCategoryName();
         _isCustom = false;
         _vpkPath = scriptFile.getPath();
     }
@@ -77,11 +83,13 @@ public class Script
         _rawFileName = scriptFile.getFileName().toString();
         _internalScriptName = StringParsing.getScriptNameFromFileName(_rawFileName);
         friendlyScriptName.set(StringParsing.prettyFormatScriptName(_internalScriptName));
-        _parentCategory = category;       
+        _parentCategoryName = category.getCategoryName();       
         _localPath = scriptFile.toAbsolutePath().toString();        
         _isCustom = true;
         _vpkPath = null;
     }       
+    
+    public Script(Path)
     
     private BufferedReader getScriptReader(VPKEntry entry)
     {
@@ -144,9 +152,7 @@ public class Script
             _treeAsString = ScriptParser.parseScriptTreeToString(_rootNode);
         }
         return _treeAsString;
-    }
-    
-    public Category getParentCategory() { return _parentCategory; }    
+    }        
 
     @Override
     public String toString()

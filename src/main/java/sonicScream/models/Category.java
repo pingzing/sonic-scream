@@ -58,6 +58,7 @@ public class Category
     public ListProperty<Script> categoryScriptsProperty() { return categoryScripts; }
 
     private List<String> _vpkPaths;
+    public List<String> getVPKPaths() { return _vpkPaths; }
 
     public Category(String name)
     {
