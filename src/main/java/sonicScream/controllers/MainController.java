@@ -29,7 +29,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import sonicScream.utilities.TreeParser;
 
 /**
  *
@@ -90,23 +92,28 @@ public class MainController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
-        Profile savedActiveProfile = getActiveProfile();
-
-        for (Category c : savedActiveProfile.getCategories())
+        _activeProfile = getActiveProfile().orElse(null);
+        if (_activeProfile != null)
         {
-            MainTabPane.getTabs().add(new CategoryTabController(c));
+            SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
+            settings.putSetting(Constants.SETTING_ACTIVE_PROFILE, _activeProfile.getProfileName());
+            for (Category c : _activeProfile.getCategories())
+            {
+                MainTabPane.getTabs().add(new CategoryTabController(c));
+            }
         }
+       
         tabSelection = MainTabPane.getSelectionModel();
         tabSelection.selectFirst();
     }
 
-    private Profile getActiveProfile()
+    private Optional<Profile> getActiveProfile()
     {
         SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
         String profileName = settings.getSetting(Constants.SETTING_ACTIVE_PROFILE);
         if (profileName == null) //no active profile saved
         {
-            return getActiveProfileFromDialog();
+            return getActiveProfileFromDialog();                        
         }
 
         Profile active = settings.getProfile(profileName); //Saved active profile no longer exis
@@ -115,10 +122,10 @@ public class MainController implements Initializable
             return getActiveProfileFromDialog();
         }
 
-        return active;
+        return Optional.ofNullable(active);
     }
 
-    private Profile getActiveProfileFromDialog()
+    private Optional<Profile> getActiveProfileFromDialog()
     {         
         try
         {
@@ -137,12 +144,32 @@ public class MainController implements Initializable
             stage.setScene(scene);
             stage.showAndWait();    
             
-            return controller.getSelectedProfile();            
+            return Optional.ofNullable(controller.getSelectedProfile());            
         }
         catch (IOException ex)
         {
             System.err.printf("Unable to open Profile Manager dialog: %s", ex.getMessage());
-            return null;
-        }        
+            return Optional.empty();
+        }
+    }
+    
+    @FXML
+    private void handleProfileButtonAction(ActionEvent event)
+    {
+        _activeProfile = getActiveProfileFromDialog().orElse(null);
+        SettingsService settings = (SettingsService)ServiceLocator.getService(SettingsService.class);
+        settings.putSetting(Constants.SETTING_ACTIVE_PROFILE, _activeProfile.getProfileName());
+    }
+    
+    @FXML
+    private void handleModifyScriptButton(ActionEvent event)
+    {
+        CategoryTabController tab = (CategoryTabController) tabSelection.getSelectedItem();
+        Script script = tab.selectedScriptProperty().get() != null ? (Script) tab.selectedScriptProperty().get() : null;
+        if (script != null)
+        {
+            TreeItem<String> soundParent = TreeParser.searchForKey(script.getRootNode().getChildren().get(0), "\"vsnd_files\"");            
+            soundParent.setValue("Nope!");
+        }
     }
 }

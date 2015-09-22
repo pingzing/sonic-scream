@@ -59,5 +59,21 @@ public class FilesEx
         }
         return files;
     }
+    
+    public static List<Path> getDirectories(Path path) throws IOException
+    {
+        List<Path> dirs = new ArrayList<>();
+        DirectoryStream.Filter<Path> filter = (Path file) 
+                -> (Files.isDirectory(file));
+        
+        try(DirectoryStream<Path> ds = Files.newDirectoryStream(path, filter))
+        {
+            for(Path p: ds)
+            {
+                dirs.add(p);
+            }
+        }
+        return dirs;
+    }
 
 }

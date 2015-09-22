@@ -16,6 +16,8 @@
             <Button text="Revert"/> 
             <Button fx:id="toFileButton" text="To file" onAction="#handleToFileButtonAction"/>
             <Button fx:id="changeVPKButton" text="Find VPK" onAction="#handleFindVPKButtonAction"/>
+            <Button fx:id="showProfileDialog" text="Choose Profile" onAction="#handleProfileButtonAction"/>
+            <Button fx:id="modifyScriptButotn" text="Modify Script" onAction="#handleModifyScriptButton"/>
         </HBox>   
     </children>
 </VBox>

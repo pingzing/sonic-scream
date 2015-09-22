@@ -26,6 +26,7 @@ package sonicScream.services;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,6 +37,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import org.apache.commons.io.FileUtils;
 import sonicScream.models.CRCsMapWrapper;
 import sonicScream.models.Profile;
 import sonicScream.models.SettingsMapWrapper;
@@ -83,20 +85,27 @@ public class SettingsService
             um = context.createUnmarshaller();
             final Unmarshaller finalUm = um;
 
-            List<Path> profiles = FilesEx.listFiles(profilesDirectory);
             _profileList = new ArrayList();
-            profiles.stream().forEach(p ->
+            List<Path> profileFolders = FilesEx.getDirectories(profilesDirectory);
+            for(Path folder : profileFolders)
             {
-                try
-                {                    
-                    Profile profile =  (Profile)finalUm.unmarshal(Files.newInputStream(p));                    
-                    _profileList.add(profile);
-                }
-                catch (IOException | JAXBException ex)
+                File file = FileUtils.listFiles(folder.toFile(), new String[]{"xml"}, false)
+                        .stream()
+                        .findFirst()
+                        .orElse(null);
+                if(file != null)
                 {
-                    System.err.printf("Unable to read profile %s: %s", p.toString(), ex.getMessage());
+                    try
+                   {                    
+                       Profile profile =  (Profile)finalUm.unmarshal(new FileInputStream(file));                    
+                       _profileList.add(profile);
+                   }
+                   catch (IOException | JAXBException ex)
+                   {
+                       System.err.printf("Unable to read profile %s: %s", file.toString(), ex.getMessage());
+                   }
                 }
-            });
+            }                                    
         }
         catch (JAXBException ex)
         {
@@ -248,7 +257,19 @@ public class SettingsService
 
             for (Profile profile : _profileList)
             {
+                try
+                {
+                    Files.createDirectories(Paths.get(pathToWriteTo, Constants.PROFILE_FILES_DIRECTORY,
+                            File.separator, profile.getProfileName()));
+                }
+                catch(IOException ex)
+                {
+                    //TODO: Tell the user
+                    ex.printStackTrace();
+                    break;
+                }
                 Path profilePath = Paths.get(pathToWriteTo, Constants.PROFILE_FILES_DIRECTORY,
+                        File.separator, profile.getProfileName(),
                         File.separator, profile.getProfileName() + "_" + Constants.PROFILE_FILE_SUFFIX);
                 try (BufferedWriter bw = Files.newBufferedWriter(profilePath))
                 {

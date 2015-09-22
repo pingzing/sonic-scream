@@ -26,13 +26,9 @@ package sonicScream.utilities;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import javafx.scene.control.TreeItem;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -40,7 +36,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import sonicScream.models.Script;
 
 /**
  *
@@ -118,12 +113,10 @@ public class ScriptParserTest
     @Test
     public void testParseScriptTreeToString() throws IOException
     {
-        Path file = _scriptFiles
-                .stream()
-                .filter(f -> f.getFileName().toString().equals("game_sounds_vo_abaddon.vsndevts_c"))
-                .findFirst().get();        
-        TreeItem<String> tree = ScriptParser.parseScript(file, file.getFileName().toString());
-        
-    }
-
+        for(Path file : _scriptFiles)
+        {
+            TreeItem<String> tree = ScriptParser.parseScript(file, file.getFileName().toString());
+            String string = ScriptParser.parseScriptTreeToString(tree);
+        }        
+    }   
 }

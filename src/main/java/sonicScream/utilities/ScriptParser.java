@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.control.TreeItem;
 
@@ -103,36 +104,35 @@ public class ScriptParser
         /* TODO: Make it handle stupid inconsistencies where some heroes with two-word names have underscore_names
          * and others have PascalCaseNames. Ugh. */
         int seenCount = 0;
-        scriptSubject = handleSpecialCaseFiles(scriptSubject);
-        String alternateSubject = "Hero_" + scriptSubject; //Some of the names of "Hero_" in front of them. Account for that...
+        ArrayList<String> possibleSubjects = new ArrayList<>();                
+        possibleSubjects.add(handleSpecialCaseFiles(scriptSubject));
+        //Some of the names of "Hero_" in front of them. Account for that
+        possibleSubjects.add("Hero_" + scriptSubject); 
+        //Some heroes have underscores in their file name, but no spaces in their name in the script
+        possibleSubjects.add(handleSpecialCaseFiles(scriptSubject).replace("_", "")); 
+        
         //Seek to the end of the header                                                  
         while (seenCount < 2)
         {
             String line = br.readLine();
-            int dataStartIndex = line.toLowerCase().indexOf(scriptSubject.toLowerCase());
-            if(dataStartIndex == -1) //Check for the alternate "Hero_<name>" syntax too
-            {
-                dataStartIndex = line.toLowerCase().indexOf(alternateSubject.toLowerCase());
-            }
+            IndexAndSubject ias = getIndexOfSubjectInLine(possibleSubjects, line, 0); 
+            int dataStartIndex = ias.index;
             if (dataStartIndex != -1)
             {
                 seenCount++;
             }
 
             //Sometimes the entire header is a single line. Check for a second occurrence immediately.
-            if (seenCount < 2 && line.toLowerCase().lastIndexOf(scriptSubject.toLowerCase()) != dataStartIndex)
+            if (seenCount < 2 && dataStartIndex != -1)
             {
-                dataStartIndex = line.toLowerCase().lastIndexOf(scriptSubject.toLowerCase());
-                seenCount++;
-            }
-
-            int alternateSeenIndex = line.toLowerCase().lastIndexOf(alternateSubject.toLowerCase());
-            //Same as above, but now with the alaternate "Hero_<name>" syntax
-            if(seenCount < 2 && alternateSeenIndex != dataStartIndex && alternateSeenIndex != -1)
-            {
-                dataStartIndex = alternateSeenIndex;
-                seenCount++;
-            }
+                int secondIndex = getIndexOfSubjectInLine(possibleSubjects, line, 
+                        dataStartIndex + ias.subject.length()).index;
+                if(secondIndex != -1 && secondIndex != dataStartIndex) 
+                {
+                    dataStartIndex = secondIndex;
+                    seenCount++;
+                }                
+            }           
 
             if (seenCount == 2)
             {
@@ -296,4 +296,27 @@ public class ScriptParser
         
         return lhs.getValue().equals(rhs.getValue());
     }
+
+    private static IndexAndSubject getIndexOfSubjectInLine(ArrayList<String> possibleSubjects, String line, int startIndex)
+    {
+        int index = -1;
+        for(String s : possibleSubjects)
+        {            
+            index = line.toLowerCase().indexOf(s.toLowerCase(), startIndex);
+            IndexAndSubject ias = new IndexAndSubject();
+            ias.index = index;
+            ias.subject = s;
+            if(index != -1) return ias;
+        }
+        IndexAndSubject ias = new IndexAndSubject();
+        ias.index = -1;
+        ias.subject = null;
+        return ias;
+    }
+}
+
+class IndexAndSubject
+{
+    int index = -1;
+    String subject;
 }

@@ -39,6 +39,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import org.apache.commons.lang3.NotImplementedException;
 import sonicScream.models.Profile;
 import sonicScream.services.ProfileNameExistsException;
@@ -102,7 +105,18 @@ public class ProfileManagerController implements Initializable
 
         if (!_profiles.isEmpty())
         {
-            selectedProfile.set(_profiles.get(0));
+            String activeSetting = settings.getSetting(Constants.SETTING_ACTIVE_PROFILE);
+            if(activeSetting != null)
+            {
+                selectedProfile.set(_profiles.stream()
+                        .filter(p -> p.getProfileName().equals(activeSetting))
+                        .findFirst()
+                        .orElse(null));                
+            }
+            else
+            {
+                selectedProfile.set(_profiles.get(0));
+            }
         }
     }
 
@@ -136,11 +150,10 @@ public class ProfileManagerController implements Initializable
                 //Collect the bad profile names here
                 System.err.println(ex);
             }
-        });
+        });        
+        //TODO: Tell the user there were name conflicts. Ask them "hey dude you 
+        //sure bout this", and cancel closing if they say "no"
         
-        //TODO: Tell the user there were name conflicts. Ask them "hey dude you sure bout this"
-
-        settings.putSetting(Constants.SETTING_ACTIVE_PROFILE, selectedProfile.get().getProfileName());
         selectedProfile.set((Profile) SelectedProfileComboBox.getValue());
         Stage currentStage = (Stage) SelectedProfileComboBox.getScene().getWindow();
         currentStage.close();
@@ -156,24 +169,24 @@ public class ProfileManagerController implements Initializable
         chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Profiles", "*.xml"));
         File result = chooser.showOpenDialog(SelectedProfileComboBox.getScene().getWindow());
         //TODO: Reimplemnt using JAXB
-//        try
-//        {
-//            XStream reader = new XStream(new KXml2Driver());
-//            Profile importedProfile = (Profile)reader.fromXML(result);
-//            _profiles.add(importedProfile);
-//            selectedProfile.set(importedProfile);
-//            settings.addProfile(importedProfile);
-//        }
-//        catch(ProfileNameExistsException ex)
-//        {
-//            throw new NotImplementedException("Profile name exists handler not implemented");
-//            //Tell the user a profile with that name already exists. NO CAN DO
-//        }
-//        catch(XStreamException ex)
-//        {
-//            throw new NotImplementedException("Invalid profile handler not implemented");
-//            //Tell the user that the profile is improperly formatted. ALSO NO CAN DO
-//        }
+        try
+        {
+            JAXBContext context = JAXBContext.newInstance(Profile.class);
+            Profile importedProfile = (Profile)context.createUnmarshaller().unmarshal(result);
+            _profiles.add(importedProfile);
+            selectedProfile.set(importedProfile);
+            settings.addProfile(importedProfile);
+        }
+        catch(ProfileNameExistsException ex)
+        {
+            throw new NotImplementedException("Profile name exists handler not implemented");
+            //Tell the user a profile with that name already exists. NO CAN DO
+        }
+        catch(JAXBException ex)
+        {
+            throw new NotImplementedException("Invalid profile handler not implemented");
+            //Tell the user that the profile is improperly formatted. ALSO NO CAN DO
+        }
     }
 
 }
