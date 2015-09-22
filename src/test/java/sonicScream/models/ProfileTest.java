@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import info.ata4.vpk.VPKEntry;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -71,8 +73,8 @@ public class ProfileTest
 
         Category mockCategory = mock(Category.class);
         when(mockCategory.categoryNameProperty()).thenReturn(new SimpleStringProperty("Test"));
-        when(mockCategory.categoryScriptsProperty())
-                .thenReturn(new SimpleListProperty<Script>(FXCollections.observableArrayList(scripts)));
+        when(mockCategory.getCategoryScripts())
+                .thenReturn(FXCollections.observableArrayList(scripts));
     }
 
     @AfterClass
@@ -101,7 +103,7 @@ public class ProfileTest
 
     @After
     public void tearDown()
-    {
+    {        
     }
 
     /**

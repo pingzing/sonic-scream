@@ -26,6 +26,7 @@ package sonicScream.models;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -75,8 +76,10 @@ public class ScriptTest
     }
     
     @After
-    public void tearDown()
+    public void tearDown() throws IOException
     {
+        Files.deleteIfExists(Paths.get("testProfile.xml"));
+        Files.deleteIfExists(Paths.get("testProfiles.xml"));
     }
 
     /**

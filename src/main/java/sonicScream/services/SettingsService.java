@@ -108,10 +108,7 @@ public class SettingsService
     public String getSetting(String setting)
     {
         return _settingsDictionary.get(setting);
-    }
-    ictionary.put(setting, newValue);
-}
-
+    }    
 
     /**
      * Inserts a new setting with key setting and value newValue. If there is 
@@ -121,7 +118,9 @@ public class SettingsService
      */
     public void putSetting(String setting, String newValue)
     {
-        _settingsD
+        _settingsDictionary.put(setting, newValue);
+    }
+
     public long getCrc(String fileName)
     {
         return _crcDictionary.get(fileName);

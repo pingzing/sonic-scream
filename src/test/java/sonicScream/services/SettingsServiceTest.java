@@ -272,13 +272,6 @@ public class SettingsServiceTest
         assertEquals(expSettings, resultSettings);
         assertEquals(expCrcs, resultCrcs);
         assertEquals(expProfiles.size(), resultProfiles.size());
-
-        //TODO: For some reason, comparing lists in a test gives me a NullPointerException
-        //when I try to get the contents of resultProfiles' Categories. It tends to disappear
-        //when debugging, so it's some kind of threading issue.
-//        for(int i = 0; i < expProfiles.size(); i++)
-//        {
-//            assertEquals(expProfiles.get(i), resultProfiles.get(i));
-//        }
+        assertEquals(expProfiles, resultProfiles);
     }
 }

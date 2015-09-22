@@ -30,15 +30,14 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import info.ata4.vpk.VPKEntry;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import javafx.collections.ObservableList;
 import sonicScream.services.ServiceLocator;
@@ -52,23 +51,11 @@ public class Category
     private StringProperty categoryName = new SimpleStringProperty();    
     public final String getCategoryName() { return categoryName.get(); }
     public final void setCategoryName(String value) { categoryName.set(value); }    
-    public StringProperty categoryNameProperty() { return categoryName; }
-
-    private ListProperty<Script> categoryScripts = new SimpleListProperty<>();
-    @XmlElementWrapper(name = "Scripts")
-    @XmlElement(name = "Script", type = Script.class)
-    public final List<Script> getCategoryScripts() {return categoryScripts.get(); }
-    public final void setCategoryScripts(List<Script> value)
-    {
-        ArrayList<Script> local = new ArrayList<Script>();
-        local.addAll(value);
-        this.categoryScripts.clear();
-        for(Script s : local)
-        {
-            categoryScripts.add(s);
-        }
-    }
-    public ListProperty<Script> categoryScriptsProperty() { return categoryScripts; }        
+    public StringProperty categoryNameProperty() { return categoryName; }            
+    
+    private ObservableList<Script> categoryScripts = FXCollections.observableArrayList();
+    public ObservableList<Script> getCategoryScripts() { return categoryScripts; }
+    public void setCategoryScripts(ObservableList<Script> value) { categoryScripts = value; }
 
     @XmlElementWrapper(name = "VPKPaths")
     @XmlElement(name = "VPKPath")
@@ -80,8 +67,7 @@ public class Category
      * Only for compatibility with JAXB
      */
     public Category()
-    {
-        
+    {        
     }
     
     public Category(String name)
@@ -100,7 +86,7 @@ public class Category
     }
 
     public Category(String name, VPKFileService vpkService, List<String> vpkPaths)
-    {
+    {        
         setCategoryName(name);
         _vpkPaths = vpkPaths;
         populateScripts(vpkService);
@@ -167,7 +153,7 @@ public class Category
                 });
 
         Collections.sort(scriptsToInitWith);
-        setCategoryScripts(scriptsToInitWith);
+        setCategoryScripts(FXCollections.observableArrayList(scriptsToInitWith));
     }
 
     @Override public boolean equals(Object cat)

@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import info.ata4.vpk.VPKEntry;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javafx.beans.property.ListProperty;
@@ -87,8 +89,9 @@ public class CategoryTest
     }
     
     @After
-    public void tearDown()
+    public void tearDown() throws IOException
     {
+        Files.deleteIfExists(Paths.get("testCategory.xml"));
     }
 
     @Test

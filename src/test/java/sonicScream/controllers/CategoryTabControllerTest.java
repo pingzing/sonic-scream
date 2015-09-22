@@ -92,14 +92,13 @@ public class CategoryTabControllerTest
 
         Script mockScript = mock(Script.class);
         ObservableList<Script> scriptList = FXCollections.observableArrayList();
-        scriptList.add(mockScript);
-        SimpleListProperty<Script> mockScriptListProperty = new SimpleListProperty<>(scriptList);
+        scriptList.add(mockScript);        
 
         Category category = mock(Category.class);
-        when(category.categoryScriptsProperty()).thenReturn(mockScriptListProperty);
+        when(category.getCategoryScripts()).thenReturn(scriptList);
         when(category.categoryNameProperty()).thenReturn(new SimpleStringProperty(Constants.CATEGORY_HEROES));
 
-        ArrayList<Category> categories = new ArrayList<Category>();
+        ArrayList<Category> categories = new ArrayList<>();
         categories.add(category);
         when(profile.getCategories()).thenReturn(categories);
 

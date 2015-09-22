@@ -23,13 +23,16 @@
  */
 package sonicScream.controllers;
 
+import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.net.URL;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.When;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -81,29 +84,29 @@ public final class CategoryTabController extends Tab
 
         _category = category;
 
-        this.textProperty().bind(category.categoryNameProperty());        
-        CategoryTabComboBox.itemsProperty().bind(category.categoryScriptsProperty());
+        this.textProperty().bind(category.categoryNameProperty());                
+        CategoryTabComboBox.setItems(_category.getCategoryScripts());
         
         //These two bindings handle changing between categories with only a single 
         //script (items) and those with multiple (everything else)
+        SimpleListProperty bindableList = new SimpleListProperty();
+        bindableList.bind(new SimpleObjectProperty<>(_category.getCategoryScripts()));
         CategoryTabComboBox.visibleProperty().bind(
-                Bindings.greaterThan(category.categoryScriptsProperty().sizeProperty(), 1)
+                Bindings.greaterThan(bindableList.sizeProperty(), 1)
         );
 
-        if( category.categoryScriptsProperty().size() > 1)
+        if( category.getCategoryScripts().size() > 1)
         {
             selectedScriptProperty().bind(CategoryTabComboBox.valueProperty());
         }
         else
         {
             selectedScriptProperty().bind(CategoryTabTreeView.getSelectionModel().selectedItemProperty());
-        }
+        }                
         
-        ObservableList<Script> test = category.categoryScriptsProperty().get();
-        
-        if(category.categoryScriptsProperty().get() != null && !category.categoryScriptsProperty().get().isEmpty())
+        if(category.getCategoryScripts() != null && !category.getCategoryScripts().isEmpty())
         {
-            CategoryTabComboBox.valueProperty().set(category.categoryScriptsProperty().get(0));
+            CategoryTabComboBox.valueProperty().set(category.getCategoryScripts().get(0));
             handleComboBoxChanged(null);
         }
     }
