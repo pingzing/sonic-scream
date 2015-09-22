@@ -109,7 +109,10 @@ public class SettingsService
     {
         return _settingsDictionary.get(setting);
     }
-    
+    ictionary.put(setting, newValue);
+}
+
+
     /**
      * Inserts a new setting with key setting and value newValue. If there is 
      * already a key with the same name, the old value will be replaced.
@@ -118,10 +121,7 @@ public class SettingsService
      */
     public void putSetting(String setting, String newValue)
     {
-        _settingsDictionary.put(setting, newValue);
-    }       
-    
-    
+        _settingsD
     public long getCrc(String fileName)
     {
         return _crcDictionary.get(fileName);

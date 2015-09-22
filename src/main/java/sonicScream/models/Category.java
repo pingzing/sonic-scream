@@ -39,6 +39,8 @@ import javafx.collections.FXCollections;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import javafx.collections.ObservableList;
 import sonicScream.services.ServiceLocator;
 import sonicScream.services.VPKFileService;
 import sonicScream.utilities.Constants;
@@ -56,7 +58,16 @@ public class Category
     @XmlElementWrapper(name = "Scripts")
     @XmlElement(name = "Script", type = Script.class)
     public final List<Script> getCategoryScripts() {return categoryScripts.get(); }
-    public final void setCategoryScripts(List<Script> value) {categoryScripts.set(FXCollections.observableArrayList(value)); }    
+    public final void setCategoryScripts(List<Script> value)
+    {
+        ArrayList<Script> local = new ArrayList<Script>();
+        local.addAll(value);
+        this.categoryScripts.clear();
+        for(Script s : local)
+        {
+            categoryScripts.add(s);
+        }
+    }
     public ListProperty<Script> categoryScriptsProperty() { return categoryScripts; }        
 
     @XmlElementWrapper(name = "VPKPaths")
