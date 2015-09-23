@@ -28,17 +28,21 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.scene.control.TreeItem;
 
 import javax.xml.bind.annotation.*;
+import org.apache.commons.lang3.StringUtils;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import sonicScream.services.ServiceLocator;
 import sonicScream.utilities.ScriptParser;
 import sonicScream.utilities.StringParsing;
 import sonicScream.services.VPKFileService;
+import static sonicScream.utilities.TreeParser.getWaveStrings;
 
 @XmlRootElement(name="Script")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -53,6 +57,8 @@ public class Script implements Comparable
 
     @XmlTransient
     private TreeItem<String> _rootNode;
+    @XmlTransient
+    private TreeItem<String> _simpleRootNode;
     @XmlTransient
     private String _treeAsString = null;    
 
@@ -172,6 +178,59 @@ public class Script implements Comparable
         }
         return _treeAsString;
     }        
+    
+        /**
+     * Returns the Script's tree with everything removed but each entry's title
+     * and its wave file list, and flattens the hierarchy. Does not modify the 
+     * input tree.
+     * @param root The tree to simplify.
+     * @return A new copy of the now-simplified tree.
+     */
+    public TreeItem<String> getSimpleTree()
+    {
+        if(_simpleRootNode != null)
+        {
+            return _simpleRootNode;
+        }
+        TreeItem<String> local = new TreeItem<String>("root");
+        for(TreeItem<String> child : getRootNode().getChildren())
+        {
+            List<TreeItem<String>> localWaveStrings = FXCollections.observableArrayList();
+            List<TreeItem<String>> waveStrings = getWaveStrings(child).orElse(null);
+            if(waveStrings == null) continue;
+            for(TreeItem<String> wave : waveStrings)
+            {                
+                TreeItem<String> sound = new TreeItem<String>();
+                //Remove whitespace, quotes, and wave# text.
+                String waveValue = wave.getValue().trim();
+                int thirdQuoteIndex = StringUtils.ordinalIndexOf(waveValue, "\"", 3);
+                waveValue = (waveValue.substring(thirdQuoteIndex + 1, waveValue.length() - 1));  
+                sound.setValue(waveValue);
+                localWaveStrings.add(sound);
+            }
+            TreeItem<String> localChild = new TreeItem<>(child.getValue());
+            localChild.getChildren().setAll(localWaveStrings);    
+            local.getChildren().add(localChild);
+        }
+        _simpleRootNode = local;
+        return _simpleRootNode;
+    }
+        
+    //TODO: Transform a Simple Tree back into a regular tree. fuuuuun.
+    public TreeItem<String> updateRootNodeWithSimpleTree()
+    {
+        if(_simpleRootNode == null)
+        {
+            return getRootNode();
+        }
+        for(TreeItem<String> entry : _simpleRootNode.getChildren())
+        {
+            //get each entry's children. append "wave" + i to the beginning, 
+            //and restore the quotes around the file names
+            //then, check to see if the modified strings are different from the 
+            //full tree's strings, and if so, swap them out
+        }
+    }
 
     @Override
     public String toString()
