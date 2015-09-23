@@ -8,6 +8,12 @@ import org.apache.commons.lang3.StringUtils;
 
 public class TreeParser 
 {
+    /**
+     * Recursively searches the given tree for the given key. Returns upon finding the first instance.
+     * @param tree
+     * @param key
+     * @return 
+     */
     public static TreeItem<String> searchForKey(TreeItem<String> tree, String key)
     {
         if(tree.getValue().trim().equals(key))
@@ -50,38 +56,5 @@ public class TreeParser
         }
       
         return Optional.empty();        
-    }
-    
-    /**
-     * Takes in a full Script's tree and removes everything but each entry's title
-     * and its waves, and flattens the hierarchy. Does not modify the input tree.
-     * @param root The tree to simplify.
-     * @return A new copy of the now-simplified tree.
-     */
-    public static TreeItem<String> getSimpleTree(TreeItem<String> root)
-    {
-        TreeItem<String> local = new TreeItem<String>("root");
-        for(TreeItem<String> child : root.getChildren())
-        {
-            List<TreeItem<String>> localWaveStrings = FXCollections.observableArrayList();
-            List<TreeItem<String>> waveStrings = getWaveStrings(child).orElse(null);
-            if(waveStrings == null) continue;
-            for(TreeItem<String> wave : waveStrings)
-            {                
-                TreeItem<String> sound = new TreeItem<String>();
-                //Remove whitespace, quotes, and wave# text.
-                String waveValue = wave.getValue().trim();
-                int thirdQuoteIndex = StringUtils.ordinalIndexOf(waveValue, "\"", 3);
-                waveValue = (waveValue.substring(thirdQuoteIndex + 1, waveValue.length() - 1));  
-                sound.setValue(waveValue);
-                localWaveStrings.add(sound);
-            }
-            TreeItem<String> localChild = new TreeItem<>(child.getValue());
-            localChild.getChildren().setAll(localWaveStrings);    
-            local.getChildren().add(localChild);
-        }
-        return local;
-    }
-    
-    //TODO: Transform a Simple Tree back into a regular tree. fuuuuun.
+    }    
 }

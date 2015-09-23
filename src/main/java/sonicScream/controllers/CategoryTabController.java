@@ -23,34 +23,27 @@
  */
 package sonicScream.controllers;
 
-import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.net.URL;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.binding.When;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.util.Callback;
 import sonicScream.models.Category;
+import sonicScream.models.Enums.CategoryDisplayMode;
 import sonicScream.models.Script;
-import sonicScream.utilities.TreeParser;
 
-/**
- * FXML Controller class
- * 
- */
 public final class CategoryTabController extends Tab
-{
+{    
+    private CategoryDisplayMode _displayMode = CategoryDisplayMode.SIMPLE;
+    private final Category _category;
+    
     @FXML
     private TreeView CategoryTabTreeView;
 
@@ -58,9 +51,13 @@ public final class CategoryTabController extends Tab
     private ComboBox CategoryTabComboBox;
     
     @FXML
-    private Label CategoryTabLabel;
-
-    private Category _category;
+    private Label CategoryTabLabel;  
+    
+    @FXML
+     private Button ExpandAllButton;
+            
+    @FXML
+    private Button CollapseAllButton;
     
     private ObjectProperty selectedScript = new SimpleObjectProperty();
     public final Object getSelectedScript() { return selectedScript.get(); }
@@ -123,7 +120,10 @@ public final class CategoryTabController extends Tab
                 }                
                 try
                 {
-                    TreeItem<String> simpleTree = TreeParser.getSimpleTree(((Script)CategoryTabComboBox.getValue()).getRootNode());
+                    TreeItem<String> simpleTree = 
+                              _displayMode == CategoryDisplayMode.SIMPLE ? ((Script)CategoryTabComboBox.getValue()).getSimpleTree() 
+                            : _displayMode == CategoryDisplayMode.ADVANCED ?((Script)CategoryTabComboBox.getValue()).getRootNode() 
+                            : null;              
                     CategoryTabTreeView.setRoot(simpleTree);                
                 }
                 catch(Exception ex)
@@ -142,6 +142,44 @@ public final class CategoryTabController extends Tab
     {
         CategoryTabComboBox.requestFocus();
     }
+    
+    @FXML 
+    private void handleSwapDisplayModePressed(ActionEvent event)
+    {
+        if(_displayMode == CategoryDisplayMode.SIMPLE) changeDisplayMode(CategoryDisplayMode.ADVANCED);
+        else if(_displayMode == CategoryDisplayMode.ADVANCED) changeDisplayMode(CategoryDisplayMode.SIMPLE);
+    }
+    
+    @FXML 
+    private void handleExpandAllPressed(ActionEvent event)
+    {
+        recursiveSetNodeExpanded(CategoryTabTreeView.getRoot(), true);
+    }
+    
+    @FXML
+    private void handleCollapseAllPressed(ActionEvent event)
+    {
+        recursiveSetNodeExpanded(CategoryTabTreeView.getRoot(), false);
+    }
+    
+    private void recursiveSetNodeExpanded(TreeItem<String> root, boolean expanded)
+    {        
+        if(root.getParent() != null) //Don't want to collapse the root!
+        {
+            root.setExpanded(expanded);
+        }
+        for(TreeItem<String> item : root.getChildren())            
+        {
+            if(item.getChildren().isEmpty())
+            {
+                item.setExpanded(expanded);
+            }
+            else
+            {
+                recursiveSetNodeExpanded(item, expanded);
+            }
+        }
+    }
 
     /**
      * Resolve VPK scripts from the current category, and do cache checking
@@ -154,5 +192,11 @@ public final class CategoryTabController extends Tab
 
         }
 
+    }
+    
+    public void changeDisplayMode(CategoryDisplayMode newMode)
+    {
+        _displayMode = newMode;
+        handleComboBoxChanged(null);
     }
 }

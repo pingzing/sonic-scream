@@ -31,6 +31,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import sonicScream.models.Enums;
 import sonicScream.utilities.TreeParser;
 
 /**
@@ -159,17 +160,5 @@ public class MainController implements Initializable
         _activeProfile = getActiveProfileFromDialog().orElse(null);
         SettingsService settings = (SettingsService)ServiceLocator.getService(SettingsService.class);
         settings.putSetting(Constants.SETTING_ACTIVE_PROFILE, _activeProfile.getProfileName());
-    }
-    
-    @FXML
-    private void handleModifyScriptButton(ActionEvent event)
-    {
-        CategoryTabController tab = (CategoryTabController) tabSelection.getSelectedItem();
-        Script script = tab.selectedScriptProperty().get() != null ? (Script) tab.selectedScriptProperty().get() : null;
-        if (script != null)
-        {
-            TreeItem<String> soundParent = TreeParser.searchForKey(script.getRootNode().getChildren().get(0), "\"vsnd_files\"");            
-            soundParent.setValue("Nope!");
-        }
-    }
+    }    
 }

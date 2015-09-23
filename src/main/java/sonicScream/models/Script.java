@@ -42,6 +42,7 @@ import sonicScream.services.ServiceLocator;
 import sonicScream.utilities.ScriptParser;
 import sonicScream.utilities.StringParsing;
 import sonicScream.services.VPKFileService;
+import sonicScream.utilities.TreeParser;
 import static sonicScream.utilities.TreeParser.getWaveStrings;
 
 @XmlRootElement(name="Script")
@@ -182,7 +183,7 @@ public class Script implements Comparable
         /**
      * Returns the Script's tree with everything removed but each entry's title
      * and its wave file list, and flattens the hierarchy. Does not modify the 
-     * input tree.
+     * input tree. Initializes the rootNode if it has not yet been initialized.
      * @param root The tree to simplify.
      * @return A new copy of the now-simplified tree.
      */
@@ -191,6 +192,10 @@ public class Script implements Comparable
         if(_simpleRootNode != null)
         {
             return _simpleRootNode;
+        }
+        if(_rootNode == null)
+        {
+            _rootNode = getRootNode();
         }
         TreeItem<String> local = new TreeItem<String>("root");
         for(TreeItem<String> child : getRootNode().getChildren())
@@ -201,7 +206,7 @@ public class Script implements Comparable
             for(TreeItem<String> wave : waveStrings)
             {                
                 TreeItem<String> sound = new TreeItem<String>();
-                //Remove whitespace, quotes, and wave# text.
+                //Remove whitespace, quotes, and value# text.
                 String waveValue = wave.getValue().trim();
                 int thirdQuoteIndex = StringUtils.ordinalIndexOf(waveValue, "\"", 3);
                 waveValue = (waveValue.substring(thirdQuoteIndex + 1, waveValue.length() - 1));  
@@ -215,8 +220,12 @@ public class Script implements Comparable
         _simpleRootNode = local;
         return _simpleRootNode;
     }
-        
-    //TODO: Transform a Simple Tree back into a regular tree. fuuuuun.
+            
+    /**
+     * Takes the currently active simple tree, and uses its values to update the main
+     * rootNode tree, then returns the newly-updated tree.
+     * @return 
+     */
     public TreeItem<String> updateRootNodeWithSimpleTree()
     {
         if(_simpleRootNode == null)
@@ -224,12 +233,24 @@ public class Script implements Comparable
             return getRootNode();
         }
         for(TreeItem<String> entry : _simpleRootNode.getChildren())
-        {
-            //get each entry's children. append "wave" + i to the beginning, 
-            //and restore the quotes around the file names
-            //then, check to see if the modified strings are different from the 
-            //full tree's strings, and if so, swap them out
+        {            
+            List<TreeItem<String>> sounds = entry.getChildren();
+            for(int i = 0; i < sounds.size(); i++)
+            {
+                List<TreeItem<String>> rootSounds = TreeParser.getWaveStrings(_rootNode).orElseThrow(null);                
+                if(rootSounds != null && rootSounds.size() < i)
+                {
+                    if(rootSounds.get(i).getValue().contains(sounds.get(i).getValue()))
+                    {
+                        continue;
+                    }
+                    String value = "\"value" + i + "\" \"" + sounds.get(i).getValue() + "\"";
+                    rootSounds.get(i).setValue(value);
+                }
+            }
+            
         }
+        return _rootNode;
     }
 
     @Override
