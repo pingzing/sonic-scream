@@ -67,6 +67,7 @@ atlassian-ide-plugin.xml
 *.sublime-*
 .nb-gradle
 .java-version
+private/**
 
 #Sonic Scream specific
 out.vsndevts
