@@ -38,13 +38,12 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.util.Callback;
 import sonicScream.models.Category;
 import sonicScream.models.Script;
+import sonicScream.utilities.TreeParser;
 
 /**
  * FXML Controller class
@@ -84,7 +83,7 @@ public final class CategoryTabController extends Tab
 
         _category = category;
 
-        this.textProperty().bind(category.categoryNameProperty());                
+        this.textProperty().bind(_category.categoryNameProperty());                
         CategoryTabComboBox.setItems(_category.getCategoryScripts());
         
         //These two bindings handle changing between categories with only a single 
@@ -95,7 +94,7 @@ public final class CategoryTabController extends Tab
                 Bindings.greaterThan(bindableList.sizeProperty(), 1)
         );
 
-        if( category.getCategoryScripts().size() > 1)
+        if( _category.getCategoryScripts().size() > 1)
         {
             selectedScriptProperty().bind(CategoryTabComboBox.valueProperty());
         }
@@ -104,11 +103,11 @@ public final class CategoryTabController extends Tab
             selectedScriptProperty().bind(CategoryTabTreeView.getSelectionModel().selectedItemProperty());
         }                
         
-        if(category.getCategoryScripts() != null && !category.getCategoryScripts().isEmpty())
+        if(_category.getCategoryScripts() != null && !_category.getCategoryScripts().isEmpty())
         {
-            CategoryTabComboBox.valueProperty().set(category.getCategoryScripts().get(0));
+            CategoryTabComboBox.valueProperty().set(_category.getCategoryScripts().get(0));
             handleComboBoxChanged(null);
-        }
+        }                
     }
     
     @FXML
@@ -121,13 +120,22 @@ public final class CategoryTabController extends Tab
                 if(selected != null)                
                 {
                     CategoryTabLabel.textProperty().set(selected.getFriendlyScriptName());
+                }                
+                try
+                {
+                    TreeItem<String> simpleTree = TreeParser.getSimpleTree(((Script)CategoryTabComboBox.getValue()).getRootNode());
+                    CategoryTabTreeView.setRoot(simpleTree);                
                 }
-                CategoryTabTreeView.setRoot(((Script)CategoryTabComboBox.getValue()).getRootNode());
+                catch(Exception ex)
+                {
+                    ex.printStackTrace();
+                }
+                
                 return null;
             }
         };        
         task.run();
-    }
+    }    
     
     @FXML
     private void handleComboBoxMousePressed(MouseEvent mouseEvent)
