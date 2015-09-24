@@ -12,7 +12,7 @@
         </TabPane>    
         <HBox alignment="BOTTOM_CENTER" >
             <Button text="Play"  />
-            <Button text="Repalce"/>
+            <Button text="Replace" onAction="#handleReplaceButtonAction"/>
             <Button text="Revert"/> 
             <Button fx:id="toFileButton" text="To file" onAction="#handleToFileButtonAction"/>
             <Button fx:id="changeVPKButton" text="Find VPK" onAction="#handleFindVPKButtonAction"/>

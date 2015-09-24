@@ -25,6 +25,10 @@ package sonicScream.controllers;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -35,13 +39,18 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 import sonicScream.models.Category;
 import sonicScream.models.Enums.CategoryDisplayMode;
 import sonicScream.models.Script;
+import sonicScream.services.ServiceLocator;
+import sonicScream.services.SettingsService;
+import sonicScream.utilities.Constants;
+import static sonicScream.utilities.FileIOUtilities.chooseSoundFile;
+import sonicScream.utilities.SettingsUtils;
 
 public final class CategoryTabController extends Tab
-{    
-    private CategoryDisplayMode _displayMode = CategoryDisplayMode.SIMPLE;
+{        
     private final Category _category;
     
     @FXML
@@ -54,6 +63,9 @@ public final class CategoryTabController extends Tab
     private Label CategoryTabLabel;  
     
     @FXML
+    private Button SwapDisplayModeButton;
+    
+    @FXML
      private Button ExpandAllButton;
             
     @FXML
@@ -62,6 +74,8 @@ public final class CategoryTabController extends Tab
     private ObjectProperty selectedScript = new SimpleObjectProperty();
     public final Object getSelectedScript() { return selectedScript.get(); }
     public ObjectProperty selectedScriptProperty() { return selectedScript; }
+    
+    private ObjectProperty displayMode = new SimpleObjectProperty(CategoryDisplayMode.SIMPLE);        
     
     public CategoryTabController(Category category)
     {
@@ -79,7 +93,7 @@ public final class CategoryTabController extends Tab
         }
 
         _category = category;
-
+        
         this.textProperty().bind(_category.categoryNameProperty());                
         CategoryTabComboBox.setItems(_category.getCategoryScripts());
         
@@ -91,20 +105,29 @@ public final class CategoryTabController extends Tab
                 Bindings.greaterThan(bindableList.sizeProperty(), 1)
         );
 
+        // If we're dealing with single-script categories, (i.e. Items) then the 
+        // "selected item" should be the currently selected script value, rather 
+        // than currently selected script file.
         if( _category.getCategoryScripts().size() > 1)
         {
             selectedScriptProperty().bind(CategoryTabComboBox.valueProperty());
         }
         else
         {
-            selectedScriptProperty().bind(CategoryTabTreeView.getSelectionModel().selectedItemProperty());
+            selectedScriptProperty().bind(CategoryTabTreeView.getSelectionModel()
+                    .selectedItemProperty());
         }                
         
         if(_category.getCategoryScripts() != null && !_category.getCategoryScripts().isEmpty())
         {
             CategoryTabComboBox.valueProperty().set(_category.getCategoryScripts().get(0));
             handleComboBoxChanged(null);
-        }                
+        }         
+        
+        SwapDisplayModeButton.textProperty().bind(Bindings
+                .when(displayMode.isEqualTo(CategoryDisplayMode.SIMPLE))
+                .then("Advanced >>")
+                .otherwise("<< Simple"));                
     }
     
     @FXML
@@ -121,8 +144,8 @@ public final class CategoryTabController extends Tab
                 try
                 {
                     TreeItem<String> simpleTree = 
-                              _displayMode == CategoryDisplayMode.SIMPLE ? ((Script)CategoryTabComboBox.getValue()).getSimpleTree() 
-                            : _displayMode == CategoryDisplayMode.ADVANCED ?((Script)CategoryTabComboBox.getValue()).getRootNode() 
+                              displayMode.get() == CategoryDisplayMode.SIMPLE ? ((Script)CategoryTabComboBox.getValue()).getSimpleTree() 
+                            : displayMode.get() == CategoryDisplayMode.ADVANCED ?((Script)CategoryTabComboBox.getValue()).getRootNode() 
                             : null;              
                     CategoryTabTreeView.setRoot(simpleTree);                
                 }
@@ -146,8 +169,8 @@ public final class CategoryTabController extends Tab
     @FXML 
     private void handleSwapDisplayModePressed(ActionEvent event)
     {
-        if(_displayMode == CategoryDisplayMode.SIMPLE) changeDisplayMode(CategoryDisplayMode.ADVANCED);
-        else if(_displayMode == CategoryDisplayMode.ADVANCED) changeDisplayMode(CategoryDisplayMode.SIMPLE);
+        if(displayMode.get() == CategoryDisplayMode.SIMPLE) changeDisplayMode(CategoryDisplayMode.ADVANCED);
+        else if(displayMode.get() == CategoryDisplayMode.ADVANCED) changeDisplayMode(CategoryDisplayMode.SIMPLE);
     }
     
     @FXML 
@@ -191,12 +214,43 @@ public final class CategoryTabController extends Tab
         {
 
         }
-
     }
     
-    public void changeDisplayMode(CategoryDisplayMode newMode)
+    public void replaceSound() throws IOException
     {
-        _displayMode = newMode;
+        TreeItem<String> selectedNode = (TreeItem<String>)CategoryTabTreeView.getSelectionModel().getSelectedItem();        
+        if(!selectedNode.isLeaf())
+        {
+            //TODO: Optionally, display an error? probably not necessary...
+            //Or better, have a bindable property that the buttons on Main can hook into?
+            //We probably only want to allow this functionality in Simple mode
+            return;
+        }
+        
+        Stage currentStage = (Stage)CategoryTabLabel.getScene().getWindow();
+        Path newSoundFile = chooseSoundFile(currentStage);
+        
+        SettingsService settings = (SettingsService)ServiceLocator.getService(SettingsService.class);        
+        Script activeScript = (Script)selectedScript.get();
+        activeScript.getVPKPath();
+        
+        String trimmedFileName = newSoundFile
+                .getFileName().toString()
+                .toLowerCase()
+                .replace(" ", "_");
+        String profileDir = SettingsUtils.getProfileDirectory(settings.getSetting(Constants.SETTING_ACTIVE_PROFILE)).toString();
+        Path destPath = Paths.get(profileDir, "/sonic-scream/sounds", trimmedFileName);
+        if(!Files.exists(destPath))
+        {
+            Files.createDirectories(destPath.getParent());
+        }
+        Files.copy(newSoundFile, destPath, StandardCopyOption.REPLACE_EXISTING);
+        selectedNode.setValue("sounds/" + trimmedFileName.replace(".mp3", ".vsnd").replace(".wav", ".vsnd"));
+    }
+    
+    private void changeDisplayMode(CategoryDisplayMode newMode)
+    {
+        displayMode.set(newMode);
         handleComboBoxChanged(null);
     }
 }

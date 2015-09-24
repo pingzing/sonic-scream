@@ -25,7 +25,6 @@ package sonicScream.models;
 
 import info.ata4.vpk.VPKEntry;
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -65,8 +64,11 @@ public class Script implements Comparable
 
     @XmlElement
     private Boolean _isCustom ;
+    
     @XmlElement
     private String _vpkPath;
+    public String getVPKPath() { return _vpkPath; }
+    
     @XmlElement
     private long _lastKnownCrc;
     

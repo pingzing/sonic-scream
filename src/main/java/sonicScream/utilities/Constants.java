@@ -35,17 +35,18 @@ public class Constants
     public static final String CATEGORY_MUSIC = "Music";
     public static final String CATEGORY_VOICES = "Voices";
     
-    //-------Settings file names-------
+    //-------Settings file & folder names-------
     public static final String SETTINGS_FILE_NAME = "settings.xml";
     public static final String CRC_CACHE_FILE_NAME = "crcs.xml";
     public static final String PROFILE_FILE_SUFFIX = "profile.xml";    
-    public static final String PROFILE_FILES_DIRECTORY = "profiles";
+    public static final String PROFILES_DIRECTORY = "profiles";    
     
     //-------Settings keys-------
     public static final String SETTING_MAIN_VPK_PATH = "mainVPKPathSetting";
     public static final String SETTING_MAIN_VPK_DIR = "mainVPKDirSetting";
     public static final String SETTING_ADDON_PATH = "addonPath";
     public static final String SETTING_ACTIVE_PROFILE ="activeProfile";
+    public static final String SETTING_PREVIOUS_SOUND_DIRECTORY = "previousSoundDirectory";
     
     //-------Standard VPK paths------
     public static final String HERO_SPELLS_SCRIPTS_VPK_PATH = "soundevents/game_sounds_heroes/";

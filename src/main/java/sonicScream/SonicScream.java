@@ -76,7 +76,7 @@ public class SonicScream extends Application
             {
                 crcFile = Files.createFile(crcFile);
             }
-            Path profileDir = Paths.get(Constants.PROFILE_FILES_DIRECTORY);
+            Path profileDir = Paths.get(Constants.PROFILES_DIRECTORY);
             if(!Files.exists(profileDir))
             {
                 profileDir = Files.createDirectory(profileDir);

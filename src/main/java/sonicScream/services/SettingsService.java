@@ -259,7 +259,7 @@ public class SettingsService
             {
                 try
                 {
-                    Files.createDirectories(Paths.get(pathToWriteTo, Constants.PROFILE_FILES_DIRECTORY,
+                    Files.createDirectories(Paths.get(pathToWriteTo, Constants.PROFILES_DIRECTORY,
                             File.separator, profile.getProfileName()));
                 }
                 catch(IOException ex)
@@ -268,7 +268,7 @@ public class SettingsService
                     ex.printStackTrace();
                     break;
                 }
-                Path profilePath = Paths.get(pathToWriteTo, Constants.PROFILE_FILES_DIRECTORY,
+                Path profilePath = Paths.get(pathToWriteTo, Constants.PROFILES_DIRECTORY,
                         File.separator, profile.getProfileName(),
                         File.separator, profile.getProfileName() + "_" + Constants.PROFILE_FILE_SUFFIX);
                 try (BufferedWriter bw = Files.newBufferedWriter(profilePath))

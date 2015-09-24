@@ -108,7 +108,7 @@ public class SettingsServiceTest
         {
             crcFile = Files.createFile(crcFile);
         }
-        profileDir = Paths.get(testFolder.toString(), Constants.PROFILE_FILES_DIRECTORY);
+        profileDir = Paths.get(testFolder.toString(), Constants.PROFILES_DIRECTORY);
         if (!Files.exists(profileDir))
         {
             profileDir = Files.createDirectory(profileDir);

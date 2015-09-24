@@ -28,10 +28,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import sonicScream.models.Enums;
+import sonicScream.utilities.FileIOUtilities;
+import static sonicScream.utilities.FileIOUtilities.chooseSoundFile;
 import sonicScream.utilities.TreeParser;
 
 /**
@@ -47,12 +50,12 @@ public class MainController implements Initializable
     private TabPane MainTabPane;
 
     private List<TreeItem<String>> _treeModel;
-    private SingleSelectionModel<Tab> tabSelection;
+    private SingleSelectionModel<Tab> _tabSelection;
 
     @FXML
     private void handleToFileButtonAction(ActionEvent event)
     {
-        CategoryTabController tab = (CategoryTabController) tabSelection.getSelectedItem();
+        CategoryTabController tab = (CategoryTabController) _tabSelection.getSelectedItem();
         Script script = tab.selectedScriptProperty().get() != null ? (Script) tab.selectedScriptProperty().get() : null;
         if (script != null)
         {
@@ -104,8 +107,8 @@ public class MainController implements Initializable
             }
         }
        
-        tabSelection = MainTabPane.getSelectionModel();
-        tabSelection.selectFirst();
+        _tabSelection = MainTabPane.getSelectionModel();
+        _tabSelection.selectFirst();
     }
 
     private Optional<Profile> getActiveProfile()
@@ -161,4 +164,20 @@ public class MainController implements Initializable
         SettingsService settings = (SettingsService)ServiceLocator.getService(SettingsService.class);
         settings.putSetting(Constants.SETTING_ACTIVE_PROFILE, _activeProfile.getProfileName());
     }    
+    
+    @FXML
+    private void handleReplaceButtonAction(ActionEvent event)
+    {
+        Stage currentStage = (Stage) MainTabPane.getScene().getWindow();
+        try
+        {            
+            CategoryTabController tab = (CategoryTabController) _tabSelection.getSelectedItem();
+            tab.replaceSound();
+        }
+        catch (IOException ex)
+        {
+            //TODO: Tell user "sorry, couldn't XYZ the file"
+            ex.printStackTrace();
+        }
+    }
 }
