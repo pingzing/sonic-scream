@@ -4,15 +4,30 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
 
 <fx:root type="javafx.scene.control.Tab" xmlns:fx="http://javafx.com/fxml/1">
     <VBox>
         <children>
             <GridPane gridLinesVisible="false">
-                <Label fx:id="CategoryTabLabel" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.halignment="LEFT"  text="Selected: " GridPane.hgrow="SOMETIMES" />
-                <ComboBox fx:id="CategoryTabComboBox" GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" 
-                          onAction="#handleComboBoxChanged"/>
-                <ImageView GridPane.rowIndex ="0" GridPane.columnIndex="1" GridPane.rowSpan="2" GridPane.halignment="RIGHT" GridPane.hgrow="SOMETIMES"/>               
+                <ComboBox fx:id="CategoryTabComboBox" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES"
+                          onAction="#handleComboBoxChanged">
+                    <GridPane.margin>
+                        <Insets left="6.0" top="6.0" />
+                    </GridPane.margin>
+                </ComboBox>
+
+                <Label fx:id="CategoryTabScriptValueLabel" GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.halignment="LEFT"  text="Selected: " GridPane.hgrow="SOMETIMES">
+                    <GridPane.margin>
+                        <Insets left="6.0" bottom="6.0" top="6.0"/>
+                    </GridPane.margin>
+                </Label>
+
+                <ImageView GridPane.rowIndex ="0" GridPane.columnIndex="1" GridPane.rowSpan="2" GridPane.halignment="RIGHT" GridPane.hgrow="SOMETIMES">
+                    <GridPane.margin>
+                        <Insets right="6.0"/>
+                    </GridPane.margin>
+                </ImageView>
             </GridPane>
             <TreeView fx:id="CategoryTabTreeView" showRoot="false" VBox.vgrow="ALWAYS"/>
             <ButtonBar> 

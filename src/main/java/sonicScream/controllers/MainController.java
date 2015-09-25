@@ -35,7 +35,6 @@ import java.util.ResourceBundle;
 import sonicScream.models.Enums;
 import sonicScream.utilities.FileIOUtilities;
 import static sonicScream.utilities.FileIOUtilities.chooseSoundFile;
-import sonicScream.utilities.TreeParser;
 
 /**
  *

@@ -6,17 +6,26 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.geometry.Insets?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40" fx:controller="sonicScream.controllers.MainController">
     <children>
-        <TabPane fx:id="MainTabPane" id="TabPane" tabClosingPolicy="SELECTED_TAB" VBox.vgrow="ALWAYS">            
+        <MenuBar>
+            <Menu text="File">
+                <MenuItem text="Save"/>
+                <MenuItem text="Exit"/>
+            </Menu>
+            <Menu text="Settings">
+                <MenuItem text="Profiles..." onAction="#handleProfileButtonAction"/>
+                <MenuItem text="Change VPK directory" onAction="#handleFindVPKButtonAction"/>
+            </Menu>
+        </MenuBar>
+        <TabPane fx:id="MainTabPane" id="TabPane" tabClosingPolicy="SELECTED_TAB" VBox.vgrow="ALWAYS">
         </TabPane>    
         <HBox alignment="BOTTOM_CENTER" >
             <Button text="Play"  />
             <Button text="Replace" onAction="#handleReplaceButtonAction"/>
             <Button text="Revert"/> 
             <Button fx:id="toFileButton" text="To file" onAction="#handleToFileButtonAction"/>
-            <Button fx:id="changeVPKButton" text="Find VPK" onAction="#handleFindVPKButtonAction"/>
-            <Button fx:id="showProfileDialog" text="Choose Profile" onAction="#handleProfileButtonAction"/>            
         </HBox>   
     </children>
 </VBox>

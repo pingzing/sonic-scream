@@ -6,7 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.TreeItem;
 import org.apache.commons.lang3.StringUtils;
 
-public class TreeParser 
+public class TreeUtils
 {
     /**
      * Recursively searches the given tree for the given key. Returns upon finding the first instance.
@@ -56,5 +56,53 @@ public class TreeParser
         }
       
         return Optional.empty();        
-    }    
+    }
+
+    /**
+     * Gets the root of the tree the given node resides in. If the given node is already a root, simply returns the node.
+     * @param node The node whose tree will be searched for a root.
+     * @return The node's topmost root, or if the node is a root, the node itself.
+     */
+    public static TreeItem<String> getRoot(TreeItem<String> node)
+    {
+        if(node.getParent() == null)
+        {
+            return node;
+        }
+
+        TreeItem<String> parent = node;
+        while(parent.getParent() != null)
+        {
+            parent = parent.getParent();
+        }
+        return parent;
+    }
+
+    /**
+     * Walks up a tree from node, and returns the TreeItem just underneath the root in the given node's hierarchy.
+     * @param node The node to walk upward from.
+     * @return The TreeItem one level below the root in the given node's hierarchy.
+     */
+    public static TreeItem<String> getRootMinusOne(TreeItem<String> node)
+    {
+        if(node == null) return new TreeItem<String>("");
+        TreeItem<String> child = node;
+        TreeItem<String> parent = node.getParent();
+        if(parent == null)
+        {
+            return new TreeItem<String>("");
+        }
+
+        if(parent.getParent() == null)
+        {
+            return child;
+        }
+
+        while(parent.getParent() != null)
+        {
+            parent = parent.getParent();
+            child = child.getParent();
+        }
+        return child;
+    }
 }

@@ -33,6 +33,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -48,6 +49,7 @@ import sonicScream.services.SettingsService;
 import sonicScream.utilities.Constants;
 import static sonicScream.utilities.FileIOUtilities.chooseSoundFile;
 import sonicScream.utilities.SettingsUtils;
+import sonicScream.utilities.TreeUtils;
 
 public final class CategoryTabController extends Tab
 {        
@@ -60,7 +62,7 @@ public final class CategoryTabController extends Tab
     private ComboBox CategoryTabComboBox;
     
     @FXML
-    private Label CategoryTabLabel;  
+    private Label CategoryTabScriptValueLabel;
     
     @FXML
     private Button SwapDisplayModeButton;
@@ -127,7 +129,14 @@ public final class CategoryTabController extends Tab
         SwapDisplayModeButton.textProperty().bind(Bindings
                 .when(displayMode.isEqualTo(CategoryDisplayMode.SIMPLE))
                 .then("Advanced >>")
-                .otherwise("<< Simple"));                
+                .otherwise("<< Simple"));
+
+        CategoryTabTreeView.getSelectionModel().selectedItemProperty().addListener(
+            (observable, oldValue, newValue) ->
+            {
+                TreeItem<String> scriptValue = TreeUtils.getRootMinusOne((TreeItem<String>)newValue);
+                CategoryTabScriptValueLabel.setText(scriptValue.getValue());
+            });
     }
     
     @FXML
@@ -136,11 +145,6 @@ public final class CategoryTabController extends Tab
         Task task = new Task() {
             @Override protected Object call() throws Exception
             {
-                Script selected = (CategoryTabComboBox.getValue() instanceof Script ? (Script)CategoryTabComboBox.getValue() : null);
-                if(selected != null)                
-                {
-                    CategoryTabLabel.textProperty().set(selected.getFriendlyScriptName());
-                }                
                 try
                 {
                     TreeItem<String> simpleTree = 
@@ -158,12 +162,6 @@ public final class CategoryTabController extends Tab
             }
         };        
         task.run();
-    }    
-    
-    @FXML
-    private void handleComboBoxMousePressed(MouseEvent mouseEvent)
-    {
-        CategoryTabComboBox.requestFocus();
     }
     
     @FXML 
@@ -232,7 +230,7 @@ public final class CategoryTabController extends Tab
             return;
         }
         
-        Stage currentStage = (Stage)CategoryTabLabel.getScene().getWindow();
+        Stage currentStage = (Stage)CategoryTabScriptValueLabel.getScene().getWindow();
         Path newSoundFile = chooseSoundFile(currentStage);
         
         SettingsService settings = (SettingsService)ServiceLocator.getService(SettingsService.class);        

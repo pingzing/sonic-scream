@@ -41,8 +41,8 @@ import sonicScream.services.ServiceLocator;
 import sonicScream.utilities.ScriptParser;
 import sonicScream.utilities.StringParsing;
 import sonicScream.services.VPKFileService;
-import sonicScream.utilities.TreeParser;
-import static sonicScream.utilities.TreeParser.getWaveStrings;
+import sonicScream.utilities.TreeUtils;
+import static sonicScream.utilities.TreeUtils.getWaveStrings;
 
 @XmlRootElement(name="Script")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -226,7 +226,7 @@ public class Script implements Comparable
     /**
      * Takes the currently active simple tree, and uses its values to update the main
      * rootNode tree, then returns the newly-updated tree.
-     * @return 
+     * @return The newly-updated tree.
      */
     public TreeItem<String> updateRootNodeWithSimpleTree()
     {
@@ -239,20 +239,21 @@ public class Script implements Comparable
             List<TreeItem<String>> sounds = entry.getChildren();
             for(int i = 0; i < sounds.size(); i++)
             {
-                TreeItem<String> currentEntryInRoot = TreeParser.searchForKey(_rootNode, entry.getValue());
-                List<TreeItem<String>> rootSounds = TreeParser.getWaveStrings(currentEntryInRoot).orElseThrow(null);                
+                TreeItem<String> currentEntryInRoot = TreeUtils.searchForKey(_rootNode, entry.getValue());
+                List<TreeItem<String>> rootSounds = TreeUtils.getWaveStrings(currentEntryInRoot).orElseThrow(null);
                 if(rootSounds != null && rootSounds.size() > i)
                 {
                     if(rootSounds.get(i).getValue().contains(sounds.get(i).getValue()))
                     {
                         continue;
                     }
-                    //TODO replace literal "value" by reading root string to see if it's "wave" or "value".
-                    String value = "\"value" + i + "\" \"" + sounds.get(i).getValue() + "\"";
+                    String rootSoundString = rootSounds.get(i).getValue();
+                    String soundPrefix = StringUtils.substringBetween(rootSoundString, "\"", "\"");
+                    soundPrefix = soundPrefix.substring(0, soundPrefix.length() - 1); //Remove the number from the prefix
+                    String value = "\"" + soundPrefix + i + "\" \"" + sounds.get(i).getValue() + "\"";
                     rootSounds.get(i).setValue(value);
                 }
             }
-            
         }
         return _rootNode;
     }

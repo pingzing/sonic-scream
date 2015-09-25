@@ -13,6 +13,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
 import sonicScream.controllers.SetVPKLocationController;
 import sonicScream.services.ServiceLocator;
 import sonicScream.services.SettingsService;
@@ -39,6 +40,13 @@ public class SonicScream extends Application
         {
             setVPKPaths(settings);
         }
+
+        if(StringUtils.isBlank(settings.getSetting(Constants.SETTING_MAIN_VPK_PATH)))
+        {
+            //TODO: Add error message here
+            Platform.exit();
+        }
+
         configureVPKFileService();
 
         URL location = getClass().getResource("views/Main.fxml");
@@ -116,10 +124,6 @@ public class SonicScream extends Application
         {
             //well, now we're kinda screwed
             System.err.printf("Unable to open VPKPath dialog: %s", ex.getMessage());
-        }
-        if(settings.getSetting(Constants.SETTING_MAIN_VPK_PATH) == null)
-        {
-            Platform.exit();
         }
     }
     

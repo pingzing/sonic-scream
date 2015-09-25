@@ -91,14 +91,14 @@ public class SetVPKLocationController implements Initializable
                 .then(Color.GREEN)
                 .otherwise(Color.RED));
 
-        BooleanBinding cancelHiddenBinding = Bindings.createBooleanBinding(() -> 
+        BooleanBinding cancelVisibleBinding = Bindings.createBooleanBinding(() ->
                 {
-                    return _navigationSource.equals(Constants.navigationSource.STARTUP);
+                    return !_navigationSource.equals(Constants.navigationSource.STARTUP);
                 }, null);
         
         SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
         VPKBox.setText(settings.getSetting(Constants.SETTING_MAIN_VPK_PATH));
-        CancelButton.visibleProperty().bind(cancelHiddenBinding);
+        CancelButton.visibleProperty().bind(cancelVisibleBinding);
         CancelButton.managedProperty().bind(CancelButton.visibleProperty());
         SaveButton.disableProperty().bind(vpkFoundBinding.not());
         
