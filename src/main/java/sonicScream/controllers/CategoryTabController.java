@@ -169,8 +169,13 @@ public final class CategoryTabController extends Tab
     @FXML 
     private void handleSwapDisplayModePressed(ActionEvent event)
     {
-        if(displayMode.get() == CategoryDisplayMode.SIMPLE) changeDisplayMode(CategoryDisplayMode.ADVANCED);
-        else if(displayMode.get() == CategoryDisplayMode.ADVANCED) changeDisplayMode(CategoryDisplayMode.SIMPLE);
+        if(displayMode.get() == CategoryDisplayMode.SIMPLE)
+        {
+            Script currentScript = (Script)CategoryTabComboBox.getValue();
+            currentScript.setRootNode(currentScript.updateRootNodeWithSimpleTree());
+            changeDisplayMode(CategoryDisplayMode.ADVANCED);
+        }        
+        else if(displayMode.get() == CategoryDisplayMode.ADVANCED)changeDisplayMode(CategoryDisplayMode.SIMPLE);
     }
     
     @FXML 

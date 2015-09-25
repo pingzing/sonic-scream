@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.control.TreeItem;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -185,7 +186,7 @@ public class ScriptParser
         {
             try
             {
-                TreeItem<String> newNode = new TreeItem<>(line);
+                TreeItem<String> newNode = new TreeItem<>(StringUtils.normalizeSpace(line));
                 _currentNode = newNode;
                 if (_currentNode != null)
                 {
@@ -212,8 +213,8 @@ public class ScriptParser
         else
         {
             try
-            {                
-                TreeItem<String> newNode = new TreeItem<>(line);
+            {                     
+                TreeItem<String> newNode = new TreeItem<>(StringUtils.normalizeSpace(line));
                 _currentNode = newNode;
                 if (_currentNode != null)
                 {

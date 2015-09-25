@@ -239,13 +239,15 @@ public class Script implements Comparable
             List<TreeItem<String>> sounds = entry.getChildren();
             for(int i = 0; i < sounds.size(); i++)
             {
-                List<TreeItem<String>> rootSounds = TreeParser.getWaveStrings(_rootNode).orElseThrow(null);                
-                if(rootSounds != null && rootSounds.size() < i)
+                TreeItem<String> currentEntryInRoot = TreeParser.searchForKey(_rootNode, entry.getValue());
+                List<TreeItem<String>> rootSounds = TreeParser.getWaveStrings(currentEntryInRoot).orElseThrow(null);                
+                if(rootSounds != null && rootSounds.size() > i)
                 {
                     if(rootSounds.get(i).getValue().contains(sounds.get(i).getValue()))
                     {
                         continue;
                     }
+                    //TODO replace literal "value" by reading root string to see if it's "wave" or "value".
                     String value = "\"value" + i + "\" \"" + sounds.get(i).getValue() + "\"";
                     rootSounds.get(i).setValue(value);
                 }
