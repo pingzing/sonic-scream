@@ -24,6 +24,9 @@
 
 package sonicScream.utilities;
 
+import sonicScream.services.ServiceLocator;
+import sonicScream.services.SettingsService;
+
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.DirectoryStream.Filter;
@@ -75,5 +78,4 @@ public class FilesEx
         }
         return dirs;
     }
-
 }

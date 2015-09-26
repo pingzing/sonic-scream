@@ -21,4 +21,10 @@ public class SettingsUtils
     {
         return Paths.get(Constants.PROFILES_DIRECTORY, File.separator, profileName);
     }
+
+    public static Path getPathRelativeToAddonFolder(Path path, String profileName)
+    {
+        Path profileDir = Paths.get(getProfileDirectory(profileName).toString(), "sonic-scream");
+        return profileDir.relativize(path);
+    }
 }

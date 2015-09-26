@@ -25,8 +25,7 @@ package sonicScream.models;
 
 import info.ata4.vpk.VPKEntry;
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.List;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -38,10 +37,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import sonicScream.services.ServiceLocator;
-import sonicScream.utilities.ScriptParser;
-import sonicScream.utilities.StringParsing;
+import sonicScream.services.SettingsService;
+import sonicScream.utilities.*;
 import sonicScream.services.VPKFileService;
-import sonicScream.utilities.TreeUtils;
+
 import static sonicScream.utilities.TreeUtils.getWaveStrings;
 
 @XmlRootElement(name="Script")
@@ -49,7 +48,7 @@ import static sonicScream.utilities.TreeUtils.getWaveStrings;
 public class Script implements Comparable
 {    
     @XmlElement
-    private String _parentCategoryName; //TODO: Don't deserialize this, maybe? Maybe turn it into a string, or UUID?        
+    private String _parentCategoryName;
     @XmlElement
     private String _internalScriptName; //no file extension, or "game_sounds_etc" prefix      
     @XmlElement
@@ -147,7 +146,7 @@ public class Script implements Comparable
             {
                 if (_isCustom)
                 {   
-                    Path script = Paths.get(_localPath);
+                    Path script = Paths.get(_localPath).toAbsolutePath();
                     _rootNode = ScriptParser.parseScript(script, _rawFileName);
                 }
                 else
@@ -186,7 +185,6 @@ public class Script implements Comparable
      * Returns the Script's tree with everything removed but each entry's title
      * and its wave file list, and flattens the hierarchy. Does not modify the 
      * input tree. Initializes the rootNode if it has not yet been initialized.
-     * @param root The tree to simplify.
      * @return A new copy of the now-simplified tree.
      */
     public TreeItem<String> getSimpleTree()
@@ -256,6 +254,25 @@ public class Script implements Comparable
             }
         }
         return _rootNode;
+    }
+
+    /**
+     * Modifies the relevant properties to turn this script into a "local" script rahter than a "VPK" script.
+     * @param destFolder
+     */
+    public void convertToLocalScript(Path destFolder) throws IOException
+    {
+        SettingsService settings = (SettingsService)ServiceLocator.getService(SettingsService.class);
+        String profileName = settings.getSetting(Constants.SETTING_ACTIVE_PROFILE);
+        Path scriptDestPath = Paths.get(destFolder.toString(), _rawFileName);
+        Files.createDirectories(scriptDestPath.getParent());
+        this._localPath = scriptDestPath.toString();
+        this._isCustom = true;
+
+        updateRootNodeWithSimpleTree();
+
+        //Actually write the current script out to file now
+        Files.write(scriptDestPath, getScriptAsString().getBytes(), StandardOpenOption.CREATE);
     }
 
     @Override
