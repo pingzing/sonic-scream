@@ -250,8 +250,7 @@ public final class CategoryTabController extends Tab
         Files.copy(newSoundFile, destPath, StandardCopyOption.REPLACE_EXISTING);
         selectedNode.setValue("sounds/" + trimmedFileName.replace(".mp3", ".vsnd").replace(".wav", ".vsnd"));
 
-        Path scriptDestPath = Paths.get(destPath.getParent().getParent().toString(), "soundevents");
-        activeScript.convertToLocalScript(scriptDestPath);
+        activeScript.convertToLocalScript();
     }
     
     private void changeDisplayMode(CategoryDisplayMode newMode)

@@ -32,7 +32,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import javafx.scene.control.TreeItem;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import org.junit.After;
@@ -121,7 +120,7 @@ public class ScriptTest
     @Test
     public void testGetRootNode() throws IOException
     {                        
-        TreeItem<String> expResult = ScriptParser.parseScript(_testScriptFile, _testScriptFile.getFileName().toString());        
+        TreeItem<String> expResult = ScriptParser.parseScript(_testScriptFile, _testScriptFile.getFileName().toString());
         
         TreeItem<String> result = _testScript.getRootNode();
         
@@ -137,7 +136,7 @@ public class ScriptTest
     @Test
     public void testGetScriptAsString() throws IOException
     {        
-        TreeItem<String> inTree = ScriptParser.parseScript(_testScriptFile, _testScriptFile.getFileName().toString());        
+        TreeItem<String> inTree = ScriptParser.parseScript(_testScriptFile, _testScriptFile.getFileName().toString());
         String expResult = ScriptParser.parseScriptTreeToString(inTree);                                
         
         String result = _testScript.getScriptAsString();

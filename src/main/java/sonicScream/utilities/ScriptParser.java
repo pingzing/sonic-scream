@@ -24,15 +24,12 @@
 package sonicScream.utilities;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
+
 import javafx.scene.control.TreeItem;
 import org.apache.commons.lang3.StringUtils;
 
@@ -61,6 +58,26 @@ public class ScriptParser
     }
 
     public static TreeItem<String> parseScript(BufferedReader scriptReader, String fileName) throws IOException
+    {
+        if(fileName.contains(".vsndevts_c"))
+        {
+            return parseCompiledScript(scriptReader, fileName);
+        }
+        else
+        {
+            _rootItem = new TreeItem<>("root");
+            _currentParent = _rootItem;
+
+            String line;
+            while((line = scriptReader.readLine()) != null)
+            {
+                parseLine(line);
+            }
+            return _rootItem;
+        }
+    }
+
+    private static TreeItem<String> parseCompiledScript(BufferedReader scriptReader, String fileName) throws IOException
     {
         _rootItem = new TreeItem<>("root");
         _currentParent = _rootItem;
@@ -245,9 +262,15 @@ public class ScriptParser
 
     private static StringBuilder recursiveBuildScript(StringBuilder scriptString, TreeItem<String> node, int level)
     {
+        String tabs = "";
+        for(int i = 1; i < level; i++)
+        {
+            tabs += "\t";
+        }
+
         if (node.getParent() != null)
         {
-            scriptString.append(node.getValue() + "\n");
+            scriptString.append(tabs + node.getValue() + "\n");
         }
         /* 
          * TODO: Figure out a way to track brace placement without just checking to see if a node has children. Maybe 
@@ -255,22 +278,14 @@ public class ScriptParser
          */
         if (!node.isLeaf())
         {
-            for (int i = 1; i < level; i++)
-            {
-                scriptString.append("\t");
-            }
-            scriptString.append("{\n");
+            scriptString.append(tabs + "{\n");
             level++;
             for (int i = 0; i < node.getChildren().size(); i++)
             {
                 scriptString = recursiveBuildScript(scriptString, node.getChildren().get(i), level);
             }
             level--;
-            for (int i = 1; i < level; i++)
-            {
-                scriptString.append("\t");
-            }
-            scriptString.append("}\n");
+            scriptString.append(tabs + "}\n");
         }
         return scriptString;
     }

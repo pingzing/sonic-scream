@@ -257,17 +257,21 @@ public class Script implements Comparable
     }
 
     /**
-     * Modifies the relevant properties to turn this script into a "local" script rahter than a "VPK" script.
-     * @param destFolder
+     * Modifies the relevant properties to turn this script into a "local" script rather than a "VPK" script, and writes
+     * the modified script out to disk.
      */
-    public void convertToLocalScript(Path destFolder) throws IOException
+    public void convertToLocalScript() throws IOException
     {
         SettingsService settings = (SettingsService)ServiceLocator.getService(SettingsService.class);
         String profileName = settings.getSetting(Constants.SETTING_ACTIVE_PROFILE);
-        Path scriptDestPath = Paths.get(destFolder.toString(), _rawFileName);
+        Path scriptDestPath = Paths.get(
+                SettingsUtils.getProfileDirectory(profileName).toString(),
+                "sonic-scream",
+                _vpkPath.toString().replace(".vsndevts_c", ".vsndevts"));
         Files.createDirectories(scriptDestPath.getParent());
         this._localPath = scriptDestPath.toString();
         this._isCustom = true;
+        this._rawFileName = _rawFileName.replace(".vsndevts_c", ".vsndevts");
 
         updateRootNodeWithSimpleTree();
 
