@@ -276,7 +276,7 @@ public class Script implements Comparable
         updateRootNodeWithSimpleTree();
 
         //Actually write the current script out to file now
-        Files.write(scriptDestPath, getScriptAsString().getBytes(), StandardOpenOption.CREATE);
+        Files.write(scriptDestPath, getScriptAsString().getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     @Override

@@ -119,8 +119,6 @@ public class ScriptParser
     //This strips out all the header junk and correctly separates and parses the first two lines of the actual script.
     private static void parseHeaderAndFirstTwoLines(BufferedReader br, String scriptSubject) throws IOException
     {
-        /* TODO: Make it handle stupid inconsistencies where some heroes with two-word names have underscore_names
-         * and others have PascalCaseNames. Ugh. */
         int seenCount = 0;
         ArrayList<String> possibleSubjects = new ArrayList<>();                
         possibleSubjects.add(handleSpecialCaseFiles(scriptSubject));
@@ -159,7 +157,7 @@ public class ScriptParser
                 int separatorIndex = line.indexOf("\"");                               
                 //now we have the sound name and "operator stacks" mashed together 
                 //like so: heroname"operator stacks"
-                // We need to add a quote to the beginning, then separate these two.
+                // We need to add a quote to the beginning of each, then separate these two.
                 parseNameAndOperatorStacks(line);
             }
         }
@@ -192,9 +190,8 @@ public class ScriptParser
     //Basic recursive-descent parser
     private static void parseLine(String line) throws NullPointerException
     {        
-        //System.out.println(line);
-        if (line.isEmpty() || line.equals("") || line.contentEquals("\t")
-                || line.trim().length() <= 0)
+        //System.out.println(line); //Enable this to write out scripts as they're parsed. Warning: Causes massive slowdown
+        if (StringUtils.isBlank(line))
         {
             return;
         }
@@ -255,7 +252,7 @@ public class ScriptParser
         scriptString.deleteCharAt(0);
         scriptString.deleteCharAt(0);
 
-        //Remove final bracket
+        //Remove final brace
         scriptString.deleteCharAt(scriptString.lastIndexOf("}"));
         return scriptString.toString();
     }
