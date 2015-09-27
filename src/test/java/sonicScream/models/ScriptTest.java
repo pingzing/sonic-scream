@@ -30,6 +30,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
+
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TreeItem;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -40,27 +43,39 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import sonicScream.utilities.Constants;
+import sonicScream.utilities.FilesEx;
 import sonicScream.utilities.ScriptParser;
 
 /**
- *
+ * By default, most of these tests will run through every single file in sonicScream/assets/test. Feel free to remove some
+ * files from there if you don't feel like being ridiculously exhaustive in running Script through the gauntlet.
  * @author nmca
  */
 public class ScriptTest
 {
-    private final URL FOLDER_LOCATION = getClass().getResource("/sonicScream/assets/test/game_sounds_vo_nevermore.vsndevts_c");    
-    private final Path _testScriptFile;
-    private Script _testScript;
+    private static final URL FOLDER_LOCATION = ScriptTest.class.getResource("/sonicScream/assets/test/");
+    private static List<Path> allTestScriptFiles = new ArrayList<Path>();
+    private static List<Script> allTestScripts = new ArrayList<Script>();
     
     public ScriptTest() throws URISyntaxException
     {
-        _testScriptFile = Paths.get(FOLDER_LOCATION.toURI());
     }
     
     @BeforeClass
-    public static void setUpClass()
+    public static void setUpClass() throws URISyntaxException, IOException
     {
+        allTestScriptFiles.addAll(FilesEx.listFiles(Paths.get(FOLDER_LOCATION.toURI())));
+        Category mockCategory = mock(Category.class);
+        when(mockCategory.categoryNameProperty()).thenReturn(new SimpleStringProperty("Test Category"));
+        for(Path p : allTestScriptFiles)
+        {
+            Script script = new Script(p, mockCategory);
+            allTestScripts.add(script);
+        }
     }
     
     @AfterClass
@@ -70,8 +85,7 @@ public class ScriptTest
     
     @Before
     public void setUp()
-    {                
-        _testScript = new Script(_testScriptFile, new Category(Constants.CATEGORY_VOICES));
+    {
     }
     
     @After
@@ -86,21 +100,9 @@ public class ScriptTest
      */
     @Test
     public void testGetScriptName()
-    {                
-        String expResult = "nevermore";
-        String result = _testScript.getScriptName();
-        assertEquals(expResult, result);        
-    }
-
-    /**
-     * Test of getRawFileName method, of class Script.
-     */
-    @Test
-    public void testGetRawScriptName()
-    {        
-        String expResult = "game_sounds_vo_nevermore.vsndevts_c";
-        String result = _testScript.getRawFileName();
-        assertEquals(expResult, result);        
+    {
+        allTestScripts.stream().forEach(s -> s.getFriendlyScriptName());
+        //not sure how to adeqautely assert that these are all correct, honestly
     }
 
     /**
@@ -109,9 +111,9 @@ public class ScriptTest
     @Test
     public void testToString()
     {        
-        String expResult = "Shadow Fiend";
-        String result = _testScript.toString();
-        assertEquals(expResult, result);        
+        allTestScripts.stream().forEach(s -> {
+            assertEquals(s.toString(), s.getFriendlyScriptName());
+        });
     }
 
     /**
@@ -119,15 +121,17 @@ public class ScriptTest
      */
     @Test
     public void testGetRootNode() throws IOException
-    {                        
-        TreeItem<String> expResult = ScriptParser.parseScript(_testScriptFile, _testScriptFile.getFileName().toString());
-        
-        TreeItem<String> result = _testScript.getRootNode();
-        
-        boolean treesEqual = ScriptParser.areScriptTreesEqual(result, expResult);
-        
-        assertEquals(treesEqual, true);        
-            
+    {
+        for(int i = 0; i < allTestScripts.size(); i++)
+        {
+            Script testScript = allTestScripts.get(i);
+            Path testScriptFile = allTestScriptFiles.get(i);
+            TreeItem<String> expResult = ScriptParser.parseScript(testScriptFile, testScriptFile.getFileName().toString());
+            TreeItem<String> result = testScript.getRootNode();
+            boolean treesEqual = ScriptParser.areScriptTreesEqual(result, expResult);
+            assertEquals(treesEqual, true);
+        }
+
     }
 
     /**
@@ -135,62 +139,56 @@ public class ScriptTest
      */
     @Test
     public void testGetScriptAsString() throws IOException
-    {        
-        TreeItem<String> inTree = ScriptParser.parseScript(_testScriptFile, _testScriptFile.getFileName().toString());
-        String expResult = ScriptParser.parseScriptTreeToString(inTree);                                
-        
-        String result = _testScript.getScriptAsString();
-                
-        assertEquals(expResult, result);        
+    {
+        for(int i = 0; i < allTestScripts.size(); i++)
+        {
+            Script testScript = allTestScripts.get(i);
+            Path testScriptFile = allTestScriptFiles.get(i);
+            TreeItem<String> inTree = ScriptParser.parseScript(testScriptFile, testScriptFile.getFileName().toString());
+            String expResult = ScriptParser.parseScriptTreeToString(inTree);
+            String result = testScript.getScriptAsString();
+            assertEquals(expResult, result);
+        }
     }
     
     @Test
     public void testScriptSerialization()
     {
-        try
+        allTestScripts.stream().forEach(s ->
         {
-            JAXBContext context = JAXBContext.newInstance(Script.class);
-            Marshaller m = context.createMarshaller();
-            Unmarshaller um = context.createUnmarshaller();
+            try
+            {
+                JAXBContext context = JAXBContext.newInstance(Script.class);
+                Marshaller m = context.createMarshaller();
+                Unmarshaller um = context.createUnmarshaller();
 
-            Path xmlFile = Paths.get("testProfile.xml");
-            m.marshal(_testScript, xmlFile.toFile());
+                Path xmlFile = Paths.get("testProfile.xml");
+                m.marshal(s, xmlFile.toFile());
 
-            Script result = (Script)um.unmarshal(xmlFile.toFile());
-            assertEquals(result, _testScript);
-        }
-        catch(Exception ex)
-        {
-            fail("Failed to deserialize Profile");
-        }
+                Script result = (Script) um.unmarshal(xmlFile.toFile());
+                assertEquals(result, s);
+            } catch (Exception ex)
+            {
+                fail("Failed to deserialize Profile");
+            }
+        });
     }
-    
+
     @Test
-    public void testScriptListSerialization()
+    public void testGetSimpleTree()
     {
-        try
+        allTestScripts.stream().forEach(s ->
         {
-            JAXBContext context = JAXBContext.newInstance(ScriptListWrapper.class);
-            Marshaller m = context.createMarshaller();
-            Unmarshaller um = context.createUnmarshaller();
-            
-            ArrayList<Script> manyScripts = new ArrayList<>();
-            manyScripts.add(_testScript);
-            manyScripts.add(_testScript);
-            manyScripts.add(_testScript);
-            ScriptListWrapper wrapper = new ScriptListWrapper();
-            wrapper.setScriptList(manyScripts);
-            
-            Path xmlFile = Paths.get("testProfiles.xml");
-            m.marshal(wrapper, xmlFile.toFile());
-            
-            ArrayList<Script> result = ((ScriptListWrapper)um.unmarshal(xmlFile.toFile())).getScriptList();
-            assertEquals(result, manyScripts);
-                        
-        }
-        catch(Exception ex)
-        {
-            fail("Failed to deserialize ProfileList");
-        }
+            TreeItem<String> simpleTree = s.getSimpleTree();
+            TreeItem<String> originalTree = s.updateRootNodeWithSimpleTree();
+            TreeItem<String> secondSimpleTree = s.getSimpleTree();
+            assertEquals(simpleTree, secondSimpleTree);
+        });
+    }
+
+    @Test
+    public void testUpdateRootNameWithSimpleTree()
+    {
+        //TODO
     }
 }
