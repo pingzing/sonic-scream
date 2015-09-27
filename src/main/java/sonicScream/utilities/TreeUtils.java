@@ -2,9 +2,8 @@ package sonicScream.utilities;
 
 import java.util.List;
 import java.util.Optional;
-import javafx.collections.FXCollections;
+
 import javafx.scene.control.TreeItem;
-import org.apache.commons.lang3.StringUtils;
 
 public class TreeUtils
 {
@@ -14,7 +13,7 @@ public class TreeUtils
      * @param key
      * @return 
      */
-    public static TreeItem<String> searchForKey(TreeItem<String> tree, String key)
+    public static TreeItem<String> findKey(TreeItem<String> tree, String key)
     {
         if(tree.getValue().trim().equals(key))
         {
@@ -29,7 +28,7 @@ public class TreeUtils
             {
                 break;
             }
-            result = searchForKey(node, key);
+            result = findKey(node, key);
         }
         return result;
     }
@@ -37,7 +36,7 @@ public class TreeUtils
     /**
      * Attempts to retrieve the list of waves used for a given tree. It will look
      * through the given tree for the first occurrence of "vsnd_files" (quotes
-     * included), and return the wave0, wave1, etc entries underneath it.
+     * included), and return the wave0, wave1, (or value1, value0) etc. entries underneath it.
      * @param root The tree to search for a "vsnd_files" entry in.
      * @return Either an Optional wrapped around a List of TreeItem<String>s, 
      * or Optional.empty().
@@ -45,7 +44,7 @@ public class TreeUtils
     public static Optional<List<TreeItem<String>>> getWaveStrings(TreeItem<String> root)
     {
         //The first child of vsnd_files is always a single "values" key, with all the vsnds as children.
-        TreeItem<String> vsnds = searchForKey(root, "\"vsnd_files\"");
+        TreeItem<String> vsnds = findKey(root, "\"vsnd_files\"");
         if(vsnds != null)
         {
             List<TreeItem<String>> sounds = vsnds.getChildren();
@@ -104,5 +103,29 @@ public class TreeUtils
             child = child.getParent();
         }
         return child;
+    }
+
+    public static <T> TreeItem<T> findNthLeaf(TreeItem<T> tree, int seenCount, int n)
+    {
+        if(tree.isLeaf())
+        {
+            seenCount++;
+            if(seenCount == n)
+            {
+                return tree;
+            }
+        }
+
+        TreeItem<T> result = null;
+        List<TreeItem<T>> children = tree.getChildren();
+        for(TreeItem<T> node : children)
+        {
+            if(result != null)
+            {
+                break;
+            }
+            result = findNthLeaf(node, seenCount, n);
+        }
+        return result;
     }
 }

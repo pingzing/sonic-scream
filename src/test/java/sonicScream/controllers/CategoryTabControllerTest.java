@@ -27,13 +27,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.sun.scenario.Settings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -50,12 +53,15 @@ import static org.junit.Assert.*;
 import org.junit.Rule;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.mockito.Mockito;
 import sonicScream.models.Category;
 import sonicScream.models.Profile;
 import sonicScream.models.Script;
+import sonicScream.services.ServiceLocator;
+import sonicScream.services.SettingsService;
 import sonicScream.utilities.Constants;
 import sonicScream.utilities.FilesEx;
 import testHelpers.JavaFXThreadingRule;
@@ -69,19 +75,21 @@ public class CategoryTabControllerTest
     public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
     Profile profile = mock(Profile.class);
     private CategoryTabController controller;
+    private static final String profileName = "testProfile" + UUID.randomUUID().toString();
 
     public CategoryTabControllerTest()
     {
     }
 
     @BeforeClass
-    public static void setUpClass()
+    public static void setUpClass() throws IOException
     {
     }
 
     @AfterClass
-    public static void tearDownClass()
+    public static void tearDownClass() throws IOException
     {
+        FilesEx.deleteDirectoryRecursive(Paths.get(Constants.PROFILES_DIRECTORY, profileName));
     }
 
     @Before
@@ -90,13 +98,20 @@ public class CategoryTabControllerTest
         URL location = getClass().getResource("/sonicScream/assets/test");
         Path folder = Paths.get(location.toURI());
 
-        Script mockScript = mock(Script.class);
         ObservableList<Script> scriptList = FXCollections.observableArrayList();
-        scriptList.add(mockScript);        
 
         Category category = mock(Category.class);
         when(category.getCategoryScripts()).thenReturn(scriptList);
         when(category.categoryNameProperty()).thenReturn(new SimpleStringProperty(Constants.CATEGORY_HEROES));
+
+        List<Path> paths = FilesEx.listFiles(folder);
+        Script realScript = new Script(paths.get(0), category);
+        Script mockScript = mock(Script.class);//new Script(paths.get(0), category);
+        when(mockScript.getRootNode()).thenReturn(realScript.getRootNode());
+        when(mockScript.getSimpleTree()).thenReturn(realScript.getSimpleTree());
+        when(mockScript.getParentCategoryName()).thenReturn(profileName);
+        scriptList.add(mockScript);
+        scriptList.add(mockScript);
 
         ArrayList<Category> categories = new ArrayList<>();
         categories.add(category);
@@ -108,7 +123,7 @@ public class CategoryTabControllerTest
     }
 
     @After
-    public void tearDown()
+    public void tearDown() throws IOException
     {
     }
 
@@ -119,5 +134,28 @@ public class CategoryTabControllerTest
     public void testInitialization()
     {
         assert(true);
+    }
+
+    @Test
+    /**
+     * Test that replaceSound calls "convertToLocal" on the script, and copies the sound file to its new home.
+     * Currently doesn't test that it writes out our newly-custom script. Need a more extensive Script mock for that.
+     */
+    public void testReplaceSound() throws Exception
+    {
+        SettingsService settingsMock = mock(SettingsService.class);
+        when(settingsMock.getSetting(Constants.SETTING_ACTIVE_PROFILE)).thenReturn(profileName);
+
+        ServiceLocator.initialize();
+        ServiceLocator.registerService(SettingsService.class, settingsMock);
+
+        URL soundLocation = getClass().getResource("/sonicScream/assets/test/test_sound.mp3");
+        Path replacementSound = Paths.get(soundLocation.toURI());
+        controller.forceSelectNthLeaf(1);
+        controller.replaceSound(replacementSound);
+
+        verify((Script) controller.getSelectedScript()).convertToLocalScript();
+        Path testSoundPath = Paths.get(Constants.PROFILES_DIRECTORY, profileName, "sonic-scream", "sounds", "test_sound.mp3");
+        assertEquals(Files.exists(testSoundPath), true);
     }
 }

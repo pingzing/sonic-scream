@@ -207,21 +207,32 @@ public final class CategoryTabController extends Tab
         }
     }
 
-    /**
-     * Resolve VPK scripts from the current category, and do cache checking
-     * TODO: cache checking
-     */
-    public void updateCategoryScripts()
+    private void changeDisplayMode(CategoryDisplayMode newMode)
     {
-        for(Script s : _category.getCategoryScripts())
-        {
-
-        }
+        displayMode.set(newMode);
+        handleComboBoxChanged(null);
     }
-    
+
+    /**
+     * Forces the CategoryTabTreeView to select the nth leaf in the tree. Primarily used for testing purposes.
+     * @param leaf The nth leaf to select, starting at 1.
+     */
+    public void forceSelectNthLeaf(int leaf)
+    {
+        int leavesCount = 0;
+        TreeItem<String> nodeToSelect = TreeUtils.findNthLeaf(CategoryTabTreeView.getRoot(), 0, 1);
+        CategoryTabTreeView.getSelectionModel().select(nodeToSelect);
+    }
+
+    /**
+     * Replaces the currently-selected node's script value with a generated value based on a user-selected sound file.
+     * Updates the selected Script's values, converts it to a local Script, writes the Script out to disk, and copies
+     * the selected sound file to the appropriate location in the user's profile folder.
+     * @throws IOException
+     */
     public void replaceSound() throws IOException
     {
-        TreeItem<String> selectedNode = (TreeItem<String>)CategoryTabTreeView.getSelectionModel().getSelectedItem();        
+        TreeItem<String> selectedNode = (TreeItem<String>)CategoryTabTreeView.getSelectionModel().getSelectedItem();
         if(!selectedNode.isLeaf())
         {
             //TODO: Optionally, display an error? probably not necessary...
@@ -233,16 +244,29 @@ public final class CategoryTabController extends Tab
         Stage currentStage = (Stage)CategoryTabScriptValueLabel.getScene().getWindow();
         Path newSoundFile = chooseSoundFile(currentStage);
         
-        SettingsService settings = (SettingsService)ServiceLocator.getService(SettingsService.class);        
-        Script activeScript = (Script)selectedScript.get();
+        replaceSound(newSoundFile);
+    }
+
+    /**
+     * See replaceSound(). This method is used for testing, so we can avoid needing to invoke a FileChooser.
+     * @param newSoundFile The sound file to use for replacement.
+     * @throws IOException
+     */
+    public void replaceSound(Path newSoundFile) throws IOException
+    {
+        TreeItem<String> selectedNode = (TreeItem<String>)CategoryTabTreeView.getSelectionModel().getSelectedItem();
+
+        SettingsService settings = (SettingsService)ServiceLocator.getService(SettingsService.class);
+        Script activeScript = (Script)CategoryTabComboBox.getValue();
         activeScript.getVPKPath();
-        
+
         String trimmedFileName = newSoundFile
                 .getFileName().toString()
                 .toLowerCase()
                 .replace(" ", "_");
-        String profileDir = SettingsUtils.getProfileDirectory(settings.getSetting(Constants.SETTING_ACTIVE_PROFILE)).toString();
+        String profileDir = SettingsUtils.getProfileDirectory(activeScript.getParentCategoryName()).toString();
         Path destPath = Paths.get(profileDir, "/sonic-scream/sounds", trimmedFileName);
+
         if(!Files.exists(destPath))
         {
             Files.createDirectories(destPath.getParent());
@@ -251,11 +275,5 @@ public final class CategoryTabController extends Tab
         selectedNode.setValue("sounds/" + trimmedFileName.replace(".mp3", ".vsnd").replace(".wav", ".vsnd"));
 
         activeScript.convertToLocalScript();
-    }
-    
-    private void changeDisplayMode(CategoryDisplayMode newMode)
-    {
-        displayMode.set(newMode);
-        handleComboBoxChanged(null);
     }
 }

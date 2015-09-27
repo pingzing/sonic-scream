@@ -47,11 +47,13 @@ import static sonicScream.utilities.TreeUtils.getWaveStrings;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Script implements Comparable
 {    
-    @XmlElement
+    @XmlElement(name = "ParentCategoryName")
     private String _parentCategoryName;
-    @XmlElement
+    public String getParentCategoryName() { return _parentCategoryName; }
+
+    @XmlElement(name = "InternalScriptName")
     private String _internalScriptName; //no file extension, or "game_sounds_etc" prefix      
-    @XmlElement
+    @XmlElement(name = "RawFileName")
     private String _rawFileName; //full file name    
 
     @XmlTransient
@@ -61,22 +63,22 @@ public class Script implements Comparable
     @XmlTransient
     private String _treeAsString = null;    
 
-    @XmlElement
+    @XmlElement(name = "IsCustom")
     private Boolean _isCustom ;
     
-    @XmlElement
+    @XmlElement(name = "VPKPath")
     private String _vpkPath;
     public String getVPKPath() { return _vpkPath; }
     
-    @XmlElement
+    @XmlElement(name = "LastKnownCRC")
     private long _lastKnownCrc;
     
-    @XmlElement
+    @XmlElement(name = "LocalPath")
     private String _localPath;
     
     @XmlTransient
     private StringProperty friendlyScriptName = new SimpleStringProperty();
-    @XmlElement
+    @XmlElement(name = "FriendlyScriptName")
     public final String getFriendlyScriptName() { return friendlyScriptName.get(); }
     public final void setFriendlyScriptName(String value) { friendlyScriptName.set(value); }  
     public StringProperty friendlyScriptNameProperty() { return friendlyScriptName; }
@@ -100,8 +102,7 @@ public class Script implements Comparable
     }
     
     /**
-     * For internal use only. We never want to load a user's Script files directly from a vsndevts file.
-     * We always want to use a serialized Script file instead, so we retain all our metadata.
+     * For loading custom script files that exist on the user's filesystem.
      * @param scriptFile
      * @param category 
      */
@@ -110,11 +111,11 @@ public class Script implements Comparable
         _rawFileName = scriptFile.getFileName().toString();
         _internalScriptName = StringParsing.getScriptNameFromFileName(_rawFileName);
         friendlyScriptName.set(StringParsing.prettyFormatScriptName(_internalScriptName));
-        _parentCategoryName = category.getCategoryName();       
+        _parentCategoryName = category.categoryNameProperty().getValue();
         _localPath = scriptFile.toAbsolutePath().toString();        
         _isCustom = true;
         _vpkPath = null;
-    }               
+    }
     
     private BufferedReader getScriptReader(VPKEntry entry)
     {
@@ -237,7 +238,7 @@ public class Script implements Comparable
             List<TreeItem<String>> sounds = entry.getChildren();
             for(int i = 0; i < sounds.size(); i++)
             {
-                TreeItem<String> currentEntryInRoot = TreeUtils.searchForKey(_rootNode, entry.getValue());
+                TreeItem<String> currentEntryInRoot = TreeUtils.findKey(_rootNode, entry.getValue());
                 List<TreeItem<String>> rootSounds = TreeUtils.getWaveStrings(currentEntryInRoot).orElseThrow(null);
                 if(rootSounds != null && rootSounds.size() > i)
                 {
