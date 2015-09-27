@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -37,24 +38,24 @@ import javafx.scene.control.TreeItem;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.*;
 import static org.junit.Assert.*;
+import org.junit.runners.MethodSorters;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import sonicScream.utilities.Constants;
 import sonicScream.utilities.FilesEx;
 import sonicScream.utilities.ScriptParser;
+import sonicScream.utilities.TreeUtils;
 
 /**
  * By default, most of these tests will run through every single file in sonicScream/assets/test. Feel free to remove some
  * files from there if you don't feel like being ridiculously exhaustive in running Script through the gauntlet.
  * @author nmca
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ScriptTest
 {
     private static final URL FOLDER_LOCATION = ScriptTest.class.getResource("/sonicScream/assets/test/");
@@ -67,7 +68,7 @@ public class ScriptTest
     
     @BeforeClass
     public static void setUpClass() throws URISyntaxException, IOException
-    {
+    {        
         allTestScriptFiles.addAll(FilesEx.listFiles(Paths.get(FOLDER_LOCATION.toURI())));
         Category mockCategory = mock(Category.class);
         when(mockCategory.categoryNameProperty()).thenReturn(new SimpleStringProperty("Test Category"));
@@ -85,7 +86,7 @@ public class ScriptTest
     
     @Before
     public void setUp()
-    {
+    {        
     }
     
     @After
@@ -182,13 +183,40 @@ public class ScriptTest
             TreeItem<String> simpleTree = s.getSimpleTree();
             TreeItem<String> originalTree = s.updateRootNodeWithSimpleTree();
             TreeItem<String> secondSimpleTree = s.getSimpleTree();
-            assertEquals(simpleTree, secondSimpleTree);
+            assertEquals(simpleTree, secondSimpleTree);            
         });
     }
 
+    /**
+     * Tested last using the class annotation, because it causes side effects 
+     * on the loaded scripts.
+     */
     @Test
-    public void testUpdateRootNameWithSimpleTree()
+    public void z_testUpdateRootNameWithSimpleTree()
     {
-        //TODO
+        allTestScripts.stream().forEach(s -> 
+        {
+            try
+            {
+                TreeItem<String> simple = s.getSimpleTree();
+                TreeItem<String> simpleNode = simple.getChildren().get(0).getChildren().get(0);
+                String simpleSoundString = "some_test_sound.mp3";            
+                String value = "some_test_sound.mp3";
+
+                simpleNode.setValue(value);
+                s.updateRootNodeWithSimpleTree();
+
+                String rootSoundString = TreeUtils.getWaveStrings(s.getRootNode()).get().get(0).getValue();
+                String soundPrefix = StringUtils.substringBetween(rootSoundString, "\"", "\"");
+                soundPrefix = soundPrefix.substring(0, soundPrefix.length() - 1); //Remove the number from the prefix
+                String expected = "\"" + soundPrefix + "0\" \"" + simpleSoundString + "\"";
+                String actual = TreeUtils.getWaveStrings(s.getRootNode()).get().get(0).getValue();
+                assertEquals(expected, actual);
+            }
+            catch(Exception ex)
+            {
+                System.err.println("testUpdateRootNameWithSimpleTree failed on script " + s.toString() +" : " + ex.getMessage());
+            }
+        });        
     }
 }
