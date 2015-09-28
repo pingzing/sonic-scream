@@ -122,17 +122,8 @@ public class CategoryTabControllerTest
         when(profile.getCategories()).thenReturn(categories);
 
         profile.getCategories().add(category);
-
-        try
-        {
-            controller = new CategoryTabController(profile.getCategories().get(0));
-        }
-        catch(Exception ex)
-        {
-            String stackTrace = ExceptionUtils.getStackTrace(ex);
-            fail("Failed to load controller: " + ex.getMessage() + "/n" + stackTrace);
-            
-        }
+        
+        controller = new CategoryTabController(profile.getCategories().get(0));        
     }
 
     @After
