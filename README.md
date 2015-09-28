@@ -1,6 +1,6 @@
 # Sonic Scream
 
-![Image of Travis CI build status badge](https://travis-ci.org/pingzing/sonic-scream.svg?branch=master)
+[![Build Status](https://travis-ci.org/pingzing/sonic-scream.svg?branch=master)](https://travis-ci.org/pingzing/sonic-scream)
 
 A ground-up rewrite of the [Dota 2 Sound Editor](https://github.com/pingzing/dota2-sound-editor), 
 now with compatibility for Dota 2 Reborn.
