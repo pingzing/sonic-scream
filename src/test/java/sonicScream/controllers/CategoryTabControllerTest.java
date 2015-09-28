@@ -122,7 +122,15 @@ public class CategoryTabControllerTest
 
         profile.getCategories().add(category);
 
-        controller = new CategoryTabController(profile.getCategories().get(0));
+        try
+        {
+            controller = new CategoryTabController(profile.getCategories().get(0));
+        }
+        catch(Exception ex)
+        {
+            System.out.println("Faled to load controller: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     @After
