@@ -94,7 +94,7 @@ public class SetVPKLocationController implements Initializable
         BooleanBinding cancelVisibleBinding = Bindings.createBooleanBinding(() ->
                 {
                     return !_navigationSource.equals(Constants.navigationSource.STARTUP);
-                }, null);
+                }, (Observable) null);
         
         SettingsService settings = (SettingsService) ServiceLocator.getService(SettingsService.class);
         VPKBox.setText(settings.getSetting(Constants.SETTING_MAIN_VPK_PATH));

@@ -192,7 +192,7 @@ public class ScriptTest
      * on the loaded scripts.
      */
     @Test
-    public void z_testUpdateRootNameWithSimpleTree()
+    public void z_testUpdateRootNodeWithSimpleTree()
     {
         allTestScripts.stream().forEach(s -> 
         {
@@ -215,7 +215,7 @@ public class ScriptTest
             }
             catch(Exception ex)
             {
-                System.err.println("testUpdateRootNameWithSimpleTree failed on script " + s.toString() +" : " + ex.getMessage());
+                System.err.println("testUpdateRootNodeWithSimpleTree failed on script " + s.toString() +": " + ex.getMessage());
             }
         });        
     }
