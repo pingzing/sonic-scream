@@ -89,7 +89,10 @@ public class CategoryTabControllerTest
     @AfterClass
     public static void tearDownClass() throws IOException
     {
-        FilesEx.deleteDirectoryRecursive(Paths.get(Constants.PROFILES_DIRECTORY, profileName));
+        if(Files.exists(Paths.get(Constants.PROFILES_DIRECTORY, profileName)))
+        {
+            FilesEx.deleteDirectoryRecursive(Paths.get(Constants.PROFILES_DIRECTORY, profileName));
+        }
     }
 
     @Before
