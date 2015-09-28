@@ -22,7 +22,7 @@ nbbuild/
 dist/
 nbdist/
 nbactions.xml
-.nb-grade-properties/
+.nb-gradle-properties
 
 #IntelliJ specifiic
 **/.idea/workspace.xml
