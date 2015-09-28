@@ -132,7 +132,7 @@ public class CategoryTabControllerTest
     }
 
     /**
-     * Test of getSelectedScript method, of class CategoryTabController.
+     * Test of getSelectedScriptNode method, of class CategoryTabController.
      */
     @Test
     public void testInitialization()

@@ -30,23 +30,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import sonicScream.models.Category;
 import sonicScream.models.Enums.CategoryDisplayMode;
 import sonicScream.models.Script;
 import sonicScream.services.ServiceLocator;
 import sonicScream.services.SettingsService;
-import sonicScream.utilities.Constants;
 import static sonicScream.utilities.FileIOUtilities.chooseSoundFile;
 import sonicScream.utilities.SettingsUtils;
 import sonicScream.utilities.TreeUtils;
@@ -73,9 +68,27 @@ public final class CategoryTabController extends Tab
     @FXML
     private Button CollapseAllButton;
     
-    private ObjectProperty selectedScript = new SimpleObjectProperty();
+    private ObjectProperty<TreeItem<String>> selectedScriptNode = new SimpleObjectProperty();
+    public final Object getSelectedScriptNode() { return selectedScriptNode.get(); }
+    public ObjectProperty<TreeItem<String>> selectedScriptNodeProperty() { return selectedScriptNode; }
+    
+    private ObjectProperty<Script> selectedScript = new SimpleObjectProperty();
     public final Object getSelectedScript() { return selectedScript.get(); }
-    public ObjectProperty selectedScriptProperty() { return selectedScript; }
+    /**
+     * Property for the Script object that is currently selected in the ComboBox (or, if the 
+     * Category only has a single script, that single script) or null.
+     * @return 
+     */
+    public ObjectProperty<Script> selectedScriptProperty() { return selectedScript; }
+    
+    private BooleanProperty selectedScriptNodeIsLeaf = new SimpleBooleanProperty(false);
+    public final Object getSelectedScriptNodeIsLeaf() { return selectedScriptNodeIsLeaf.get(); }
+    /**
+     * Null-safe, bindable property to determine whether or not the currently-selected
+     * node in the TreeView is a leaf.
+     * @return 
+     */
+    public BooleanProperty selectedScriptNodeIsLeafProperty(){ return selectedScriptNodeIsLeaf; }
     
     private ObjectProperty displayMode = new SimpleObjectProperty(CategoryDisplayMode.SIMPLE);        
     
@@ -107,19 +120,11 @@ public final class CategoryTabController extends Tab
                 Bindings.greaterThan(bindableList.sizeProperty(), 1)
         );
 
-        // If we're dealing with single-script categories, (i.e. Items) then the 
-        // "selected item" should be the currently selected script value, rather 
-        // than currently selected script file.
-        if( _category.getCategoryScripts().size() > 1)
-        {
-            selectedScriptProperty().bind(CategoryTabComboBox.valueProperty());
-        }
-        else
-        {
-            selectedScriptProperty().bind(CategoryTabTreeView.getSelectionModel()
-                    .selectedItemProperty());
-        }                
+        selectedScriptNodeProperty().bind(CategoryTabTreeView.getSelectionModel()
+                .selectedItemProperty());
         
+        selectedScript.bind(CategoryTabComboBox.getSelectionModel().selectedItemProperty());        
+
         if(_category.getCategoryScripts() != null && !_category.getCategoryScripts().isEmpty())
         {
             CategoryTabComboBox.valueProperty().set(_category.getCategoryScripts().get(0));
@@ -135,7 +140,9 @@ public final class CategoryTabController extends Tab
             (observable, oldValue, newValue) ->
             {
                 TreeItem<String> scriptValue = TreeUtils.getRootMinusOne((TreeItem<String>)newValue);
+                TreeItem<String> selectedValue = (TreeItem<String>)newValue;
                 CategoryTabScriptValueLabel.setText(scriptValue.getValue());
+                selectedScriptNodeIsLeaf.set(selectedValue.isLeaf());
             });
     }
     
@@ -234,11 +241,8 @@ public final class CategoryTabController extends Tab
     {
         TreeItem<String> selectedNode = (TreeItem<String>)CategoryTabTreeView.getSelectionModel().getSelectedItem();
         if(!selectedNode.isLeaf())
-        {
-            //TODO: Optionally, display an error? probably not necessary...
-            //Or better, have a bindable property that the buttons on Main can hook into?
-            //We probably only want to allow this functionality in Simple mode
-            return;
+        {            
+            return; //Shouldn't even be possible, but just in case
         }
         
         Stage currentStage = (Stage)CategoryTabScriptValueLabel.getScene().getWindow();
@@ -276,4 +280,20 @@ public final class CategoryTabController extends Tab
 
         activeScript.convertToLocalScript();
     }
+
+    public void revertSound()
+    {        
+        TreeItem<String> selectedNode = (TreeItem<String>)CategoryTabTreeView.getSelectionModel().getSelectedItem();
+        if(!selectedNode.isLeaf())
+        {
+            return; //Shouldn't even be possible, but just in case
+        }
+        
+        Script activeSccript = (Script)CategoryTabComboBox.getValue();
+        //get the index of the selected child's selected node.
+        //if the index exists in the VPK, get the VPK's node, update the Script's
+        //root node. re-get the simple node, and update the TreeView.
+        //if the index does NOT exist, remove the index from the root node, and
+        //then do all the updating
+    }        
 }

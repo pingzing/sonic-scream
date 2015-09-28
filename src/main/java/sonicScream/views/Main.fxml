@@ -23,8 +23,8 @@
         </TabPane>    
         <HBox alignment="BOTTOM_CENTER" >
             <Button text="Play"  />
-            <Button text="Replace" onAction="#handleReplaceButtonAction"/>
-            <Button text="Revert"/> 
+            <Button fx:id="ReplaceButton" text="Replace" onAction="#handleReplaceButtonAction"/>
+            <Button fx:id="RevertButton" text="Revert" onAction="#handleRevertButtonAction" /> 
             <Button fx:id="toFileButton" text="To file" onAction="#handleToFileButtonAction"/>
         </HBox>   
     </children>

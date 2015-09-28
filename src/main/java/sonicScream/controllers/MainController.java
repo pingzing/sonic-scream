@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package sonicScream.controllers;
 
 import javafx.event.ActionEvent;
@@ -18,23 +13,22 @@ import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
 import sonicScream.models.Category;
 import sonicScream.models.Profile;
-import sonicScream.models.Script;
 import sonicScream.services.ServiceLocator;
 import sonicScream.services.SettingsService;
 import sonicScream.utilities.Constants;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import sonicScream.models.Enums;
-import sonicScream.utilities.FileIOUtilities;
-import static sonicScream.utilities.FileIOUtilities.chooseSoundFile;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ObservableBooleanValue;
+import javafx.scene.control.*;
+import org.apache.commons.lang3.NotImplementedException;
 
 /**
  *
@@ -42,55 +36,19 @@ import static sonicScream.utilities.FileIOUtilities.chooseSoundFile;
  */
 public class MainController implements Initializable
 {
-
     private Profile _activeProfile = null;
 
     @FXML
     private TabPane MainTabPane;
+    
+    @FXML
+    private Button ReplaceButton;
+    
+    @FXML 
+    private Button RevertButton;
 
     private List<TreeItem<String>> _treeModel;
     private SingleSelectionModel<Tab> _tabSelection;
-
-    @FXML
-    private void handleToFileButtonAction(ActionEvent event)
-    {
-        CategoryTabController tab = (CategoryTabController) _tabSelection.getSelectedItem();
-        Script script = tab.selectedScriptProperty().get() != null ? (Script) tab.selectedScriptProperty().get() : null;
-        if (script != null)
-        {
-            String outString = script.getScriptAsString();
-            File file = new File("out.vsndevts");
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file)))
-            {
-                writer.write(outString);
-            }
-            catch (IOException ex)
-            {
-                System.err.println("failed to write out file!");
-            }
-        }
-    }
-
-    @FXML
-    private void handleFindVPKButtonAction(ActionEvent event)
-    {
-        try
-        {
-            URL location = getClass().getResource("/sonicScream/views/SetVPKLocation.fxml");
-            FXMLLoader loader = new FXMLLoader(location);
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-        }
-        catch (IOException ex)
-        {
-            System.err.printf("Unable to open VPK dialog: %s", ex.getMessage());
-        }
-
-    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb)
@@ -107,7 +65,16 @@ public class MainController implements Initializable
         }
        
         _tabSelection = MainTabPane.getSelectionModel();
-        _tabSelection.selectFirst();
+        _tabSelection.selectFirst();   
+        
+        BooleanBinding enableButtonsBinding = ((CategoryTabController)_tabSelection.selectedItemProperty().get())
+                    .selectedScriptNodeProperty().isNull()
+                .or(((CategoryTabController)_tabSelection.selectedItemProperty().get())
+                    .selectedScriptNodeIsLeafProperty().not());
+        
+        //Only enable the Replace button if we actually have a sound selected.
+        ReplaceButton.disableProperty().bind(enableButtonsBinding);
+        RevertButton.disableProperty().bind(enableButtonsBinding);
     }
 
     private Optional<Profile> getActiveProfile()
@@ -157,6 +124,32 @@ public class MainController implements Initializable
     }
     
     @FXML
+    private void handleToFileButtonAction(ActionEvent event)
+    {
+        throw new NotImplementedException("Not implemented yet");
+    }
+
+    @FXML
+    private void handleFindVPKButtonAction(ActionEvent event)
+    {
+        try
+        {
+            URL location = getClass().getResource("/sonicScream/views/SetVPKLocation.fxml");
+            FXMLLoader loader = new FXMLLoader(location);
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        }
+        catch (IOException ex)
+        {
+            System.err.printf("Unable to open VPK dialog: %s", ex.getMessage());
+        }
+    }
+    
+    @FXML
     private void handleProfileButtonAction(ActionEvent event)
     {
         _activeProfile = getActiveProfileFromDialog().orElse(null);
@@ -166,8 +159,7 @@ public class MainController implements Initializable
     
     @FXML
     private void handleReplaceButtonAction(ActionEvent event)
-    {
-        Stage currentStage = (Stage) MainTabPane.getScene().getWindow();
+    {        
         try
         {            
             CategoryTabController tab = (CategoryTabController) _tabSelection.getSelectedItem();
@@ -178,5 +170,14 @@ public class MainController implements Initializable
             //TODO: Tell user "sorry, couldn't XYZ the file"
             ex.printStackTrace();
         }
+    }
+    
+    @FXML
+    private void handleRevertButtonAction(ActionEvent event)
+    {
+        
+            CategoryTabController tab = (CategoryTabController) _tabSelection.getSelectedItem();
+            tab.revertSound();
+        
     }
 }
