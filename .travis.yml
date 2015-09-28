@@ -5,6 +5,9 @@ before_script:
   
 script:
     - gradle test --stacktrace
+	
+after_script:
+    - cat ~/travis/build/pingzing/sonic-scream/build/reports/tests/index.html
 
 language: java
 jdk:
