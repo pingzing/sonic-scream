@@ -262,12 +262,16 @@ public class SettingsServiceTest
         
         Map<String, String> expSettings = _testService.getReadonlySettings();
         Map<String, Long> expCrcs = _testService.getReadonlyCRCs();
-        List<Profile> expProfiles = _testService.getAllProfiles();
+        List<Profile> exp = _testService.getAllProfiles();
+        List<Profile> expProfiles = new ArrayList<>(exp);
+        expProfiles.sort(null);        
         
         SettingsService result = new SettingsService(settingsFile, crcFile, profileDir);
         Map<String, String> resultSettings = result.getReadonlySettings();
         Map<String, Long> resultCrcs = result.getReadonlyCRCs();
-        List<Profile> resultProfiles = result.getAllProfiles();
+        List<Profile> res = result.getAllProfiles();
+        List<Profile> resultProfiles = new ArrayList<>(res);        
+        resultProfiles.sort(null);
         
         assertEquals(expSettings, resultSettings);
         assertEquals(expCrcs, resultCrcs);

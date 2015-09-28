@@ -39,7 +39,7 @@ import sonicScream.services.VPKFileService;
 import sonicScream.utilities.Constants;
 
 @XmlRootElement(name = "Profile")
-public class Profile
+public class Profile implements Comparable
 {
     private StringProperty profileName = new SimpleStringProperty();
     public final String getProfileName() { return profileName.get(); }
@@ -186,5 +186,20 @@ public class Profile
         hash = 83 * hash + Objects.hashCode(this.profileDescription);
         hash = 83 * hash + Objects.hashCode(this._categories);
         return hash;
+    }
+    
+    @Override
+    public int compareTo(Object o)
+    {
+        final int LESS_THAN = -1;
+        final int EQUAL = 0;
+        final int MORE_THAN = 1;
+        if(o == this)
+        {
+            return EQUAL;
+        }
+
+        Profile other = (Profile)o;
+        return this.getProfileName().compareTo(other.getProfileName());
     }
 }
