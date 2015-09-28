@@ -42,6 +42,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -128,8 +129,9 @@ public class CategoryTabControllerTest
         }
         catch(Exception ex)
         {
-            System.out.println("Faled to load controller: " + ex.getMessage());
-            ex.printStackTrace();
+            String stackTrace = ExceptionUtils.getStackTrace(ex);
+            fail("Failed to load controller: " + ex.getMessage() + "/n" + stackTrace);
+            
         }
     }
 
