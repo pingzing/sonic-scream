@@ -29,6 +29,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
+
+import info.ata4.vpk.VPKEntry;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.concurrent.Task;
@@ -37,13 +40,17 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
 import sonicScream.models.Category;
 import sonicScream.models.Enums.CategoryDisplayMode;
 import sonicScream.models.Script;
 import sonicScream.services.ServiceLocator;
 import sonicScream.services.SettingsService;
 import static sonicScream.utilities.FileIOUtilities.chooseSoundFile;
+
+import sonicScream.services.VPKFileService;
 import sonicScream.utilities.SettingsUtils;
+import sonicScream.utilities.StringParsing;
 import sonicScream.utilities.TreeUtils;
 
 public final class CategoryTabController extends Tab
@@ -139,10 +146,13 @@ public final class CategoryTabController extends Tab
         CategoryTabTreeView.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) ->
             {
-                TreeItem<String> scriptValue = TreeUtils.getRootMinusOne((TreeItem<String>)newValue);
-                TreeItem<String> selectedValue = (TreeItem<String>)newValue;
-                CategoryTabScriptValueLabel.setText(scriptValue.getValue());
-                selectedScriptNodeIsLeaf.set(selectedValue.isLeaf());
+                if(newValue != null)
+                {
+                    TreeItem<String> scriptValue = TreeUtils.getRootMinusOne((TreeItem<String>) newValue);
+                    TreeItem<String> selectedValue = (TreeItem<String>) newValue;
+                    CategoryTabScriptValueLabel.setText(scriptValue.getValue());
+                    selectedScriptNodeIsLeaf.set(selectedValue.isLeaf());
+                }
             });
     }
     
@@ -235,6 +245,7 @@ public final class CategoryTabController extends Tab
      * Replaces the currently-selected node's script value with a generated value based on a user-selected sound file.
      * Updates the selected Script's values, converts it to a local Script, writes the Script out to disk, and copies
      * the selected sound file to the appropriate location in the user's profile folder.
+     * Only available to the user in Simple mode.
      * @throws IOException
      */
     public void replaceSound() throws IOException
@@ -288,12 +299,32 @@ public final class CategoryTabController extends Tab
         {
             return; //Shouldn't even be possible, but just in case
         }
+        //We use this later to find the correct node to select after a reversion.
+        int nodeParentIndex = selectedNode.getParent().getParent().getChildren().indexOf(selectedNode.getParent());
         
-        Script activeSccript = (Script)CategoryTabComboBox.getValue();
-        //get the index of the selected child's selected node.
-        //if the index exists in the VPK, get the VPK's node, update the Script's
-        //root node. re-get the simple node, and update the TreeView.
+        Script activeScript = (Script)CategoryTabComboBox.getValue();
+
+        //get the index of the selected node relative to its parent.
+        int selectedWaveIndex = selectedNode.getParent().getChildren().indexOf(selectedNode);
+        VPKFileService vpkService = (VPKFileService)ServiceLocator.getService(VPKFileService.class);
+        Script vpkScript = new Script(vpkService.getVPKEntry(activeScript.getVPKPath()), _category);
+        List<TreeItem<String>> vpkWaves = TreeUtils.getWaveStrings(vpkScript.getRootNode()).orElse(null);
+        if(vpkWaves != null && vpkWaves.size() > selectedWaveIndex)
+        {
+            TreeItem<String> selectedNodeInRoot = TreeUtils.getWaveStrings(activeScript.getRootNode()).get().get(selectedWaveIndex);
+            TreeItem<String> selectedNodeInVPKRoot = vpkWaves.get(selectedWaveIndex);
+            String vpkNodeString = StringUtils.normalizeSpace((selectedNodeInVPKRoot.getValue()));
+            selectedNodeInRoot.setValue(vpkNodeString);
+            selectedNode.setValue(StringParsing.rootSoundToSimpleSound(vpkNodeString));
+        }
         //if the index does NOT exist, remove the index from the root node, and
         //then do all the updating
+        else
+        {
+            TreeItem<String> selectedNodeInRoot = TreeUtils.getWaveStrings(activeScript.getRootNode()).get().get(selectedWaveIndex);
+            selectedNodeInRoot.getParent().getChildren().remove(selectedNodeInRoot);
+            selectedNode.getParent().getChildren().remove(selectedNode);
+            //TODO: Delete the parent if it no longer has any children.
+        }
     }        
 }

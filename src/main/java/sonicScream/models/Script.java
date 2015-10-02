@@ -182,15 +182,28 @@ public class Script implements Comparable
         return _treeAsString;
     }        
     
-        /**
+    /**
      * Returns the Script's tree with everything removed but each entry's title
-     * and its wave file list, and flattens the hierarchy. Does not modify the 
-     * input tree. Initializes the rootNode if it has not yet been initialized.
-     * @return A new copy of the now-simplified tree.
+     * and its wave file list, and flattens the hierarchy.
+     * Initializes the rootNode if it has not yet been initialized.
+     * If a simple tree has already been generated, will simply return the existing tree.
+     * @return A simplified version of the Script's tree.
      */
     public TreeItem<String> getSimpleTree()
     {
-        if(_simpleRootNode != null)
+        return getSimpleTree(false);
+    }
+
+    /**
+     * Returns the Script's tree with everything removed but each entry's title
+     * and its wave file list, and flattens the hierarchy.
+     * Initializes the rootNode if it has not yet been initialized.
+     * @param forceUpdate If true, will force the method to regenerate the simple tree from the current rootNode tree.
+     * @return A simplified version of the Script's tree.
+     */
+    public TreeItem<String> getSimpleTree(boolean forceUpdate)
+    {
+        if(_simpleRootNode != null && !forceUpdate)
         {
             return _simpleRootNode;
         }
@@ -205,17 +218,17 @@ public class Script implements Comparable
             List<TreeItem<String>> waveStrings = getWaveStrings(child).orElse(null);
             if(waveStrings == null) continue;
             for(TreeItem<String> wave : waveStrings)
-            {                
+            {
                 TreeItem<String> sound = new TreeItem<String>();
                 //Remove whitespace, quotes, and value# text.
                 String waveValue = wave.getValue().trim();
                 int thirdQuoteIndex = StringUtils.ordinalIndexOf(waveValue, "\"", 3);
-                waveValue = (waveValue.substring(thirdQuoteIndex + 1, waveValue.length() - 1));  
+                waveValue = (waveValue.substring(thirdQuoteIndex + 1, waveValue.length() - 1));
                 sound.setValue(waveValue);
                 localWaveStrings.add(sound);
             }
             TreeItem<String> localChild = new TreeItem<>(child.getValue());
-            localChild.getChildren().setAll(localWaveStrings);    
+            localChild.getChildren().setAll(localWaveStrings);
             local.getChildren().add(localChild);
         }
         _simpleRootNode = local;
@@ -276,6 +289,10 @@ public class Script implements Comparable
 
         updateRootNodeWithSimpleTree();
 
+        if(!Files.exists(scriptDestPath))
+        {
+            Files.createFile(scriptDestPath);
+        }
         //Actually write the current script out to file now
         Files.write(scriptDestPath, getScriptAsString().getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
     }

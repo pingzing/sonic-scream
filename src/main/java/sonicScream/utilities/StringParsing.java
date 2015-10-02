@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 public class StringParsing {
@@ -58,6 +60,20 @@ public class StringParsing {
         name = name.replace("_", " ");
         name = WordUtils.capitalize(name);
         return name;
+    }
+
+    public static String rootSoundToSimpleSound(String rootSound)
+    {
+        rootSound = rootSound.trim();
+        int thirdQuoteIndex = StringUtils.ordinalIndexOf(rootSound, "\"", 3);
+        rootSound = (rootSound.substring(thirdQuoteIndex + 1, rootSound.length() - 1));
+        return rootSound;
+    }
+
+    public static String simpleSoundToRootSound(String simpleSound, String soundPrefix, int soundIndex)
+    {
+        simpleSound = "\"" + soundPrefix + soundIndex + "\" \"" + simpleSound + "\"";
+        return simpleSound;
     }
         
     /**
